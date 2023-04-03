@@ -2,9 +2,7 @@ package be.ugent.quotes.data.remote
 
 class QueueBackend {
 
-    public var cardNumber : String? = null
-        get() {return field;}
-        set(value) {field = value}
+    var cardNumber : String? = null
 
 
     // Singleton

@@ -12,7 +12,7 @@ class QuotesRepository @Inject constructor(
 
     suspend fun setCardNumber(cardNumber:String){
         Log.i("repository","KAARTNUMMER GEZET NAAR $cardNumber")
-        backend.cardNumber = cardNumber;
+        backend.cardNumber = cardNumber
     }
 
     fun getCardNumber() = backend.cardNumber
