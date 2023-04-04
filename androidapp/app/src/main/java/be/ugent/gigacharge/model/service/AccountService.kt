@@ -20,10 +20,7 @@ import be.ugent.gigacharge.model.User
 import kotlinx.coroutines.flow.Flow
 
 interface AccountService {
-  val currentUserId: String
-  val hasUser: Boolean
 
-  val currentUser: Flow<User>
 
   suspend fun authenticate(email: String, password: String)
   suspend fun sendRecoveryEmail(email: String)
@@ -31,4 +28,12 @@ interface AccountService {
   suspend fun linkAccount(email: String, password: String)
   suspend fun deleteAccount()
   suspend fun signOut()
+
+  val currentUserId: String
+  val currentUser: Flow<User>
+  val hasUser: Boolean
+  suspend fun tryEnable(cardNumber: String)
+  suspend fun start()
+
+  val isEnabledObservers : MutableList<((Boolean) -> Unit)>
 }

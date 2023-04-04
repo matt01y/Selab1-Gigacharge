@@ -1,7 +1,7 @@
 package be.ugent.gigacharge.screens.splash
 
 import androidx.compose.runtime.mutableStateOf
-import be.ugent.gigacharge.QUEUE_SCREEN
+import be.ugent.gigacharge.REGISTER_SCREEN
 import be.ugent.gigacharge.model.service.AccountService
 import be.ugent.gigacharge.model.service.ConfigurationService
 import be.ugent.gigacharge.model.service.LogService
@@ -26,19 +26,23 @@ class SplashViewModel @Inject constructor(
     fun onAppStart(openAndPopUp: (String, String) -> Unit) {
 
         showError.value = false
-        if (accountService.hasUser) openAndPopUp(QUEUE_SCREEN, SPLASH_SCREEN)
-        else createAnonymousAccount(openAndPopUp)
-    }
-
-    private fun createAnonymousAccount(openAndPopUp: (String, String) -> Unit) {
         launchCatching(snackbar = false) {
-            try {
-                accountService.createAnonymousAccount()
-            } catch (ex: FirebaseAuthException) {
-                showError.value = true
-                throw ex
+
+            if (accountService.hasUser){
+                accountService.start()
+                openAndPopUp(REGISTER_SCREEN, SPLASH_SCREEN)
             }
-            openAndPopUp(QUEUE_SCREEN, SPLASH_SCREEN)
+            else {
+                try {
+                    accountService.createAnonymousAccount()
+                    accountService.start()
+                } catch (ex: FirebaseAuthException) {
+                    showError.value = true
+                    throw ex
+                }
+                openAndPopUp(REGISTER_SCREEN, SPLASH_SCREEN)
+            }
         }
+
     }
 }

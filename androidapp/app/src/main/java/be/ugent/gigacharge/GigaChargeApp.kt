@@ -20,15 +20,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 import be.ugent.gigacharge.common.snackbar.SnackbarManager
-import be.ugent.gigacharge.screens.Queue.QueueScreen
+import be.ugent.gigacharge.screens.Register.RegisterScreen
 import be.ugent.gigacharge.screens.splash.SplashScreen
-/*import com.example.makeitso.screens.edit_task.EditTaskScreen
-import com.example.makeitso.screens.login.LoginScreen
-import com.example.makeitso.screens.settings.SettingsScreen
-import com.example.makeitso.screens.sign_up.SignUpScreen
-import com.example.makeitso.screens.splash.SplashScreen
-import com.example.makeitso.screens.tasks.TasksScreen
-import com.example.makeitso.theme.MakeItSoTheme*/
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
@@ -92,8 +85,8 @@ fun NavGraphBuilder.GigaChargeGraph(appState: GigaChargeAppState) {
         SplashScreen(openAndPopUp = { route, popUp -> appState.navigateAndPopUp(route, popUp) })
     }
     
-    composable(QUEUE_SCREEN){
-        QueueScreen(openAndPopUp = {route, popUp -> appState.navigateAndPopUp(route, popUp)})
+    composable(REGISTER_SCREEN){
+        RegisterScreen(openAndPopUp = {route, popUp -> appState.navigateAndPopUp(route, popUp)})
     }
 
     /*composable(SIGN_UP_SCREEN) {

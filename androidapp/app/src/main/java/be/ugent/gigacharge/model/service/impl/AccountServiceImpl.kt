@@ -16,22 +16,30 @@ limitations under the License.
 
 package be.ugent.gigacharge.model.service.impl
 
+import android.util.Log
 import be.ugent.gigacharge.model.User
 import be.ugent.gigacharge.model.service.AccountService
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import javax.inject.Inject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import kotlin.properties.Delegates
 
-class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth) : AccountService {
+class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth, private val firestore: FirebaseFirestore,) : AccountService {
 
   override val currentUserId: String
     get() = auth.currentUser?.uid.orEmpty()
 
   override val hasUser: Boolean
     get() = auth.currentUser != null
+
+  val userCollection : CollectionReference
+    get() = firestore.collection(USERS_COLLECTION_NAME)
 
   override val currentUser: Flow<User>
     get() = callbackFlow {
@@ -73,7 +81,37 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth) : A
     createAnonymousAccount()
   }
 
+  override suspend fun tryEnable(cardNumber: String) {
+    val enablerequest = hashMapOf<String, Any>(
+      "kaartnummer" to cardNumber,
+      "timestamp" to FieldValue.serverTimestamp()
+    )
+    Log.println(Log.INFO, "user id", currentUserId)
+    userCollection.document(currentUserId).set(enablerequest).await()
+  }
+
+  override suspend fun start() {
+    auth.addAuthStateListener {
+      auth.currentUser?.getIdToken(true)?.addOnSuccessListener {
+        Log.println(Log.INFO, "auth refresh", "LISTENER UITGEVOERD")
+        val enabled = it.claims.get("enabled")
+        if(enabled == true){
+          isEnabled = true
+        }else{
+          isEnabled = false
+        }
+      }
+    }
+  }
+
+  override val isEnabledObservers = mutableListOf<((Boolean) -> Unit)>()
+  var isEnabled : Boolean by Delegates.observable(false){ prop, old, new ->
+    isEnabledObservers.forEach { (it(new)) }
+  }
+
   companion object {
     private const val LINK_ACCOUNT_TRACE = "linkAccount"
+    private const val USERS_COLLECTION_NAME = "users"
+    private const val CARDNUMBER_FIELD = "kaartnummer"
   }
 }

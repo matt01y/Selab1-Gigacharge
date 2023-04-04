@@ -10,6 +10,9 @@
     <string name="cancel">Cancel</string>
     <string name="try_again">Try again</string>
 
+    <!-- Register -->
+    <string name="cardnumber">kaartnummer</string>
+
     <!-- LoginScreen -->
     <string name="sign_in">Sign in</string>
     <string name="login_details">Enter your login details</string>
