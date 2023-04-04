@@ -18,7 +18,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 import be.ugent.gigacharge.common.snackbar.SnackbarManager
 import be.ugent.gigacharge.screens.Queue.QueueScreen
@@ -61,7 +60,7 @@ fun GigaChargeApp() {
                     startDestination = SPLASH_SCREEN,
                     modifier = Modifier.padding(innerPaddingModifier)
                 ) {
-                    makeItSoGraph(appState)
+                    GigaChargeGraph(appState)
                 }
             }
         }
@@ -88,7 +87,7 @@ fun resources(): Resources {
 }
 
 @ExperimentalMaterialApi
-fun NavGraphBuilder.makeItSoGraph(appState: GigaChargeAppState) {
+fun NavGraphBuilder.GigaChargeGraph(appState: GigaChargeAppState) {
     composable(SPLASH_SCREEN) {
         SplashScreen(openAndPopUp = { route, popUp -> appState.navigateAndPopUp(route, popUp) })
     }
