@@ -15,7 +15,8 @@ const db = getFirestore();
 const auth = getAuth();
 
 const starttime = Timestamp.fromDate(new Date()); //tijd waar script is opgestart
-const query = db.collection('users').where('timestamp', '>=', starttime);
+const users = db.collection('users');
+const query = users.where('timestamp', '>=', starttime);
 
 
 const observer = query.onSnapshot(snap => {
@@ -25,11 +26,10 @@ const observer = query.onSnapshot(snap => {
          console.log("add event")
          try {
             if (change.type === 'added') {
-               const data = change.doc.data();
+               const data = (await users.doc(change.doc.id).get()).data()
                if (!data.kaartnummer) { return; }
                const existsquery = db.collection('whitelist').where("kaartnummer", "==", data.kaartnummer).count();
                const count = await (await existsquery.get()).data().count;
-               console.log(count)
                if (count >= 1) {
                   console.log(`nieuwe user ${change.doc.id} is in whitelist, token aanpassen...`);
                   const user = await auth.getUser(change.doc.id);
@@ -57,3 +57,5 @@ const observer = query.onSnapshot(snap => {
 }, err => {
    console.log(`error: ${err}`)
 })
+
+console.log("authenticatie manager gestart")
