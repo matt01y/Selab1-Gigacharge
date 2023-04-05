@@ -13,6 +13,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import be.ugent.gigacharge.GigaChargeApp
+import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 @Composable
 fun LocationButtonComposable(chooseLocation: ()->Unit, currentLocation:String) {
@@ -44,5 +46,7 @@ fun LocationButtonComposable(chooseLocation: ()->Unit, currentLocation:String) {
 @Composable
 fun LocationButtonComposablePreview() {
     val location = "Roularta Roeselare"
-    LocationButtonComposable({}, location)
+    GigaChargeTheme {
+        LocationButtonComposable({}, location)
+    }
 }

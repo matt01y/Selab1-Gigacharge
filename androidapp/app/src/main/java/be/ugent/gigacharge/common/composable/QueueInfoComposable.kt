@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 @Composable
 fun QueueInfoComposable(queueSize: Int) {
@@ -22,7 +25,7 @@ fun QueueInfoComposable(queueSize: Int) {
         Column(
             Modifier
                 .fillMaxWidth()
-                .background(Color.LightGray, shape = RoundedCornerShape(5.dp))
+                .background(MaterialTheme.colors.surface, shape = RoundedCornerShape(5.dp))
                 .padding(10.dp)
         ) {
             Text("In queue: $queueSize", fontSize = 18.sp, fontWeight = FontWeight.Bold)
@@ -33,5 +36,7 @@ fun QueueInfoComposable(queueSize: Int) {
 @Preview
 @Composable
 fun QueueInfoComposablePreview() {
-    QueueInfoComposable(5)
+    GigaChargeTheme {
+        QueueInfoComposable(5)
+    }
 }

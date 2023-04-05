@@ -10,6 +10,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 @Composable
 fun MainHeaderComposable(headerContent: @Composable () -> Unit) {
@@ -37,5 +38,7 @@ fun MainHeaderComposable(headerContent: @Composable () -> Unit) {
 @Composable
 fun MainHeaderComposablePreview() {
     val location = "Roelarta Roeselare"
-    MainHeaderComposable { LocationButtonComposable({}, location) }
+    GigaChargeTheme {
+        MainHeaderComposable { LocationButtonComposable({}, location) }
+    }
 }

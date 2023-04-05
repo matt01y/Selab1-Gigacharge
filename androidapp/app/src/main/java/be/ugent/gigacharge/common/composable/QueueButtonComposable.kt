@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 @Composable
 fun QueueButtonComposable(queueButtonFunction: () -> Unit, inQueue: Boolean) {
@@ -27,9 +30,10 @@ fun QueueButtonComposable(queueButtonFunction: () -> Unit, inQueue: Boolean) {
         Column(Modifier.fillMaxWidth(), horizontalAlignment= Alignment.CenterHorizontally) {
             Button(
                 queueButtonFunction,
-                Modifier.height(50.dp)
+                Modifier.height(50.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondaryVariant)
             ) {
-                Text(if (inQueue) "Join queue" else "Leave queue" , fontSize= 20.sp, fontWeight= FontWeight.Bold)
+                Text(if (inQueue) "Join queue" else "Leave queue", fontSize= 20.sp, fontWeight= FontWeight.Bold)
             }
         }
     }
@@ -38,5 +42,7 @@ fun QueueButtonComposable(queueButtonFunction: () -> Unit, inQueue: Boolean) {
 @Preview
 @Composable
 fun QueueButtonComposablePreview() {
-    QueueButtonComposable({}, true)
+    GigaChargeTheme {
+        QueueButtonComposable({}, true)
+    }
 }
