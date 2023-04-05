@@ -29,13 +29,11 @@ class SplashViewModel @Inject constructor(
         launchCatching(snackbar = false) {
 
             if (accountService.hasUser){
-                accountService.start()
                 openAndPopUp(REGISTER_SCREEN, SPLASH_SCREEN)
             }
             else {
                 try {
                     accountService.createAnonymousAccount()
-                    accountService.start()
                 } catch (ex: FirebaseAuthException) {
                     showError.value = true
                     throw ex

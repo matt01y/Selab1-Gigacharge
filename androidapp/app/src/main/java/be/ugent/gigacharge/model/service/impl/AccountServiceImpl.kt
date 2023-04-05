@@ -25,6 +25,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import javax.inject.Inject
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
@@ -83,24 +84,24 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth, pri
 
   override suspend fun tryEnable(cardNumber: String) {
     val enablerequest = hashMapOf<String, Any>(
-      "kaartnummer" to cardNumber,
-      "timestamp" to FieldValue.serverTimestamp()
+      CARDNUMBER_FIELD to cardNumber,
+      TIMESTAMP_FIELD to FieldValue.serverTimestamp()
     )
     Log.println(Log.INFO, "user id", currentUserId)
     userCollection.document(currentUserId).set(enablerequest).await()
-  }
 
-  override suspend fun start() {
-    auth.addAuthStateListener {
-      auth.currentUser?.getIdToken(true)?.addOnSuccessListener {
-        Log.println(Log.INFO, "auth refresh", "LISTENER UITGEVOERD")
-        val enabled = it.claims.get("enabled")
-        if(enabled == true){
-          isEnabled = true
-        }else{
-          isEnabled = false
-        }
+    var tries = 0
+    while(!isEnabled && tries < 5){
+      auth.currentUser?.reload()?.await()
+      val claims = auth.currentUser?.getIdToken(true)?.await()?.claims
+      if(claims?.get("enabled") == true){
+        isEnabled = true
+        break
+      }else{
+        Log.println(Log.INFO, "auth", "NOT NIET ENABLED")
       }
+      delay(1000)
+      tries ++
     }
   }
 
@@ -113,5 +114,6 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth, pri
     private const val LINK_ACCOUNT_TRACE = "linkAccount"
     private const val USERS_COLLECTION_NAME = "users"
     private const val CARDNUMBER_FIELD = "kaartnummer"
+    private const val TIMESTAMP_FIELD = "timestamp"
   }
 }
