@@ -1,6 +1,5 @@
 package be.ugent.gigacharge.common.composable
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,7 +11,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -20,7 +18,7 @@ import androidx.compose.ui.unit.sp
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 @Composable
-fun QueueButtonComposable(queueButtonFunction: () -> Unit, inQueue: Boolean) {
+fun QueueButtonComposable(onQueueButtonSelectClick: () -> Unit, inQueue: Boolean) {
     Row(
         Modifier
             .height(100.dp)
@@ -29,11 +27,11 @@ fun QueueButtonComposable(queueButtonFunction: () -> Unit, inQueue: Boolean) {
     ) {
         Column(Modifier.fillMaxWidth(), horizontalAlignment= Alignment.CenterHorizontally) {
             Button(
-                queueButtonFunction,
+                onQueueButtonSelectClick,
                 Modifier.height(50.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondaryVariant)
             ) {
-                Text(if (inQueue) "Join queue" else "Leave queue", fontSize= 20.sp, fontWeight= FontWeight.Bold)
+                Text(if (inQueue) "Leave queue" else "Join queue", fontSize= 20.sp, fontWeight= FontWeight.Bold)
             }
         }
     }

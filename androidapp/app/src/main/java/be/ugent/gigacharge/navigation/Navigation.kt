@@ -1,6 +1,7 @@
 package be.ugent.gigacharge.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -17,7 +18,7 @@ fun Navigation() {
         }
 
         composable(Destinations.MAIN) {
-            MainRoute(onLocationSelectClick = { navController.navigate(Destinations.LOCATION_SELECTION) })
+            MainRoute(onLocationSelectClick = { navController.navigate(Destinations.LOCATION_SELECTION) }, hiltViewModel())
         }
         composable(Destinations.LOCATION_SELECTION) {
             LocationRoute(onBackArrowClick = { navController.navigateUp() })

@@ -20,8 +20,8 @@ import androidx.compose.ui.unit.dp
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 @Composable
-fun ProfileComposable() {
-    IconButton(onClick={}) {
+fun ProfileComposable(onProfileSelectClick: () -> Unit) {
+    IconButton(onClick=onProfileSelectClick) {
         Box(
             Modifier
                 .width(40.dp)
@@ -44,6 +44,6 @@ fun ProfileComposable() {
 @Composable
 fun ProfileComposablePreview() {
     GigaChargeTheme {
-        ProfileComposable()
+        ProfileComposable({})
     }
 }

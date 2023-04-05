@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.sp
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 @Composable
-fun MainHeaderComposable(headerContent: @Composable () -> Unit) {
+fun MainHeaderComposable(onProfileSelectClick: () -> Unit, headerContent: @Composable () -> Unit) {
     Column(Modifier.background(MaterialTheme.colors.primary)) {
         Column(
             Modifier.padding(10.dp),
@@ -25,7 +25,7 @@ fun MainHeaderComposable(headerContent: @Composable () -> Unit) {
                     Text("GigaCharge", fontSize = 30.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colors.onPrimary)
                 }
                 Row(Modifier.weight(0.15F), horizontalArrangement = Arrangement.Center) {
-                    ProfileComposable()
+                    ProfileComposable(onProfileSelectClick)
                 }
             }
             // Content
@@ -39,6 +39,6 @@ fun MainHeaderComposable(headerContent: @Composable () -> Unit) {
 fun MainHeaderComposablePreview() {
     val location = "Roelarta Roeselare"
     GigaChargeTheme {
-        MainHeaderComposable { LocationButtonComposable({}, location) }
+        MainHeaderComposable({}, { LocationButtonComposable({}, location) })
     }
 }
