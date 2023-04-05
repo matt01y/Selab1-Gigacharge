@@ -1,23 +1,39 @@
 package be.ugent.gigacharge.features
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import be.ugent.gigacharge.common.composable.LocationButtonComposable
+import be.ugent.gigacharge.common.composable.MainHeaderComposable
 
 
 @Composable
 fun MainRoute(onLocationSelectClick : () -> Unit) {
-    MainScreen(onLocationSelectClick)
+    MainScreen(onLocationSelectClick, "currentLocation")
 }
 
 @Composable
-fun MainScreen(onLocationSelectClick : () -> Unit) {
-    Column() {
-        Text("laadpalen view")
-        Button(onClick = onLocationSelectClick) {
-            Text("select location")
-        }
+fun MainScreen(onLocationSelectClick: () -> Unit, currentLocation: String) {
+    Scaffold(
+        topBar = { MainHeaderComposable {
+            LocationButtonComposable(
+                chooseLocation = onLocationSelectClick,
+                currentLocation = currentLocation
+            )
+        }},
+        bottomBar = {}
+    ) {
+        paddingValues -> Column(Modifier.padding(paddingValues)) {}
     }
+}
 
+@Preview
+@Composable
+fun MainScreenPreview() {
+    MainScreen({}, "Roularta Roeselare")
 }
