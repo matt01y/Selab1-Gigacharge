@@ -1,4 +1,4 @@
-package be.ugent.gigacharge.screens.Register
+package be.ugent.gigacharge.screens.register
 
 import androidx.compose.runtime.mutableStateOf
 import be.ugent.gigacharge.model.service.AccountService

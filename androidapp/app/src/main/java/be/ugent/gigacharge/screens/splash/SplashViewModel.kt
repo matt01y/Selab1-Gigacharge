@@ -1,11 +1,11 @@
 package be.ugent.gigacharge.screens.splash
 
 import androidx.compose.runtime.mutableStateOf
-import be.ugent.gigacharge.REGISTER_SCREEN
+import be.ugent.gigacharge.screens.REGISTER_SCREEN
 import be.ugent.gigacharge.model.service.AccountService
 import be.ugent.gigacharge.model.service.ConfigurationService
 import be.ugent.gigacharge.model.service.LogService
-import be.ugent.gigacharge.SPLASH_SCREEN
+import be.ugent.gigacharge.screens.SPLASH_SCREEN
 import be.ugent.gigacharge.screens.GigaChargeViewModel
 import com.google.firebase.auth.FirebaseAuthException
 import dagger.hilt.android.lifecycle.HiltViewModel

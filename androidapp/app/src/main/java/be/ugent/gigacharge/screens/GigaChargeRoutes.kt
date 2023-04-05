@@ -1,4 +1,4 @@
-package be.ugent.gigacharge
+package be.ugent.gigacharge.screens
 
 
 const val SPLASH_SCREEN = "SplashScreen"

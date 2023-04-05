@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 
 
 @Composable
@@ -19,5 +20,12 @@ fun MainScreen(onLocationSelectClick : () -> Unit) {
             Text("select location")
         }
     }
+}
 
+@Preview
+@Composable
+fun MainScreenPreview() {
+    MainScreen {
+        {}
+    }
 }

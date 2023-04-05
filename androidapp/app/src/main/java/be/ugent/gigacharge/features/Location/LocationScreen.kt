@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun LocationRoute(onBackArrowClick : () -> Unit) {
@@ -27,5 +28,13 @@ fun LocationScreen(onBackArrowClick : () -> Unit) {
         }
     ) {
         Text("hey", Modifier.padding(it))
+    }
+}
+
+@Preview
+@Composable
+fun LocationScreenPreview() {
+    LocationScreen {
+        {}
     }
 }

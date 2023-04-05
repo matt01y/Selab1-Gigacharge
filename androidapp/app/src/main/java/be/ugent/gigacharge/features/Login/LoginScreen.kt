@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun LoginRoute(onLoginClick : () -> Unit) {
@@ -18,5 +19,10 @@ fun LoginScreen(onLoginClick : () -> Unit) {
             Text("login")
         }
     }
+}
 
+@Preview
+@Composable
+fun LoginScreenPreview() {
+    LoginScreen({})
 }

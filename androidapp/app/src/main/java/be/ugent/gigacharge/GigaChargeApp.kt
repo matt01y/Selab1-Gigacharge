@@ -12,6 +12,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -20,7 +21,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 import be.ugent.gigacharge.common.snackbar.SnackbarManager
-import be.ugent.gigacharge.screens.Register.RegisterScreen
+import be.ugent.gigacharge.screens.REGISTER_SCREEN
+import be.ugent.gigacharge.screens.register.RegisterScreen
+import be.ugent.gigacharge.screens.SPLASH_SCREEN
 import be.ugent.gigacharge.screens.splash.SplashScreen
 import kotlinx.coroutines.CoroutineScope
 
@@ -58,6 +61,13 @@ fun GigaChargeApp() {
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Preview
+@Composable
+fun aa() {
+    GigaChargeApp()
 }
 
 @Composable
