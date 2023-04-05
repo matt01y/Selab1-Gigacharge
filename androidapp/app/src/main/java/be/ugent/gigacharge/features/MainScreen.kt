@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import be.ugent.gigacharge.common.composable.LocationButtonComposable
 import be.ugent.gigacharge.common.composable.MainHeaderComposable
+import be.ugent.gigacharge.common.composable.QueueButtonComposable
 
 
 @Composable
@@ -26,7 +27,7 @@ fun MainScreen(onLocationSelectClick: () -> Unit, currentLocation: String) {
                 currentLocation = currentLocation
             )
         }},
-        bottomBar = {}
+        bottomBar = { QueueButtonComposable({}, true)}
     ) {
         paddingValues -> Column(Modifier.padding(paddingValues)) {}
     }
