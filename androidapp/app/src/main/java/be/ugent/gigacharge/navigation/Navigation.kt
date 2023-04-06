@@ -18,7 +18,7 @@ fun Navigation() {
         }
 
         composable(Destinations.MAIN) {
-            MainRoute(onLocationSelectClick = { navController.navigate(Destinations.LOCATION_SELECTION) }, hiltViewModel())
+            MainRoute(onLocationSelectClick = { navController.navigate(Destinations.LOCATION_SELECTION) }, hiltViewModel(), hiltViewModel())
         }
         composable(Destinations.LOCATION_SELECTION) {
             LocationRoute(onBackArrowClick = { navController.navigateUp() })
