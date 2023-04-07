@@ -4,7 +4,7 @@ const { initializeApp, applicationDefault, cert } = require('firebase-admin/app'
 const { getFirestore, Timestamp, FieldValue } = require('firebase-admin/firestore');
 const { getAuth } = require('firebase-admin/auth');
 
-var serviceAccount = require("./env/gigacharge-961d6-firebase-adminsdk-8jhn6-6970d77010.json");
+var serviceAccount = require("./env/gigacharge-961d6-firebase-adminsdk-8jhn6-3a4b808040.json");
 
 
 initializeApp({

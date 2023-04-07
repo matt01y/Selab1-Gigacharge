@@ -76,10 +76,20 @@ fun RegisterScreen(
 
 @Composable
 fun RegisterTopBar() {
-    Text(
-        text = "GigaCharge",
-        fontSize = 50.sp,
-        fontWeight = FontWeight.Bold
+    TopAppBar(
+        backgroundColor = MaterialTheme.colors.background,
+        title = {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "GigaCharge",
+                    fontSize = 50.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
     )
 }
 
@@ -113,6 +123,7 @@ fun CardChooserDropDown() {
             expanded = mExpanded,
             onDismissRequest = { mExpanded = false },
             modifier = Modifier.width(with(LocalDensity.current) { mTextFieldSize.width.toDp() })
+                .background(MaterialTheme.colors.background)
         ) {
             mCardDealers.forEach { label ->
                 DropdownMenuItem(onClick = {
