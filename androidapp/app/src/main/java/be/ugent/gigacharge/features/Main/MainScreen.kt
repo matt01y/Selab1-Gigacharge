@@ -1,31 +1,138 @@
 package be.ugent.gigacharge.features
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material.Button
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import be.ugent.gigacharge.common.composable.*
+import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 
 @Composable
-fun MainRoute(onLocationSelectClick : () -> Unit) {
-    MainScreen(onLocationSelectClick)
+fun MainRoute(onLocationSelectClick : () -> Unit, queueVM: QueueViewModel, profileVM: ProfileViewModel) {
+    val queueUiState by queueVM.uiState.collectAsState()
+    val profileUiState by profileVM.uiState.collectAsState()
+    val isProfileVisible by profileVM.isVisibleState.collectAsState()
+
+    MainScreen(
+        onLocationSelectClick,
+        { profileVM.toggleProfile() },
+        { queueVM.joinLeaveQueue() },
+        queueUiState,
+        profileUiState,
+        isProfileVisible
+    )
 }
 
 @Composable
-fun MainScreen(onLocationSelectClick : () -> Unit) {
-    Column() {
-        Text("laadpalen view")
-        Button(onClick = onLocationSelectClick) {
-            Text("select location")
+fun MainScreen(
+    onLocationSelectClick: () -> Unit,
+    onProfileSelectClick: () -> Unit,
+    onQueueButtonSelectClick: () -> Unit,
+    queueUiState: QueueUiState,
+    profileUiState: ProfileUiState,
+    isProfileVisible: Boolean
+) {
+    Scaffold(
+        topBar = {
+            MainHeaderComposable(
+                onProfileSelectClick
+            ) {
+                if (isProfileVisible) {
+                    ProfileFormComposable(
+                        provider = "",
+                        providers = listOf(),
+                        updateProvider = {},
+                        cardNumber = "",
+                        updateCardNumber = {},
+                        company = "",
+                        companies = listOf(),
+                        updateCompany = {},
+                        cancel = {},
+                        saveProfile = {_:String, _:String, _:String ->}
+                    )
+                } else {
+                    if (queueUiState is QueueUiState.Success) {
+                        val queue = queueUiState.queue
+                        LocationButtonComposable(
+                            chooseLocation = onLocationSelectClick,
+                            currentLocation = queue.location
+                        )
+                    }
+                }
+            }
+        },
+        bottomBar = {
+            Box(Modifier.height(IntrinsicSize.Max)) {
+                // BottomBar
+                if (queueUiState is QueueUiState.Success) {
+                    val queue = queueUiState.queue.queue
+                    val nothing = {}
+                    val test = { print("test") }
+                    //TODO Change 0 to real user
+                    QueueButtonComposable(
+                        if (isProfileVisible) nothing else test,//onQueueButtonSelectClick,
+                        queue.contains(0)
+                    )
+                }
+                // Overlay
+                if (isProfileVisible) {
+                    Overlay()
+                }
+            }
+        }
+    ) {
+        paddingValues -> Column(Modifier.padding(paddingValues)) {
+            Box() {
+                // Home screen
+                when (queueUiState) {
+                    QueueUiState.Loading -> {
+                        Text("Loading ...")
+                    }
+                    is QueueUiState.Success -> {
+                        val queue = queueUiState.queue;
+
+                        LazyColumn {
+                            item {
+                                QueueInfoComposable(queue.queue.size)
+                            }
+                        }
+                    }
+                }
+                // Overlay when needed
+                if (isProfileVisible) {
+                    Overlay()
+                }
+            }
         }
     }
+}
+
+@Composable
+fun Overlay() {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .clip(RectangleShape)
+            .background(Color(0.0F, 0.0F, 0.0F, 0.5F))
+    ) {}
 }
 
 @Preview
 @Composable
 fun MainScreenPreview() {
-    MainScreen {
-        {}
+    GigaChargeTheme {
+        MainRoute({}, hiltViewModel(), hiltViewModel())
     }
 }
