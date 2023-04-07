@@ -52,20 +52,9 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth, pri
       awaitClose { auth.removeAuthStateListener(listener) }
     }
 
-  override suspend fun authenticate(email: String, password: String) {
-    auth.signInWithEmailAndPassword(email, password).await()
-  }
-
-  override suspend fun sendRecoveryEmail(email: String) {
-    auth.sendPasswordResetEmail(email).await()
-  }
 
   override suspend fun createAnonymousAccount() {
     auth.signInAnonymously().await()
-  }
-
-  override suspend fun linkAccount(email: String, password: String) {
-
   }
 
   override suspend fun deleteAccount() {
@@ -91,7 +80,7 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth, pri
     userCollection.document(currentUserId).set(enablerequest).await()
 
     var tries = 0
-    while(!isEnabled && tries < 5){
+    while(!isEnabled && tries < 10){
       auth.currentUser?.reload()?.await()
       val claims = auth.currentUser?.getIdToken(true)?.await()?.claims
       if(claims?.get("enabled") == true){
@@ -100,7 +89,7 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth, pri
       }else{
         Log.println(Log.INFO, "auth", "NOT NIET ENABLED")
       }
-      delay(1000)
+      delay(750)
       tries ++
     }
   }
