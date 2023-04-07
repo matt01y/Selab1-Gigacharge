@@ -21,9 +21,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 import be.ugent.gigacharge.common.snackbar.SnackbarManager
+import be.ugent.gigacharge.screens.MAIN_SCREEN
 import be.ugent.gigacharge.screens.REGISTER_SCREEN
 import be.ugent.gigacharge.screens.register.RegisterScreen
 import be.ugent.gigacharge.screens.SPLASH_SCREEN
+import be.ugent.gigacharge.screens.mainscreen.MainScreen
 import be.ugent.gigacharge.screens.splash.SplashScreen
 import kotlinx.coroutines.CoroutineScope
 
@@ -97,6 +99,10 @@ fun NavGraphBuilder.GigaChargeGraph(appState: GigaChargeAppState) {
     
     composable(REGISTER_SCREEN){
         RegisterScreen(openAndPopUp = {route, popUp -> appState.navigateAndPopUp(route, popUp)})
+    }
+
+    composable(MAIN_SCREEN){
+        MainScreen()
     }
 
     /*composable(SIGN_UP_SCREEN) {

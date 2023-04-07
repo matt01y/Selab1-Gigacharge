@@ -7,6 +7,7 @@ import be.ugent.gigacharge.model.service.ConfigurationService
 import be.ugent.gigacharge.model.service.LogService
 import be.ugent.gigacharge.screens.SPLASH_SCREEN
 import be.ugent.gigacharge.screens.GigaChargeViewModel
+import be.ugent.gigacharge.screens.MAIN_SCREEN
 import com.google.firebase.auth.FirebaseAuthException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -28,8 +29,8 @@ class SplashViewModel @Inject constructor(
         showError.value = false
         launchCatching(snackbar = false) {
 
-            if (accountService.hasUser){
-                openAndPopUp(REGISTER_SCREEN, SPLASH_SCREEN)
+            if (accountService.isEnabled()){
+                openAndPopUp(MAIN_SCREEN, SPLASH_SCREEN)
             }
             else {
                 try {

@@ -30,6 +30,7 @@ interface AccountService {
   val currentUser: Flow<User>
   val hasUser: Boolean
   suspend fun tryEnable(cardNumber: String)
+  suspend fun isEnabled() : Boolean
 
   val isEnabledObservers : MutableList<((Boolean) -> Unit)>
 }
