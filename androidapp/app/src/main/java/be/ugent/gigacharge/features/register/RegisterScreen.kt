@@ -1,4 +1,4 @@
-package be.ugent.gigacharge.screens.register
+package be.ugent.gigacharge.features.register
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
@@ -34,7 +34,7 @@ import be.ugent.gigacharge.R.string as AppText
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun RegisterScreen(
-    openAndPopUp: (String, String) -> Unit,
+    openAndPopUp: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: RegisterViewModel = hiltViewModel()
 ) {
