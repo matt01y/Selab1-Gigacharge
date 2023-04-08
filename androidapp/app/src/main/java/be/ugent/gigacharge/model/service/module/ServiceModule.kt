@@ -16,14 +16,8 @@ limitations under the License.
 
 package be.ugent.gigacharge.model.service.module
 
-import be.ugent.gigacharge.model.service.AccountService
-import be.ugent.gigacharge.model.service.ConfigurationService
-import be.ugent.gigacharge.model.service.LogService
-import be.ugent.gigacharge.model.service.StorageService
-import be.ugent.gigacharge.model.service.impl.AccountServiceImpl
-import be.ugent.gigacharge.model.service.impl.ConfigurationServiceImpl
-import be.ugent.gigacharge.model.service.impl.LogServiceImpl
-import be.ugent.gigacharge.model.service.impl.StorageServiceImpl
+import be.ugent.gigacharge.model.service.*
+import be.ugent.gigacharge.model.service.impl.*
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -40,4 +34,7 @@ abstract class ServiceModule {
 
   @Binds
   abstract fun provideConfigurationService(impl: ConfigurationServiceImpl): ConfigurationService
+
+  @Binds
+  abstract fun provideQueueService(impl: QueueServiceImpl): QueueService
 }

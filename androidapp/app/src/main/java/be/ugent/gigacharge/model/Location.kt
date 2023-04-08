@@ -14,23 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-package be.ugent.gigacharge.model.service
+package be.ugent.gigacharge.model
 
-import be.ugent.gigacharge.model.User
-import kotlinx.coroutines.flow.Flow
+import com.google.firebase.firestore.DocumentId
 
-interface AccountService {
-
-
-  suspend fun createAnonymousAccount()
-  suspend fun deleteAccount()
-  suspend fun signOut()
-
-  val currentUserId: String
-  val currentUser: Flow<User>
-  val hasUser: Boolean
-  suspend fun tryEnable(cardNumber: String)
-  suspend fun isEnabled() : Boolean
-
-  val isEnabledObservers : MutableList<((Boolean) -> Unit)>
-}
+data class Location(
+  @DocumentId val id: String = "",
+  val name: String = "",
+  val amountWaiting : Int = 0,
+  val myPosition : Int = 0,
+  val amIJoined : Boolean = false
+)

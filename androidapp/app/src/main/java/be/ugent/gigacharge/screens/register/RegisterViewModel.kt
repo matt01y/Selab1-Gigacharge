@@ -5,12 +5,13 @@ import be.ugent.gigacharge.model.service.AccountService
 import be.ugent.gigacharge.model.service.ConfigurationService
 import be.ugent.gigacharge.model.service.LogService
 import be.ugent.gigacharge.screens.GigaChargeViewModel
+import be.ugent.gigacharge.screens.MAIN_SCREEN
+import be.ugent.gigacharge.screens.REGISTER_SCREEN
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
-    configurationService: ConfigurationService,
     private val accountService: AccountService,
     logService: LogService
 ) : GigaChargeViewModel(logService) {
@@ -25,18 +26,18 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun onRegister(openAndPopUp: (String, String) -> Unit){
-        uiState.value = uiState.value.copy(statusmessage = "nu wordt er geprobeerd om te enablen met u kaartnummber");
+        uiState.value = uiState.value.copy(statusmessage = "nu wordt er geprobeerd om te enablen met u kaartnummber")
 
         launchCatching {
             accountService.isEnabledObservers.add {
                 if (it) {
-                    //openAndPopUp(DINGSCREEN, REGISTER_SCREEN)
+                    openAndPopUp(MAIN_SCREEN, REGISTER_SCREEN)
                     uiState.value = uiState.value.copy(statusmessage = "enabling gelukt")
                 } else {
                     uiState.value = uiState.value.copy(statusmessage = "enabling niet gelukt")
                 }
             }
-            accountService.tryEnable(uiState.value.cardnumber)
+            accountService.tryEnable(cardnumber)
         }
     }
 }

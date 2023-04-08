@@ -16,21 +16,16 @@ limitations under the License.
 
 package be.ugent.gigacharge.model.service
 
-import be.ugent.gigacharge.model.User
+import be.ugent.gigacharge.model.Location
+import be.ugent.gigacharge.model.Task
 import kotlinx.coroutines.flow.Flow
 
-interface AccountService {
+interface QueueService {
+  val locations: Flow<List<Location>>
 
+  suspend fun getLocation(locId: String): Location?
 
-  suspend fun createAnonymousAccount()
-  suspend fun deleteAccount()
-  suspend fun signOut()
-
-  val currentUserId: String
-  val currentUser: Flow<User>
-  val hasUser: Boolean
-  suspend fun tryEnable(cardNumber: String)
-  suspend fun isEnabled() : Boolean
-
-  val isEnabledObservers : MutableList<((Boolean) -> Unit)>
+  suspend fun joinQueue(loc : Location)
+  suspend fun leaveQueue(loc : Location)
+  suspend fun updateLocation(loc : Location)
 }

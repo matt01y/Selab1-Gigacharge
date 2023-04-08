@@ -52,20 +52,9 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth, pri
       awaitClose { auth.removeAuthStateListener(listener) }
     }
 
-  override suspend fun authenticate(email: String, password: String) {
-    auth.signInWithEmailAndPassword(email, password).await()
-  }
-
-  override suspend fun sendRecoveryEmail(email: String) {
-    auth.sendPasswordResetEmail(email).await()
-  }
 
   override suspend fun createAnonymousAccount() {
     auth.signInAnonymously().await()
-  }
-
-  override suspend fun linkAccount(email: String, password: String) {
-
   }
 
   override suspend fun deleteAccount() {
@@ -91,22 +80,28 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth, pri
     userCollection.document(currentUserId).set(enablerequest).await()
 
     var tries = 0
-    while(!isEnabled && tries < 5){
+    while(!isEnabledObservable && tries < 10){
+      Log.println(Log.INFO, "auth", "CHECKING AGAIN")
       auth.currentUser?.reload()?.await()
       val claims = auth.currentUser?.getIdToken(true)?.await()?.claims
       if(claims?.get("enabled") == true){
-        isEnabled = true
+        Log.println(Log.INFO, "auth", "ENABLING OK")
+        isEnabledObservable = true
         break
       }else{
         Log.println(Log.INFO, "auth", "NOT NIET ENABLED")
       }
-      delay(1000)
+      delay(750)
       tries ++
     }
   }
 
+  override suspend fun isEnabled(): Boolean {
+    return (hasUser && auth.currentUser?.getIdToken(true)?.await()?.claims?.get("enabled") == true)
+  }
+
   override val isEnabledObservers = mutableListOf<((Boolean) -> Unit)>()
-  var isEnabled : Boolean by Delegates.observable(false){ prop, old, new ->
+  var isEnabledObservable : Boolean by Delegates.observable(false){ prop, old, new ->
     isEnabledObservers.forEach { (it(new)) }
   }
 
