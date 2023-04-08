@@ -42,7 +42,7 @@ fun MainRoute(onLocationSelectClick : () -> Unit, queueVM: QueueViewModel, profi
 fun MainScreen(
     onLocationSelectClick: () -> Unit,
     onProfileSelectClick: () -> Unit,
-    onQueueButtonSelectClick: () -> Unit,
+    joinLeaveQueue: () -> Unit,
     queueUiState: QueueUiState,
     profileUiState: ProfileUiState,
     isProfileVisible: Boolean
@@ -81,11 +81,9 @@ fun MainScreen(
                 // BottomBar
                 if (queueUiState is QueueUiState.Success) {
                     val queue = queueUiState.queue.queue
-                    val nothing = {}
-                    val test = { print("test") }
                     //TODO Change 0 to real user
                     QueueButtonComposable(
-                        if (isProfileVisible) nothing else test,//onQueueButtonSelectClick,
+                        joinLeaveQueue,
                         queue.contains(0)
                     )
                 }

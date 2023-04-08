@@ -1,5 +1,6 @@
 package be.ugent.gigacharge.common.composable
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -10,10 +11,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import be.ugent.gigacharge.common.ext.spacer
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 import be.ugent.gigacharge.ui.theme.Green
 import be.ugent.gigacharge.ui.theme.Red
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ProfileFormComposable(
     provider: String,
@@ -30,24 +33,16 @@ fun ProfileFormComposable(
     cancel: () -> Unit,
     saveProfile: (String, String, String) -> Unit
 ) {
-    var providerExpanded by remember { mutableStateOf(false) }
     var providerState by remember { mutableStateOf(provider) }
     val selectProvider = {s:String ->
-        {
-            updateProvider(s)
-            providerState = s
-            providerExpanded = false
-        }
+        updateProvider(s)
+        providerState = s
     }
 
-    var companyExpanded by remember { mutableStateOf(false) }
     var companyState by remember { mutableStateOf(company) }
     val selectCompany = {s:String ->
-        {
-            updateCompany(s)
-            companyState = s
-            providerExpanded = false
-        }
+        updateCompany(s)
+        companyState = s
     }
 
     Column() {
@@ -64,31 +59,7 @@ fun ProfileFormComposable(
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
-
-            Box(Modifier.weight(0.6F)) {
-                Button(
-                    { providerExpanded = true },
-                    Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .align(Alignment.CenterStart),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.surface)
-                ) {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
-                        Text(providerState)
-                    }
-                    DropdownMenu(
-                        providerExpanded,
-                        {providerExpanded = false}
-                    ) {
-                        providers.forEach { s: String ->
-                            DropdownMenuItem(selectProvider(s)) {
-                                Text(s)
-                            }
-                        }
-                    }
-                }
-            }
+            MyDropdown(providerState, providers, selectProvider, Modifier.weight(0.6F))
         }
 
         // CardNumber
@@ -132,27 +103,7 @@ fun ProfileFormComposable(
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
-            Box(Modifier.weight(0.6F)) {
-                Button(
-                    { companyExpanded = true },
-                    Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.surface)
-                ) {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
-                        Text(companyState)
-                    }
-                    DropdownMenu(companyExpanded, {companyExpanded = false}) {
-                        companies.forEach { s: String ->
-                            DropdownMenuItem(selectCompany(s)) {
-                                Text(s)
-                            }
-                        }
-                    }
-                }
-
-            }
+            MyDropdown(companyState, companies, selectCompany, Modifier.weight(0.6F))
         }
 
         // Buttons

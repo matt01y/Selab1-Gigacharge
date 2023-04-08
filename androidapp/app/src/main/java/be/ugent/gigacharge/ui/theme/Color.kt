@@ -2,13 +2,6 @@ package be.ugent.gigacharge.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple200 = Color(0xFFBB86FC)
-val Purple500 = Color(0xFF6200EE)
-val Purple700 = Color(0xFF3700B3)
-val Teal200 = Color(0xFF03DAC5)
-val ChargeBlueDay = Color(0xFF21BAFF)
-val ChargeBlueNight = Color(0xFF1E3F55)
-
 val Blue400 = Color(0xff42a5f5)
 val Blue700 = Color(0xff1976d2)
 val Blue900 = Color(0xff0d47a1)

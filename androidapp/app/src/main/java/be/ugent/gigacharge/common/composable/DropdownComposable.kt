@@ -17,24 +17,79 @@ limitations under the License.
 package be.ugent.gigacharge.common.composable
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+@Composable
+fun MyDropdown(
+  selection: String,
+  options: List<String>,
+  onActionClick: (String) -> Unit,
+  modifier: Modifier
+) {
+  var isExpanded by remember { mutableStateOf(false) }
+  var selectionState by remember { mutableStateOf(selection) }
+
+  Box(modifier) {
+    // BUTTON
+    Button(
+      { isExpanded = true },
+      Modifier.fillMaxWidth().height(50.dp),
+      colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.background)
+    ) {
+      Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(selectionState, Modifier.weight(0.9F), color = MaterialTheme.colors.onBackground)
+        Icon(if (isExpanded) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown, "less", Modifier.weight(0.1F))
+      }
+    }
+    // DROPDOWN
+    DropdownMenu(
+      isExpanded,
+      { isExpanded = false }
+    ) {
+      options.forEach { o:String ->
+        DropdownMenuItem({
+          selectionState = o
+          isExpanded = false
+          onActionClick(o)
+        }) {
+          Text(o, color = MaterialTheme.colors.onBackground)
+        }
+      }
+    }
+  }
+}
+
+@Preview
+@Composable
+fun MyDropDownPreview() {
+  MyDropdown("label", listOf("a", "b", "c", "d", "e"), {s:String ->}, Modifier)
+}
 
 @Composable
 @ExperimentalMaterialApi
 fun DropdownContextMenu(
   options: List<String>,
   modifier: Modifier,
-  onActionClick: (String) -> Unit
+  onActionClick: (String) -> Unit,
+  expanded: Boolean = false
 ) {
-  var isExpanded by remember { mutableStateOf(false) }
+  var isExpanded by remember { mutableStateOf(expanded) }
 
   ExposedDropdownMenuBox(
     expanded = isExpanded,
