@@ -17,19 +17,11 @@ limitations under the License.
 package be.ugent.gigacharge.model.service.impl
 
 import be.ugent.gigacharge.model.Location
-import be.ugent.gigacharge.model.Task
 import be.ugent.gigacharge.model.service.AccountService
 import be.ugent.gigacharge.model.service.QueueService
-import be.ugent.gigacharge.model.service.StorageService
-import be.ugent.gigacharge.model.service.trace
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.toObject
 import javax.inject.Inject
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.tasks.asDeferred
 import kotlinx.coroutines.tasks.await
 
 class QueueServiceImpl
@@ -37,11 +29,32 @@ class QueueServiceImpl
 constructor(private val firestore: FirebaseFirestore, private val auth: AccountService) :
   QueueService {
 
-  override val locations: Flow<List<Location>>
-    get() = emptyFlow()
+  private val locationCollection : CollectionReference
+    get() = firestore.collection(LOCATION_COLLECTION)
 
-  override suspend fun getLocation(taskId: String): Location? =
-    currentCollection(auth.currentUserId).document(taskId).get().await().toObject()
+  override suspend fun getLocations(): List<Location> {
+      val results = mutableListOf<Location>()
+      val locationsnap = locationCollection.get().await()
+      locationsnap.forEach { snap ->
+        val name = snap.getString("name")!!
+        results.add(
+          Location(
+            id = snap.id,
+            name = name,
+            amountWaiting = 0,
+            myPosition = 0,
+            amIJoined = false
+          )
+        )
+      }
+      return results
+    }
+
+  override suspend fun getLocation(locId: String): Location?{
+    val data = locationCollection.document(locId).get().await()
+    return Location(data.getString("name")!!, "placeholder", amountWaiting = 0, myPosition = 0, amIJoined = false)
+  }
+
 
   override suspend fun joinQueue(loc: Location) {
     TODO("Not yet implemented")
@@ -55,16 +68,11 @@ constructor(private val firestore: FirebaseFirestore, private val auth: AccountS
     TODO("Not yet implemented")
   }
 
-  private fun currentCollection(uid: String): CollectionReference =
-    firestore.collection(USER_COLLECTION).document(uid).collection(TASK_COLLECTION)
 
 
 
 
   companion object {
-    private const val USER_COLLECTION = "users"
-    private const val TASK_COLLECTION = "tasks"
-    private const val SAVE_TASK_TRACE = "saveTask"
-    private const val UPDATE_TASK_TRACE = "updateTask"
+    private const val LOCATION_COLLECTION = "locations"
   }
 }
