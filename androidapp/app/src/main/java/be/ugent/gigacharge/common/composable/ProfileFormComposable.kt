@@ -1,13 +1,11 @@
 package be.ugent.gigacharge.common.composable
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -15,7 +13,6 @@ import androidx.compose.ui.unit.sp
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 import be.ugent.gigacharge.ui.theme.Green
 import be.ugent.gigacharge.ui.theme.Red
-import be.ugent.gigacharge.ui.theme.Shapes
 
 @Composable
 fun ProfileFormComposable(
@@ -68,16 +65,13 @@ fun ProfileFormComposable(
                 Modifier
                     .weight(0.6F)
                     .height(50.dp),
+                singleLine = true,
                 colors = TextFieldDefaults.textFieldColors(
-                    textColor = MaterialTheme.colors.onBackground,
                     backgroundColor = MaterialTheme.colors.background,
                     focusedIndicatorColor = MaterialTheme.colors.secondaryVariant,
-                    cursorColor = MaterialTheme.colors.secondaryVariant,
-                    placeholderColor = Color.LightGray
+                    cursorColor = MaterialTheme.colors.secondaryVariant
                 ),
-                singleLine = true,
-                placeholder = {Text("xxxx - xxxx")},
-                shape = RoundedCornerShape(5.dp)
+                textStyle = androidx.compose.ui.text.TextStyle(color = MaterialTheme.colors.onBackground)
             )
         }
 
