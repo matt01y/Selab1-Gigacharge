@@ -5,9 +5,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import be.ugent.gigacharge.features.LocationRoute
-import be.ugent.gigacharge.features.LoginRoute
-import be.ugent.gigacharge.features.MainRoute
+import be.ugent.gigacharge.features.location.LocationRoute
+import be.ugent.gigacharge.features.login.LoginRoute
+import be.ugent.gigacharge.features.main.MainRoute
 
 @Composable
 fun Navigation() {

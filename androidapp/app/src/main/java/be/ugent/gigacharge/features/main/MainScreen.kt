@@ -1,4 +1,4 @@
-package be.ugent.gigacharge.features
+package be.ugent.gigacharge.features.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,9 +13,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import be.ugent.gigacharge.common.composable.*
+import be.ugent.gigacharge.features.ProfileUiState
+import be.ugent.gigacharge.features.ProfileViewModel
+import be.ugent.gigacharge.features.QueueUiState
+import be.ugent.gigacharge.features.QueueViewModel
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 

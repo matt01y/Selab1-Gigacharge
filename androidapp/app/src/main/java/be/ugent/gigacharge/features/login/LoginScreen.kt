@@ -1,4 +1,4 @@
-package be.ugent.gigacharge.features
+package be.ugent.gigacharge.features.login
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
