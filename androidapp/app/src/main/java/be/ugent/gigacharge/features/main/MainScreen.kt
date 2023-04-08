@@ -31,21 +31,31 @@ fun MainRoute(onLocationSelectClick : () -> Unit, queueVM: QueueViewModel, profi
     MainScreen(
         onLocationSelectClick,
         { profileVM.toggleProfile() },
-        { queueVM.joinLeaveQueue() },
         queueUiState,
         profileUiState,
-        isProfileVisible
+        {n:String -> queueVM.joinLeaveQueue(n) },
+        isProfileVisible,
+        {p:String,n:String,c:String -> profileVM.saveProfile(p,n,c) },
+        profileVM.getProviders(),
+        profileVM.getCompanies()
     )
 }
 
 @Composable
 fun MainScreen(
+    // Navigation function
     onLocationSelectClick: () -> Unit,
     onProfileSelectClick: () -> Unit,
-    joinLeaveQueue: () -> Unit,
+    // State
     queueUiState: QueueUiState,
     profileUiState: ProfileUiState,
-    isProfileVisible: Boolean
+    // Queue
+    joinLeaveQueue: (String) -> Unit,
+    // Profile
+    isProfileVisible: Boolean,
+    saveProfile: (String,String,String) -> Unit,
+    providers : List<String>,
+    companies : List<String>
 ) {
     Scaffold(
         topBar = {
@@ -53,18 +63,18 @@ fun MainScreen(
                 onProfileSelectClick
             ) {
                 if (isProfileVisible) {
-                    ProfileFormComposable(
-                        provider = "",
-                        providers = listOf(),
-                        updateProvider = {},
-                        cardNumber = "",
-                        updateCardNumber = {},
-                        company = "",
-                        companies = listOf(),
-                        updateCompany = {},
-                        cancel = {},
-                        saveProfile = {_:String, _:String, _:String ->}
-                    )
+                    if (profileUiState is ProfileUiState.Success) {
+                        val profile = profileUiState.profile
+                        ProfileFormComposable(
+                            provider = profile.provider,
+                            providers = providers,
+                            cardNumber = profile.cardNumber,
+                            company = profile.company,
+                            companies = companies,
+                            cancel = onProfileSelectClick,
+                            saveProfile = saveProfile
+                        )
+                    }
                 } else {
                     if (queueUiState is QueueUiState.Success) {
                         val queue = queueUiState.queue
@@ -81,10 +91,10 @@ fun MainScreen(
                 // BottomBar
                 if (queueUiState is QueueUiState.Success) {
                     val queue = queueUiState.queue.queue
-                    //TODO Change 0 to real user
+                    val profile = (profileUiState as ProfileUiState.Success).profile
                     QueueButtonComposable(
-                        joinLeaveQueue,
-                        queue.contains(0)
+                        { joinLeaveQueue(profile.cardNumber) },
+                        queue.contains(profile.cardNumber)
                     )
                 }
                 // Overlay
