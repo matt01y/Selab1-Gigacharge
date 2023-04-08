@@ -1,4 +1,4 @@
-package be.ugent.gigacharge.screens.splash
+package be.ugent.gigacharge.features.splash
 
 
 import androidx.compose.foundation.background
@@ -24,7 +24,7 @@ private const val SPLASH_TIMEOUT = 1000L
 
 @Composable
 fun SplashScreen(
-    openAndPopUp: (String, String) -> Unit,
+    openAndPopUp: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SplashViewModel = hiltViewModel()
 ) {

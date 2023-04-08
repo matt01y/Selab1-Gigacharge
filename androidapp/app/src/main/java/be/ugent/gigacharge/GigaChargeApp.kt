@@ -1,6 +1,7 @@
 package be.ugent.gigacharge
 
 
+import android.annotation.SuppressLint
 import android.content.res.Resources
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -14,21 +15,14 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 import be.ugent.gigacharge.common.snackbar.SnackbarManager
-import be.ugent.gigacharge.screens.MAIN_SCREEN
-import be.ugent.gigacharge.screens.REGISTER_SCREEN
-import be.ugent.gigacharge.screens.register.RegisterScreen
-import be.ugent.gigacharge.screens.SPLASH_SCREEN
-import be.ugent.gigacharge.screens.mainscreen.MainScreen
-import be.ugent.gigacharge.screens.splash.SplashScreen
+import be.ugent.gigacharge.navigation.Navigation
 import kotlinx.coroutines.CoroutineScope
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 @ExperimentalMaterialApi
 fun GigaChargeApp() {
@@ -52,14 +46,8 @@ fun GigaChargeApp() {
                     )
                 },
                 scaffoldState = appState.scaffoldState
-            ) { innerPaddingModifier ->
-                NavHost(
-                    navController = appState.navController,
-                    startDestination = SPLASH_SCREEN,
-                    modifier = Modifier.padding(innerPaddingModifier)
-                ) {
-                    GigaChargeGraph(appState)
-                }
+            ) {
+                Navigation()
             }
         }
     }
@@ -91,21 +79,3 @@ fun resources(): Resources {
     return LocalContext.current.resources
 }
 
-@ExperimentalMaterialApi
-fun NavGraphBuilder.GigaChargeGraph(appState: GigaChargeAppState) {
-    composable(SPLASH_SCREEN) {
-        SplashScreen(openAndPopUp = { route, popUp -> appState.navigateAndPopUp(route, popUp) })
-    }
-    
-    composable(REGISTER_SCREEN){
-        RegisterScreen(openAndPopUp = {route, popUp -> appState.navigateAndPopUp(route, popUp)})
-    }
-
-    composable(MAIN_SCREEN){
-        MainScreen()
-    }
-
-    /*composable(SIGN_UP_SCREEN) {
-        SignUpScreen(openAndPopUp = { route, popUp -> appState.navigateAndPopUp(route, popUp) })
-    }*/
-}

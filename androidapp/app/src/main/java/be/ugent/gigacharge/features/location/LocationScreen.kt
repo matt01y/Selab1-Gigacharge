@@ -1,4 +1,4 @@
-package be.ugent.gigacharge.features
+package be.ugent.gigacharge.features.location
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*

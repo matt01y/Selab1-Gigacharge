@@ -1,12 +1,11 @@
-package be.ugent.gigacharge.screens.register
+package be.ugent.gigacharge.features.register
 
 import androidx.compose.runtime.mutableStateOf
 import be.ugent.gigacharge.model.service.AccountService
 import be.ugent.gigacharge.model.service.ConfigurationService
 import be.ugent.gigacharge.model.service.LogService
+import be.ugent.gigacharge.navigation.Destinations
 import be.ugent.gigacharge.screens.GigaChargeViewModel
-import be.ugent.gigacharge.screens.MAIN_SCREEN
-import be.ugent.gigacharge.screens.REGISTER_SCREEN
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -25,13 +24,13 @@ class RegisterViewModel @Inject constructor(
         uiState.value = uiState.value.copy(cardnumber = newValue)
     }
 
-    fun onRegister(openAndPopUp: (String, String) -> Unit){
+    fun onRegister(openAndPopUp: () -> Unit){
         uiState.value = uiState.value.copy(statusmessage = "nu wordt er geprobeerd om te enablen met u kaartnummber")
 
         launchCatching {
             accountService.isEnabledObservers.add {
                 if (it) {
-                    openAndPopUp(MAIN_SCREEN, REGISTER_SCREEN)
+                    openAndPopUp()
                     uiState.value = uiState.value.copy(statusmessage = "enabling gelukt")
                 } else {
                     uiState.value = uiState.value.copy(statusmessage = "enabling niet gelukt")

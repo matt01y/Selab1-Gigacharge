@@ -1,4 +1,4 @@
-package be.ugent.gigacharge.features
+package be.ugent.gigacharge.features.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,9 +13,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import be.ugent.gigacharge.common.composable.*
+import be.ugent.gigacharge.features.ProfileUiState
+import be.ugent.gigacharge.features.ProfileViewModel
+import be.ugent.gigacharge.features.QueueUiState
+import be.ugent.gigacharge.features.QueueViewModel
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 
@@ -39,7 +42,7 @@ fun MainRoute(onLocationSelectClick : () -> Unit, queueVM: QueueViewModel, profi
 fun MainScreen(
     onLocationSelectClick: () -> Unit,
     onProfileSelectClick: () -> Unit,
-    onQueueButtonSelectClick: () -> Unit,
+    joinLeaveQueue: () -> Unit,
     queueUiState: QueueUiState,
     profileUiState: ProfileUiState,
     isProfileVisible: Boolean
@@ -78,11 +81,9 @@ fun MainScreen(
                 // BottomBar
                 if (queueUiState is QueueUiState.Success) {
                     val queue = queueUiState.queue.queue
-                    val nothing = {}
-                    val test = { print("test") }
                     //TODO Change 0 to real user
                     QueueButtonComposable(
-                        if (isProfileVisible) nothing else test,//onQueueButtonSelectClick,
+                        joinLeaveQueue,
                         queue.contains(0)
                     )
                 }

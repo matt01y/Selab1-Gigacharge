@@ -1,13 +1,11 @@
-package be.ugent.gigacharge.screens.splash
+package be.ugent.gigacharge.features.splash
 
 import androidx.compose.runtime.mutableStateOf
-import be.ugent.gigacharge.screens.REGISTER_SCREEN
 import be.ugent.gigacharge.model.service.AccountService
 import be.ugent.gigacharge.model.service.ConfigurationService
 import be.ugent.gigacharge.model.service.LogService
-import be.ugent.gigacharge.screens.SPLASH_SCREEN
+import be.ugent.gigacharge.navigation.Destinations
 import be.ugent.gigacharge.screens.GigaChargeViewModel
-import be.ugent.gigacharge.screens.MAIN_SCREEN
 import com.google.firebase.auth.FirebaseAuthException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -24,13 +22,13 @@ class SplashViewModel @Inject constructor(
         launchCatching { configurationService.fetchConfiguration() }
     }
 
-    fun onAppStart(openAndPopUp: (String, String) -> Unit) {
+    fun onAppStart(openAndPopUp: (String) -> Unit) {
 
         showError.value = false
         launchCatching(snackbar = false) {
 
             if (accountService.isEnabled()){
-                openAndPopUp(MAIN_SCREEN, SPLASH_SCREEN)
+                openAndPopUp(Destinations.MAIN)
             }
             else {
                 try {
@@ -39,7 +37,7 @@ class SplashViewModel @Inject constructor(
                     showError.value = true
                     throw ex
                 }
-                openAndPopUp(REGISTER_SCREEN, SPLASH_SCREEN)
+                openAndPopUp(Destinations.REGISTER_SCREEN)
             }
         }
 

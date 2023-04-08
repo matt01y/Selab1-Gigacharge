@@ -21,14 +21,14 @@ import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 @Composable
 fun QueueInfoComposable(queueSize: Int) {
     Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-        Text("Queue Information", fontSize = 25.sp, fontWeight = FontWeight.Bold)
+        Text("Queue Information", color = MaterialTheme.colors.onBackground, fontSize = 25.sp, fontWeight = FontWeight.Bold)
         Column(
             Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colors.surface, shape = RoundedCornerShape(5.dp))
                 .padding(10.dp)
         ) {
-            Text("In queue: $queueSize", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text("In queue: $queueSize", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
     }
 }

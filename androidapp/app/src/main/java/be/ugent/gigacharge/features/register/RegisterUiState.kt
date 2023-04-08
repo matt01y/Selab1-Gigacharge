@@ -1,4 +1,4 @@
-package be.ugent.gigacharge.screens.register
+package be.ugent.gigacharge.features.register
 
 data class RegisterUiState(
     val cardnumber: String = "",
