@@ -1,5 +1,6 @@
 package be.ugent.gigacharge.screens
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.ugent.gigacharge.common.snackbar.SnackbarManager
@@ -14,6 +15,7 @@ open class GigaChargeViewModel(private val logService: LogService) : ViewModel()
         viewModelScope.launch(
             CoroutineExceptionHandler { _, throwable ->
                 if (snackbar) {
+                    Log.println(Log.ERROR, "caught", throwable.toString())
                     SnackbarManager.showMessage(throwable.toSnackbarMessage())
                 }
                 logService.logNonFatalCrash(throwable)

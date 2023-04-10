@@ -32,6 +32,7 @@ class SplashViewModel @Inject constructor(
             Log.println(Log.INFO, "frick", "coroutine van splashcreen gestart")
             if (accountService.isEnabled()){
                 Log.println(Log.INFO, "frick", "account was al ge-enabled")
+                //queueService.updateLocations()
                 queueService.updateLocations()
                 openAndPopUp(Destinations.MAIN)
             }
@@ -40,8 +41,9 @@ class SplashViewModel @Inject constructor(
                 try {
                     accountService.createAnonymousAccount()
                     Log.println(Log.INFO, "frick", "locaties updaten")
-                    queueService.updateLocations()
+                    //queueService.updateLocations()
                 } catch (ex: FirebaseAuthException) {
+                    Log.println(Log.INFO, "frick", "frickin fout gdamnit")
                     showError.value = true
                     throw ex
                 }
