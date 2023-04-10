@@ -67,25 +67,31 @@ fun MainScreen(
                 onProfileSelectClick
             ) {
                 if (isProfileVisible) {
-                    if (profileUiState is ProfileUiState.Success) {
-                        val profile = profileUiState.profile
-                        ProfileFormComposable(
-                            provider = profile.provider,
-                            providers = providers,
-                            cardNumber = profile.cardNumber,
-                            company = profile.company,
-                            companies = companies,
-                            cancel = onProfileSelectClick,
-                            saveProfile = saveProfile
-                        )
+                    when (profileUiState) {
+                        ProfileUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary)
+                        is ProfileUiState.Success -> {
+                            val profile = profileUiState.profile
+                            ProfileFormComposable(
+                                provider = profile.provider,
+                                providers = providers,
+                                cardNumber = profile.cardNumber,
+                                company = profile.company,
+                                companies = companies,
+                                cancel = onProfileSelectClick,
+                                saveProfile = saveProfile
+                            )
+                        }
                     }
                 } else {
-                    if (queueUiState is QueueUiState.Success) {
-                        val queue = queueUiState.queue
-                        LocationButtonComposable(
-                            chooseLocation = onLocationSelectClick,
-                            currentLocation = queue.location
-                        )
+                    when (queueUiState) {
+                        QueueUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary)
+                        is QueueUiState.Success -> {
+                            val queue = queueUiState.queue
+                            LocationButtonComposable(
+                                chooseLocation = onLocationSelectClick,
+                                currentLocation = queue.location
+                            )
+                        }
                     }
                 }
             }
@@ -109,11 +115,11 @@ fun MainScreen(
         }
     ) {
         paddingValues -> Column(Modifier.padding(paddingValues)) {
-            Box() {
+            Box {
                 // Home screen
                 when (queueUiState) {
                     QueueUiState.Loading -> {
-                        Text("Loading ...")
+                        LoadingComposable()
                     }
                     is QueueUiState.Success -> {
                         val queue = queueUiState.queue;
