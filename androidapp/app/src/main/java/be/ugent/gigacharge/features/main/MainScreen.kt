@@ -3,16 +3,20 @@ package be.ugent.gigacharge.features.main
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import be.ugent.gigacharge.common.composable.*
 import be.ugent.gigacharge.features.ProfileUiState
@@ -125,6 +129,41 @@ fun MainScreen(
                 if (isProfileVisible) {
                     Overlay()
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun QueueInfoComposable(queueSize: Int) {
+    Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+        Text("Queue Information", color = MaterialTheme.colors.onBackground, fontSize = 25.sp, fontWeight = FontWeight.Bold)
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colors.surface, shape = RoundedCornerShape(5.dp))
+                .padding(10.dp)
+        ) {
+            Text("In queue: $queueSize", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+@Composable
+fun QueueButtonComposable(onQueueButtonSelectClick: () -> Unit, inQueue: Boolean) {
+    Row(
+        Modifier
+            .height(100.dp)
+            .fillMaxWidth(),
+        verticalAlignment= Alignment.CenterVertically
+    ) {
+        Column(Modifier.fillMaxWidth(), horizontalAlignment= Alignment.CenterHorizontally) {
+            Button(
+                onQueueButtonSelectClick,
+                Modifier.height(50.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondaryVariant)
+            ) {
+                Text(if (inQueue) "Leave queue" else "Join queue", fontSize= 20.sp, fontWeight= FontWeight.Bold)
             }
         }
     }
