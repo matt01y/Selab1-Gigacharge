@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import be.ugent.gigacharge.model.service.AccountService
 import be.ugent.gigacharge.model.service.ConfigurationService
 import be.ugent.gigacharge.model.service.LogService
+import be.ugent.gigacharge.model.service.QueueService
 import be.ugent.gigacharge.navigation.Destinations
 import be.ugent.gigacharge.screens.GigaChargeViewModel
 import com.google.firebase.auth.FirebaseAuthException
@@ -14,6 +15,7 @@ import javax.inject.Inject
 class SplashViewModel @Inject constructor(
     configurationService: ConfigurationService,
     private val accountService: AccountService,
+    private val queueService: QueueService,
     logService: LogService
 ) : GigaChargeViewModel(logService) {
     val showError = mutableStateOf(false)
@@ -28,11 +30,13 @@ class SplashViewModel @Inject constructor(
         launchCatching(snackbar = false) {
 
             if (accountService.isEnabled()){
+                queueService.updateLocations()
                 openAndPopUp(Destinations.MAIN)
             }
             else {
                 try {
                     accountService.createAnonymousAccount()
+                    queueService.updateLocations()
                 } catch (ex: FirebaseAuthException) {
                     showError.value = true
                     throw ex

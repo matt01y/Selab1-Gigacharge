@@ -17,13 +17,15 @@ limitations under the License.
 package be.ugent.gigacharge.model.service
 
 import be.ugent.gigacharge.model.Location
+import kotlinx.coroutines.flow.Flow
 
 interface QueueService {
-  suspend fun getLocations(): List<Location>
+  val getLocations: Flow<List<Location>>
+  suspend fun updateLocations() : List<Location>
 
   suspend fun getLocation(locId: String): Location?
 
   suspend fun joinQueue(loc : Location)
   suspend fun leaveQueue(loc : Location)
-  suspend fun updateLocation(loc : Location)
+  suspend fun updateLocation(loc : Location) : Location?
 }
