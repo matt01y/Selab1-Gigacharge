@@ -13,7 +13,7 @@ import be.ugent.gigacharge.features.splash.SplashScreen
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = Destinations.SPLASH_SCREEN) {
+    NavHost(navController = navController, startDestination = Destinations.MAIN) {
         composable(Destinations.SPLASH_SCREEN) {
             SplashScreen(openAndPopUp = { s : String -> navController.navigate(s) })
         }
@@ -23,10 +23,10 @@ fun Navigation() {
         }
 
         composable(Destinations.MAIN) {
-            MainRoute(onLocationSelectClick = { navController.navigate(Destinations.LOCATION_SELECTION) }, hiltViewModel(), hiltViewModel())
+            MainRoute(onLocationSelectClick = { navController.navigate(Destinations.LOCATION_SELECTION) }, hiltViewModel(), hiltViewModel(), hiltViewModel())
         }
         composable(Destinations.LOCATION_SELECTION) {
-            LocationRoute(onBackArrowClick = { navController.navigateUp() })
+            LocationRoute(onBackArrowClick = { navController.navigateUp() }, hiltViewModel())
         }
     }
 }

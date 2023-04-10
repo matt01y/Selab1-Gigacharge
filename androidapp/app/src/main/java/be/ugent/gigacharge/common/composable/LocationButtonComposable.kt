@@ -1,34 +1,64 @@
 package be.ugent.gigacharge.common.composable
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import be.ugent.gigacharge.GigaChargeApp
+import be.ugent.gigacharge.data.local.models.Location
+import be.ugent.gigacharge.features.location.LocationUiState
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 @Composable
-fun LocationButtonComposable(chooseLocation: ()->Unit, currentLocation: String) {
-    Button(
-        chooseLocation,
-        Modifier.fillMaxWidth().height(50.dp),
-        colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)
+fun LocationButtonComposable(
+    setLocation: () -> Unit,
+    toggleFavorite: () -> Unit,
+    location: Location,
+    title: Boolean = false,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier
+            .fillMaxWidth()
+            .height(50.dp)
+            .background(Color.White, shape = RoundedCornerShape(5.dp))
     ) {
-        Row(Modifier.fillMaxWidth()) {
-            Column(Modifier.weight(0.9F)) {
-                Text("Vestiging", color = Color.Gray, fontSize = 10.sp)
-                Text(currentLocation, color = MaterialTheme.colors.onSurface, fontSize = 15.sp)
+        Button(
+            setLocation,
+            Modifier
+                .fillMaxHeight()
+                .weight(0.85F),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+            elevation = ButtonDefaults.elevation(0.dp,0.dp)
+        ) {
+            Column(Modifier.fillMaxWidth()) {
+                if (title) {
+                    Text("Vestiging", color = Color.Gray, fontSize = 10.sp)
+                }
+                Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
+                    Text(location.name, color = MaterialTheme.colors.onSurface, fontSize = 18.sp)
+                }
             }
+        }
+        IconButton(
+            toggleFavorite,
+            Modifier
+                .fillMaxHeight()
+                .weight(0.15F),
+        ) {
             Icon(
-                Icons.Filled.Star,
-                "Favorite",
-                Modifier.weight(0.1F).size(50.dp),
+                if (location.favorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                if (location.favorite) "Remove favorite" else "Make favorite",
+                Modifier.size(40.dp),
                 tint = Color(1.0F, 0.75F, 0.0F, 1.0F)
             )
         }
@@ -39,6 +69,6 @@ fun LocationButtonComposable(chooseLocation: ()->Unit, currentLocation: String) 
 @Composable
 fun LocationButtonComposablePreview() {
     GigaChargeTheme {
-        LocationButtonComposable({}, "Roularta Roeselare")
+        LocationButtonComposable({}, {}, Location("Roularta Roeselare", false), false)
     }
 }

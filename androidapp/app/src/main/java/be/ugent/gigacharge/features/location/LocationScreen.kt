@@ -1,24 +1,50 @@
 package be.ugent.gigacharge.features.location
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import be.ugent.gigacharge.common.composable.LoadingComposable
+import be.ugent.gigacharge.common.composable.LocationButtonComposable
+import be.ugent.gigacharge.data.local.models.Location
+import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 @Composable
-fun LocationRoute(onBackArrowClick : () -> Unit) {
-    LocationScreen(onBackArrowClick)
+fun LocationRoute(onBackArrowClick : () -> Unit, locationVM: LocationViewModel) {
+    val locationsUiState by locationVM.locationsUiState.collectAsState()
+
+    LocationScreen(
+        onBackArrowClick,
+        locationsUiState,
+        {l:Location -> locationVM.setLocation(l)},
+        {l:Location -> locationVM.toggleFavorite(l)}
+    )
 }
 
 @Composable
-fun LocationScreen(onBackArrowClick : () -> Unit) {
+fun LocationScreen(
+    onBackArrowClick : () -> Unit,
+    locationsUiState: LocationsUiState,
+    setLocation: (Location) -> Unit,
+    toggleFavorite: (Location) -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("choose location") },
+                title = { Text("Kies een vestiging") },
                 navigationIcon = {
                     IconButton(onClick = onBackArrowClick) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
@@ -27,14 +53,46 @@ fun LocationScreen(onBackArrowClick : () -> Unit) {
             )
         }
     ) {
-        Text("hey", Modifier.padding(it))
+        Column(Modifier.padding(it)) {
+            when (locationsUiState) {
+                LocationsUiState.Loading -> LoadingComposable()
+                is LocationsUiState.Success -> {
+                    val locations = locationsUiState.locations
+                    LazyColumn {
+                        locations.forEach { location: Location ->
+                            item {
+                                LocationButtonComposable(
+                                    {
+                                        setLocation(location)
+                                        onBackArrowClick()
+                                    },
+                                    { toggleFavorite(location) },
+                                    location,
+                                    modifier = Modifier.padding(0.dp, 8.dp)
+                                )
+                                ItemBreak()
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
+}
+
+@Composable
+fun ItemBreak() {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .height(2.dp)
+            .background(Color.LightGray)) {}
 }
 
 @Preview
 @Composable
 fun LocationScreenPreview() {
-    LocationScreen {
-        {}
+    GigaChargeTheme {
+        LocationRoute({}, hiltViewModel())
     }
 }

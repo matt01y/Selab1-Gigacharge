@@ -19,29 +19,40 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import be.ugent.gigacharge.common.composable.*
+import be.ugent.gigacharge.data.local.models.Location
 import be.ugent.gigacharge.features.ProfileUiState
 import be.ugent.gigacharge.features.ProfileViewModel
 import be.ugent.gigacharge.features.QueueUiState
 import be.ugent.gigacharge.features.QueueViewModel
+import be.ugent.gigacharge.features.location.LocationUiState
+import be.ugent.gigacharge.features.location.LocationViewModel
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 
 @Composable
-fun MainRoute(onLocationSelectClick : () -> Unit, queueVM: QueueViewModel, profileVM: ProfileViewModel) {
+fun MainRoute(onLocationSelectClick : () -> Unit, queueVM: QueueViewModel, profileVM: ProfileViewModel, locationVM: LocationViewModel) {
     val queueUiState by queueVM.uiState.collectAsState()
     val profileUiState by profileVM.uiState.collectAsState()
     val isProfileVisible by profileVM.isVisibleState.collectAsState()
+    val locationUiState by locationVM.locationUiState.collectAsState()
 
     MainScreen(
+        // Navigation function
         onLocationSelectClick,
         { profileVM.toggleProfile() },
+        // State
         queueUiState,
         profileUiState,
+        locationUiState,
+        // Queue
         {n:String -> queueVM.joinLeaveQueue(n) },
+        // Profile
         isProfileVisible,
         {p:String,n:String,c:String -> profileVM.saveProfile(p,n,c) },
         profileVM.getProviders(),
-        profileVM.getCompanies()
+        profileVM.getCompanies(),
+        // Location
+        {l:Location  -> locationVM.toggleFavorite(l)}
     )
 }
 
@@ -53,13 +64,16 @@ fun MainScreen(
     // State
     queueUiState: QueueUiState,
     profileUiState: ProfileUiState,
+    locationUiState: LocationUiState,
     // Queue
     joinLeaveQueue: (String) -> Unit,
     // Profile
     isProfileVisible: Boolean,
     saveProfile: (String,String,String) -> Unit,
     providers : List<String>,
-    companies : List<String>
+    companies : List<String>,
+    // Location
+    toggleFavorite: (Location) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -83,13 +97,15 @@ fun MainScreen(
                         }
                     }
                 } else {
-                    when (queueUiState) {
-                        QueueUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary)
-                        is QueueUiState.Success -> {
-                            val queue = queueUiState.queue
+                    when (locationUiState) {
+                        LocationUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary)
+                        is LocationUiState.Success -> {
+                            val location = locationUiState.location
                             LocationButtonComposable(
-                                chooseLocation = onLocationSelectClick,
-                                currentLocation = queue.location
+                                onLocationSelectClick,
+                                { toggleFavorite(location) },
+                                location,
+                                true
                             )
                         }
                     }
@@ -189,6 +205,6 @@ fun Overlay() {
 @Composable
 fun MainScreenPreview() {
     GigaChargeTheme {
-        MainRoute({}, hiltViewModel(), hiltViewModel())
+        MainRoute({}, hiltViewModel(), hiltViewModel(), hiltViewModel())
     }
 }
