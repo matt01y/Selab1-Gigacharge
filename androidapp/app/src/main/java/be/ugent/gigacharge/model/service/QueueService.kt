@@ -16,7 +16,7 @@ limitations under the License.
 
 package be.ugent.gigacharge.model.service
 
-import be.ugent.gigacharge.model.Location
+import be.ugent.gigacharge.model.location.Location
 import kotlinx.coroutines.flow.Flow
 
 interface QueueService {

@@ -17,13 +17,12 @@ limitations under the License.
 package be.ugent.gigacharge.model.service.impl
 
 import android.util.Log
-import be.ugent.gigacharge.model.Location
+import be.ugent.gigacharge.model.location.Location
+import be.ugent.gigacharge.model.location.QueueState
 import be.ugent.gigacharge.model.service.AccountService
 import be.ugent.gigacharge.model.service.QueueService
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.*
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -46,16 +45,20 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
 
     private var locations : List<Location> = emptyList()
 
-    private var reEmitLocations : (() -> Unit)? = null
+    private val emptyEmit : (() -> Unit) = {
+        Log.println(Log.INFO, "queue", "emit geprobeerd maar is null")
+    }
+    private var reEmitLocations : (() -> Unit) = emptyEmit
 
     override val getLocations: Flow<List<Location>> = callbackFlow {
         reEmitLocations = {
             Log.println(Log.INFO, "queue", "emitting now")
+            Log.println(Log.INFO, "queue", locations.toString())
             trySend(locations)
         }
         Log.println(Log.INFO, "queue", "flow has been consumed")
         trySend(locations)
-        awaitClose{reEmitLocations = null}
+        awaitClose{reEmitLocations = emptyEmit}
     }
 
     override suspend fun updateLocations(): List<Location> {
@@ -64,24 +67,16 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
         val locationsnap = locationCollection.get().await()
         locationsnap.forEach { snap ->
             results.add(
-                snapToLocation(snap)
+                refToLocation(locationCollection.document(snap.id))
             )
         }
         locations = results
         Log.println(Log.INFO, "queue", locations.toString())
-        reEmitLocations?.let { it() }
         return locations
     }
 
     override suspend fun getLocation(locId: String): Location {
-        val data = locationCollection.document(locId).get().await()
-        return Location(
-            data.getString("name")!!,
-            "placeholder",
-            amountWaiting = 0,
-            myPosition = 0,
-            amIJoined = false
-        )
+        return refToLocation(locationCollection.document(locId))
     }
 
 
@@ -93,13 +88,9 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
             USERID_FIELD to accountService.currentUserId,
             JOINEDAT_FIELD to FieldValue.serverTimestamp(),
             STATUS_FIELD to STATUS_WAITING
-        ))
+        )).await()
 
-        locations = locations.map {
-            if(it.id === locid) loc.copy(amIJoined = true)
-            else it
-        }
-        reEmitLocations?.let { it() }
+        updateLocation(loc)
 
         //TODO("Not yet implemented")
     }
@@ -114,38 +105,55 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
             ))
         }
         batch.commit().await()
-        locations = locations.map {
-            if(it.id === loc.id) loc.copy(amIJoined = false)
-            else it
-        }
-        reEmitLocations?.let { it() }
+        updateLocation(loc)
+        reEmitLocations()
         //TODO("Not yet implemented")
     }
 
     //TODO: testen
     override suspend fun updateLocation(loc: Location): Location {
-        val snap = locationCollection.document(loc.id).get().await()
-        val newloc = snapToLocation(snap)
+        val newloc = refToLocation(locationCollection.document(loc.id))
         locations = locations.mapIndexed{i, oloc ->
             if(oloc.id == loc.id){
-                return newloc
+                Log.println(Log.INFO, "queue", "updated")
+                Log.println(Log.INFO, "queue", newloc.toString())
+                newloc
             }else{
-                return oloc;
+                oloc
             }
         }
-        reEmitLocations?.let { it() }
+        Log.println(Log.INFO, "queueupdate", locations.toString())
+        reEmitLocations()
         return newloc
         //TODO("Not yet implemented")
     }
 
-    private fun snapToLocation(snap : DocumentSnapshot) : Location{
+    private suspend fun refToLocation(ref : DocumentReference) : Location {
+        val snap = ref.get().await()
+        val queuecollection = ref.collection(QUEUE_COLLECTION)
+        val amountwaiting = queuecollection.count().get(AggregateSource.SERVER).await().count
+
+        val state : QueueState
+        if(amountwaiting > 0){
+            val myJoinEvent = queuecollection.whereEqualTo(USERID_FIELD, accountService.currentUserId).whereEqualTo(
+                STATUS_FIELD, STATUS_WAITING).limit(1).get().await()
+            if(myJoinEvent.size() >= 1){
+                val time =  myJoinEvent.first().getTimestamp(TIMESTAMP_FIELD)?:Timestamp.now() //TODO: deze null case beter maken
+                val myPostition = queuecollection.whereLessThanOrEqualTo(TIMESTAMP_FIELD, time).count().get(AggregateSource.SERVER).await().count
+                state = QueueState.Joined(myPosition = myPostition)
+            }else{
+                state = QueueState.NotJoined
+            }
+        }else{
+            state = QueueState.NotJoined
+        }
+
         return Location(
             id = snap.id,
-            name = snap.getString("name")!!,
-            amountWaiting = 0,
-            myPosition = 0,
-            amIJoined = false
-        );
+            name = snap.getString(NAME_FIELD)?:"ERROR GEEN NAAM",
+            amountWaiting = amountwaiting,
+            queue = state
+        )
     }
 
 
@@ -155,7 +163,9 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
         private const val USERID_FIELD = "user-id"
         private const val JOINEDAT_FIELD = "joined-at"
         private const val STATUS_FIELD = "status"
+        private const val NAME_FIELD = "name"
         private const val STATUS_WAITING = "waiting"
         private const val STATUS_LEFT = "left"
+        private const val TIMESTAMP_FIELD = "timestamp"
     }
 }

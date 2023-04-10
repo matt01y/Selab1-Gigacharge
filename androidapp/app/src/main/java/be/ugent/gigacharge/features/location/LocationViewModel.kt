@@ -2,7 +2,7 @@ package be.ugent.gigacharge.features.location
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
-import be.ugent.gigacharge.model.Location
+import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.model.service.LogService
 import be.ugent.gigacharge.model.service.QueueService
 import be.ugent.gigacharge.screens.GigaChargeViewModel
