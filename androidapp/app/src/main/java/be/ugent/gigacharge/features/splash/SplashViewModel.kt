@@ -1,5 +1,6 @@
 package be.ugent.gigacharge.features.splash
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import be.ugent.gigacharge.model.service.AccountService
 import be.ugent.gigacharge.model.service.ConfigurationService
@@ -28,19 +29,23 @@ class SplashViewModel @Inject constructor(
 
         showError.value = false
         launchCatching(snackbar = false) {
-
+            Log.println(Log.INFO, "frick", "coroutine van splashcreen gestart")
             if (accountService.isEnabled()){
+                Log.println(Log.INFO, "frick", "account was al ge-enabled")
                 queueService.updateLocations()
                 openAndPopUp(Destinations.MAIN)
             }
             else {
+                Log.println(Log.INFO, "frick", "niet enabled, create anon")
                 try {
                     accountService.createAnonymousAccount()
+                    Log.println(Log.INFO, "frick", "locaties updaten")
                     queueService.updateLocations()
                 } catch (ex: FirebaseAuthException) {
                     showError.value = true
                     throw ex
                 }
+                Log.println(Log.INFO, "frick", "popup start")
                 openAndPopUp(Destinations.REGISTER_SCREEN)
             }
         }

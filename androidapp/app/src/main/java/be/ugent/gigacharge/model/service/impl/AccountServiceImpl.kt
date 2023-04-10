@@ -44,6 +44,7 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth, pri
 
   override val currentUser: Flow<User>
     get() = callbackFlow {
+      Log.println(Log.INFO, "frick", "current user flow")
       val listener =
         FirebaseAuth.AuthStateListener { auth ->
           this.trySend(auth.currentUser?.let { User(it.uid, it.isAnonymous) } ?: User())
@@ -58,6 +59,7 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth, pri
   }
 
   override suspend fun deleteAccount() {
+    Log.println(Log.INFO, "frick", "anon account in auth")
     auth.currentUser!!.delete().await()
   }
 
