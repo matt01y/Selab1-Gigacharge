@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.hilt.navigation.compose.hiltViewModel
 import be.ugent.gigacharge.common.composable.BasicButton
-import be.ugent.gigacharge.common.composable.BasicField
 import be.ugent.gigacharge.common.ext.basicButton
 import be.ugent.gigacharge.common.ext.fieldModifier
 import be.ugent.gigacharge.R.string as AppText
@@ -58,7 +57,8 @@ fun RegisterScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(text = "Welkom!", color = MaterialTheme.colors.primary)
-            CardChooserDropDown()
+            //CardChooserDropDown()
+            TitledDropDownComposable(title = "Kaartdeler", listContents = listOf("MobilityPlus", "Blue Corner"))
             Text(text = uiState.statusmessage, color = MaterialTheme.colors.primary)
             OutlinedTextField(
                 value = uiState.cardnumber,
@@ -86,56 +86,22 @@ fun RegisterTopBar() {
             ) {
                 Text(
                     text = "GigaCharge",
-                    fontSize = 50.sp,
-                    fontWeight = FontWeight.Bold, color = MaterialTheme.colors.secondary
+                    fontSize = 42.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colors.primary
                 )
             }
         }
     )
 }
 
+/*
+@Preview
 @Composable
-fun CardChooserDropDown() {
-    Box {
-        var mExpanded by remember { mutableStateOf(false) }
-        val mCardDealers = listOf("MobilityPlus", "Blue Corner")
-        var mSelectedText by remember { mutableStateOf(mCardDealers.first()) }
-        var mTextFieldSize by remember { mutableStateOf(Size.Zero) }
-        val icon = if (mExpanded)
-            Icons.Filled.KeyboardArrowUp
-        else
-            Icons.Filled.KeyboardArrowDown
-        OutlinedTextField(
-            value = mSelectedText,
-            readOnly = true,
-            onValueChange = { mSelectedText = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .onGloballyPositioned { coordinates ->
-                    mTextFieldSize = coordinates.size.toSize()
-                },
-            label = { Text("Kaartdeler", color = MaterialTheme.colors.primary) },
-            trailingIcon = {
-                Icon(icon, "contentDescription",
-                    Modifier.clickable { mExpanded = !mExpanded })
-            },
-            colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.primary)
-        )
-        DropdownMenu(
-            expanded = mExpanded,
-            onDismissRequest = { mExpanded = false },
-            modifier = Modifier
-                .width(with(LocalDensity.current) { mTextFieldSize.width.toDp() })
-                .background(MaterialTheme.colors.background)
-        ) {
-            mCardDealers.forEach { label ->
-                DropdownMenuItem(onClick = {
-                    mSelectedText = label
-                    mExpanded = false
-                }) {
-                    Text(text = label, color = MaterialTheme.colors.primary)
-                }
-            }
-        }
-    }
-}
+fun PreviewRegisterScreen() {
+    RegisterScreen(
+        openAndPopUp = { },
+        modifier = Modifier,
+        viewModel = hiltViewModel()
+    )
+}*/
