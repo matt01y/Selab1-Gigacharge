@@ -60,12 +60,12 @@ fun ProfileComposable(onProfileSelectClick: () -> Unit) {
         }
     }
 }
-
+/*
 @Preview
 @Composable
 fun MainHeaderComposablePreview() {
     val location = "Roelarta Roeselare"
     GigaChargeTheme {
-        MainHeaderComposable({}, { LocationButtonComposable({}, location) })
+        MainHeaderComposable({}, { LocationButtonComposable({}, { location }) })
     }
-}
+}*/

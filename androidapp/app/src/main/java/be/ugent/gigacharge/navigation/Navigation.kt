@@ -13,7 +13,7 @@ import be.ugent.gigacharge.features.splash.SplashScreen
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = Destinations.MAIN) {
+    NavHost(navController = navController, startDestination = Destinations.SPLASH_SCREEN) {
         composable(Destinations.SPLASH_SCREEN) {
             SplashScreen(openAndPopUp = { s : String -> navController.navigate(s) })
         }
