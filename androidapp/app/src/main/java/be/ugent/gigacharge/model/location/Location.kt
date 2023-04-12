@@ -14,14 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-package be.ugent.gigacharge.model
+package be.ugent.gigacharge.model.location
 
 import com.google.firebase.firestore.DocumentId
 
 data class Location(
   @DocumentId val id: String = "",
   val name: String = "",
-  val amountWaiting : Int = 0,
-  val myPosition : Int = 0,
-  val amIJoined : Boolean = false
-)
+  val queue : QueueState,
+  val amountWaiting : Long
+){
+  val amIJoined : Boolean
+    get() = queue is QueueState.Joined
+}

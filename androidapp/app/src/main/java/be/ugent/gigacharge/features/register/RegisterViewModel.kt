@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import be.ugent.gigacharge.model.service.AccountService
 import be.ugent.gigacharge.model.service.ConfigurationService
 import be.ugent.gigacharge.model.service.LogService
+import be.ugent.gigacharge.model.service.QueueService
 import be.ugent.gigacharge.navigation.Destinations
 import be.ugent.gigacharge.screens.GigaChargeViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,6 +13,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
     private val accountService: AccountService,
+    private val queueService: QueueService,
     logService: LogService
 ) : GigaChargeViewModel(logService) {
     var uiState = mutableStateOf(RegisterUiState())
@@ -30,13 +32,17 @@ class RegisterViewModel @Inject constructor(
         launchCatching {
             accountService.isEnabledObservers.add {
                 if (it) {
-                    openAndPopUp()
-                    uiState.value = uiState.value.copy(statusmessage = "enabling gelukt")
+                    launchCatching {
+                        queueService.updateLocations()
+                        openAndPopUp()
+                        uiState.value = uiState.value.copy(statusmessage = "enabling gelukt")
+                    }
                 } else {
                     uiState.value = uiState.value.copy(statusmessage = "enabling niet gelukt")
                 }
             }
             accountService.tryEnable(cardnumber)
+            //queueService.updateLocations()
         }
     }
 }
