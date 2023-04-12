@@ -139,7 +139,8 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
                 STATUS_FIELD, STATUS_WAITING).limit(1).get().await()
             if(myJoinEvent.size() >= 1){
                 val time =  myJoinEvent.first().getTimestamp(TIMESTAMP_FIELD)?:Timestamp.now() //TODO: deze null case beter maken
-                val myPostition = queuecollection.whereLessThanOrEqualTo(TIMESTAMP_FIELD, time).count().get(AggregateSource.SERVER).await().count
+                val myPostition = queuecollection.whereLessThanOrEqualTo(TIMESTAMP_FIELD, time).whereEqualTo(
+                    STATUS_FIELD, STATUS_WAITING).count().get(AggregateSource.SERVER).await().count
                 state = QueueState.Joined(myPosition = myPostition)
             }else{
                 state = QueueState.NotJoined

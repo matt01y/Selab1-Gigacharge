@@ -57,13 +57,14 @@ fun RegisterScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = "Welkom!")
+            Text(text = "Welkom!", color = MaterialTheme.colors.primary)
             CardChooserDropDown()
-            Text(text = uiState.statusmessage)
+            Text(text = uiState.statusmessage, color = MaterialTheme.colors.primary)
             OutlinedTextField(
                 value = uiState.cardnumber,
-                label = { Text("Kaartnummer") },
-                onValueChange = viewModel::onCardNumberChange
+                label = { Text("Kaartnummer", color = MaterialTheme.colors.primary) },
+                onValueChange = viewModel::onCardNumberChange,
+                colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.primary)
             )
 //            BasicField(
 //                text = AppText.cardnumber,
@@ -77,7 +78,7 @@ fun RegisterScreen(
 @Composable
 fun RegisterTopBar() {
     TopAppBar(
-        backgroundColor = MaterialTheme.colors.background,
+        backgroundColor = MaterialTheme.colors.secondary,
         title = {
             Box(
                 modifier = Modifier.fillMaxWidth(),
@@ -86,7 +87,7 @@ fun RegisterTopBar() {
                 Text(
                     text = "GigaCharge",
                     fontSize = 50.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold, color = MaterialTheme.colors.secondary
                 )
             }
         }
@@ -113,16 +114,18 @@ fun CardChooserDropDown() {
                 .onGloballyPositioned { coordinates ->
                     mTextFieldSize = coordinates.size.toSize()
                 },
-            label = { Text("Kaartdeler") },
+            label = { Text("Kaartdeler", color = MaterialTheme.colors.primary) },
             trailingIcon = {
                 Icon(icon, "contentDescription",
                     Modifier.clickable { mExpanded = !mExpanded })
-            }
+            },
+            colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.primary)
         )
         DropdownMenu(
             expanded = mExpanded,
             onDismissRequest = { mExpanded = false },
-            modifier = Modifier.width(with(LocalDensity.current) { mTextFieldSize.width.toDp() })
+            modifier = Modifier
+                .width(with(LocalDensity.current) { mTextFieldSize.width.toDp() })
                 .background(MaterialTheme.colors.background)
         ) {
             mCardDealers.forEach { label ->
@@ -130,7 +133,7 @@ fun CardChooserDropDown() {
                     mSelectedText = label
                     mExpanded = false
                 }) {
-                    Text(text = label)
+                    Text(text = label, color = MaterialTheme.colors.primary)
                 }
             }
         }

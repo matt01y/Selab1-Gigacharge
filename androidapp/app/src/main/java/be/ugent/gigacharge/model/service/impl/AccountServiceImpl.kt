@@ -19,6 +19,7 @@ package be.ugent.gigacharge.model.service.impl
 import android.util.Log
 import be.ugent.gigacharge.model.User
 import be.ugent.gigacharge.model.service.AccountService
+import be.ugent.gigacharge.model.service.QueueService
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldValue
@@ -31,7 +32,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import kotlin.properties.Delegates
 
-class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth, private val firestore: FirebaseFirestore,) : AccountService {
+class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth, private val firestore: FirebaseFirestore) : AccountService {
 
   override val currentUserId: String
     get() = auth.currentUser?.uid.orEmpty()
@@ -44,6 +45,7 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth, pri
 
   override val currentUser: Flow<User>
     get() = callbackFlow {
+      Log.println(Log.INFO, "frick", "current user flow")
       val listener =
         FirebaseAuth.AuthStateListener { auth ->
           this.trySend(auth.currentUser?.let { User(it.uid, it.isAnonymous) } ?: User())
@@ -55,9 +57,11 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth, pri
 
   override suspend fun createAnonymousAccount() {
     auth.signInAnonymously().await()
+    Log.println(Log.INFO, "frick", "userid: ${currentUserId}")
   }
 
   override suspend fun deleteAccount() {
+    Log.println(Log.INFO, "frick", "anon account in auth")
     auth.currentUser!!.delete().await()
   }
 
