@@ -13,7 +13,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import be.ugent.gigacharge.R.string as AppText
 import be.ugent.gigacharge.common.composable.BasicButton
@@ -43,6 +45,12 @@ fun SplashScreen(
 
             BasicButton(AppText.try_again, Modifier.basicButton()) { viewModel.onAppStart(openAndPopUp) }
         } else {
+            Text(
+                text = "GigaCharge",
+                fontSize = 42.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colors.primary
+            )
             CircularProgressIndicator(color = MaterialTheme.colors.onBackground)
         }
     }
