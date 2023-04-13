@@ -46,7 +46,7 @@ fun MainRoute(onLocationSelectClick : () -> Unit, queueVM: QueueViewModel, profi
         profileUiState,
         locationUiState,
         // Queue
-        {n:String -> queueVM.joinLeaveQueue(n) },
+        {l:Location -> queueVM.joinLeaveQueue(l) },
         // Profile
         isProfileVisible,
         {p:String,n:String,c:String -> profileVM.saveProfile(p,n,c) },
@@ -67,7 +67,7 @@ fun MainScreen(
     profileUiState: ProfileUiState,
     locationUiState: LocationUiState,
     // Queue
-    joinLeaveQueue: (String) -> Unit,
+    joinLeaveQueue: (Location) -> Unit,
     // Profile
     isProfileVisible: Boolean,
     saveProfile: (String,String,String) -> Unit,
@@ -118,10 +118,10 @@ fun MainScreen(
                 // BottomBar
                 if (queueUiState is QueueUiState.Success) {
                     val queue = queueUiState.queue.queue
-                    val profile = (profileUiState as ProfileUiState.Success).profile
+                    val location = (locationUiState as LocationUiState.Success).location
                     QueueButtonComposable(
-                        { joinLeaveQueue(profile.cardNumber) },
-                        queue.contains(profile.cardNumber)
+                        { joinLeaveQueue(location) },
+                        true, // TODO InQueueUseCase
                     )
                 }
                 // Overlay
