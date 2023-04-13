@@ -19,13 +19,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import be.ugent.gigacharge.common.composable.*
-import be.ugent.gigacharge.data.local.models.Location
+//import be.ugent.gigacharge.data.local.models.Location
 import be.ugent.gigacharge.features.ProfileUiState
 import be.ugent.gigacharge.features.ProfileViewModel
 import be.ugent.gigacharge.features.QueueUiState
 import be.ugent.gigacharge.features.QueueViewModel
 import be.ugent.gigacharge.features.location.LocationUiState
 import be.ugent.gigacharge.features.location.LocationViewModel
+import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 
@@ -52,7 +53,7 @@ fun MainRoute(onLocationSelectClick : () -> Unit, queueVM: QueueViewModel, profi
         profileVM.getProviders(),
         profileVM.getCompanies(),
         // Location
-        {l:Location  -> locationVM.toggleFavorite(l)}
+        {l: Location -> locationVM.toggleFavorite(l)}
     )
 }
 

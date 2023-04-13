@@ -19,7 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import be.ugent.gigacharge.common.composable.LoadingComposable
 import be.ugent.gigacharge.common.composable.LocationButtonComposable
-import be.ugent.gigacharge.data.local.models.Location
+import be.ugent.gigacharge.model.location.Location
+//import be.ugent.gigacharge.data.local.models.Location
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 @Composable
@@ -29,7 +30,7 @@ fun LocationRoute(onBackArrowClick : () -> Unit, locationVM: LocationViewModel) 
     LocationScreen(
         onBackArrowClick,
         locationsUiState,
-        {l:Location -> locationVM.setLocation(l)},
+        {l: Location -> locationVM.setLocation(l)},
         {l:Location -> locationVM.toggleFavorite(l)}
     )
 }

@@ -14,8 +14,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import be.ugent.gigacharge.data.local.models.Location
+//import be.ugent.gigacharge.data.local.models.Location
 import be.ugent.gigacharge.features.location.LocationUiState
+import be.ugent.gigacharge.model.location.Location
+import be.ugent.gigacharge.model.location.QueueState
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 @Composable
@@ -56,8 +58,12 @@ fun LocationButtonComposable(
                 .weight(0.15F),
         ) {
             Icon(
-                if (location.favorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                if (location.favorite) "Remove favorite" else "Make favorite",
+                //Default sinds dat we de fvorite nog niet kennen op basis vn location
+                Icons.Outlined.StarOutline,
+                "Make favorite",
+                //Jarne versie:
+                //if (location.favorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                //if (location.favorite) "Remove favorite" else "Make favorite",
                 Modifier.size(40.dp),
                 tint = Color(1.0F, 0.75F, 0.0F, 1.0F)
             )
@@ -69,6 +75,6 @@ fun LocationButtonComposable(
 @Composable
 fun LocationButtonComposablePreview() {
     GigaChargeTheme {
-        LocationButtonComposable({}, {}, Location("Roularta Roeselare", false), false)
+        LocationButtonComposable({}, {}, Location("", "Roularta Rouselare", QueueState.NotJoined, 0), false)
     }
 }

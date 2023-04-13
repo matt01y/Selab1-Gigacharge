@@ -1,6 +1,8 @@
 package be.ugent.gigacharge.features.location
 
-import be.ugent.gigacharge.data.local.models.Location
+import be.ugent.gigacharge.model.location.Location
+
+//import be.ugent.gigacharge.data.local.models.Location
 
 sealed interface LocationsUiState {
     object Loading: LocationsUiState
