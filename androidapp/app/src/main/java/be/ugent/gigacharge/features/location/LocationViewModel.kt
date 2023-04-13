@@ -3,8 +3,10 @@ package be.ugent.gigacharge.features.location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.ugent.gigacharge.domain.GetLocationsUseCase
+import be.ugent.gigacharge.domain.SetLocationUseCase
 import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.model.location.QueueState
+import be.ugent.gigacharge.model.service.QueueService
 //import be.ugent.gigacharge.data.local.models.Location
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.GlobalScope
@@ -14,25 +16,27 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LocationViewModel @Inject constructor(
-    getLocationsUseCase: GetLocationsUseCase
+    getLocationsUseCase: GetLocationsUseCase,
+    private val setLocationUseCase: SetLocationUseCase,
+    private val queueService: QueueService
 ): ViewModel() {
-    // private var location: MutableStateFlow<Location> = MutableStateFlow(Location("", "Roularta Rouselare", QueueState.NotJoined, 0))
-    // Jarne versie:
-    //private var location: MutableStateFlow<Location> = MutableStateFlow(Location("Roularta Roeselare", true))
-    //val locationUiState: StateFlow<LocationUiState> = location.map{LocationUiState.Success(it)}.stateIn(viewModelScope, SharingStarted.Eagerly, LocationUiState.Loading)
-
     val locationsUiState: StateFlow<LocationsUiState> = getLocationsUseCase().map{LocationsUiState.Success(it)}.stateIn(viewModelScope, SharingStarted.Eagerly, LocationsUiState.Loading)
-    val locationUiState: StateFlow<LocationUiState> = getLocationsUseCase().map{
-            if (it.getOrNull(0) == null) LocationUiState.Loading else LocationUiState.Success(it[0])
-        }.stateIn(viewModelScope, SharingStarted.Eagerly, LocationUiState.Loading)
+    private var location: MutableStateFlow<LocationUiState> = MutableStateFlow(LocationUiState.Success(Location("1", "test", QueueState.NotJoined, 0)))
+    val locationUiState: StateFlow<LocationUiState> = location.asStateFlow()
+//    val locationUiState: StateFlow<LocationUiState> = getLocationsUseCase().map{
+//            if (it.getOrNull(0) == null) LocationUiState.Loading else LocationUiState.Success(it[0])
+//        }.stateIn(viewModelScope, SharingStarted.Eagerly, LocationUiState.Loading)
 
-    fun setLocation(loc: Location) {
-//        val temp: MutableList<Location> = locations.value.toMutableList()
-//        temp.add(location.value)
-//        temp.remove(loc)
-//        locations.value = temp.toList()
-//        location.value = loc
+    fun setLocation(loc: Location) = viewModelScope.launch {
+        location.value = LocationUiState.Success(queueService.updateLocation(loc)!!)
     }
+//    fun setLocation(location: Location) {
+////        val temp: MutableList<Location> = locations.value.toMutableList()
+////        temp.add(location.value)
+////        temp.remove(loc)
+////        locations.value = temp.toList()
+////        location.value = loc
+//    }
 
     fun toggleFavorite(loc: Location) {
 //        // Toggle if it was the selected location

@@ -6,5 +6,5 @@ import be.ugent.gigacharge.model.location.Location
 
 sealed interface LocationUiState {
     object Loading: LocationUiState
-    data class Success(val location: Location) : LocationUiState
+    data class Success(var location: Location) : LocationUiState
 }

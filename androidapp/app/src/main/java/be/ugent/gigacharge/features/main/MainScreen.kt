@@ -118,11 +118,13 @@ fun MainScreen(
                 // BottomBar
                 if (queueUiState is QueueUiState.Success) {
                     val queue = queueUiState.queue.queue
-                    val location = (locationUiState as LocationUiState.Success).location
-                    QueueButtonComposable(
-                        { joinLeaveQueue(location) },
-                        true, // TODO InQueueUseCase
-                    )
+                    if (locationUiState is LocationUiState.Success) {
+                        val location = locationUiState.location
+                        QueueButtonComposable(
+                            { joinLeaveQueue(location) },
+                            true, // TODO InQueueUseCase
+                        )
+                    }
                 }
                 // Overlay
                 if (isProfileVisible) {
