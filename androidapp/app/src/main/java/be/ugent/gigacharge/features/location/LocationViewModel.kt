@@ -1,5 +1,6 @@
 package be.ugent.gigacharge.features.location
 
+import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.ugent.gigacharge.domain.GetLocationsUseCase
@@ -21,22 +22,39 @@ class LocationViewModel @Inject constructor(
     private val queueService: QueueService
 ): ViewModel() {
     val locationsUiState: StateFlow<LocationsUiState> = getLocationsUseCase().map{LocationsUiState.Success(it)}.stateIn(viewModelScope, SharingStarted.Eagerly, LocationsUiState.Loading)
-    private var location: MutableStateFlow<LocationUiState> = MutableStateFlow(LocationUiState.Success(Location("1", "test", QueueState.NotJoined, 0)))
-    val locationUiState: StateFlow<LocationUiState> = location.asStateFlow()
-//    val locationUiState: StateFlow<LocationUiState> = getLocationsUseCase().map{
-//            if (it.getOrNull(0) == null) LocationUiState.Loading else LocationUiState.Success(it[0])
-//        }.stateIn(viewModelScope, SharingStarted.Eagerly, LocationUiState.Loading)
 
-    fun setLocation(loc: Location) = viewModelScope.launch {
-        location.value = LocationUiState.Success(queueService.updateLocation(loc)!!)
+    private val myFlow: MutableStateFlow<LocationUiState> = MutableStateFlow(LocationUiState.Loading)
+    private val otherFlow: StateFlow<LocationUiState> = getLocationsUseCase().map{
+            if (it.getOrNull(0) == null) LocationUiState.Loading else LocationUiState.Success(it[0])
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, LocationUiState.Loading)
+    private val location: MutableStateFlow<LocationUiState> = MutableStateFlow(LocationUiState.Loading)
+    val locationUiState: StateFlow<LocationUiState> = location.asStateFlow()
+
+    init {
+        myFlow.combine(otherFlow) { myFlow, otherFlow ->
+            println("MyFlow & OtherFlow: ")
+            println(myFlow)
+            println(otherFlow)
+            var temp = myFlow
+            if (myFlow == LocationUiState.Loading && otherFlow is LocationUiState.Success) {
+                temp = otherFlow
+            }
+            location.value = temp
+            print("New locationState: ")
+            println(location.value)
+        }.launchIn(viewModelScope)
     }
-//    fun setLocation(location: Location) {
-////        val temp: MutableList<Location> = locations.value.toMutableList()
-////        temp.add(location.value)
-////        temp.remove(loc)
-////        locations.value = temp.toList()
-////        location.value = loc
-//    }
+
+    fun setLocation(loc: Location) {
+        viewModelScope.launch {
+            var l = queueService.updateLocation(loc)
+            var temp: LocationUiState = LocationUiState.Loading
+            if (l != null) {
+                temp = LocationUiState.Success(l)
+            }
+            myFlow.value = temp
+        }
+    }
 
     fun toggleFavorite(loc: Location) {
 //        // Toggle if it was the selected location

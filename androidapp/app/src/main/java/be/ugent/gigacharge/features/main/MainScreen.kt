@@ -36,7 +36,8 @@ fun MainRoute(onLocationSelectClick : () -> Unit, queueVM: QueueViewModel, profi
     val profileUiState by profileVM.uiState.collectAsState()
     val isProfileVisible by profileVM.isVisibleState.collectAsState()
     val locationUiState by locationVM.locationUiState.collectAsState()
-
+    print("MainRoute value: ")
+    println(locationUiState)
     MainScreen(
         // Navigation function
         onLocationSelectClick,
