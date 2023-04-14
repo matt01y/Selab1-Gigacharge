@@ -21,40 +21,36 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import be.ugent.gigacharge.common.composable.*
 //import be.ugent.gigacharge.data.local.models.Location
 import be.ugent.gigacharge.features.ProfileUiState
-import be.ugent.gigacharge.features.ProfileViewModel
 import be.ugent.gigacharge.features.QueueUiState
-import be.ugent.gigacharge.features.QueueViewModel
-import be.ugent.gigacharge.features.location.LocationUiState
-import be.ugent.gigacharge.features.location.LocationViewModel
+import be.ugent.gigacharge.features.LocationUiState
 import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 
 @Composable
-fun MainRoute(onLocationSelectClick : () -> Unit, queueVM: QueueViewModel, profileVM: ProfileViewModel, locationVM: LocationViewModel) {
-    val queueUiState by queueVM.uiState.collectAsState()
-    val profileUiState by profileVM.uiState.collectAsState()
-    val isProfileVisible by profileVM.isVisibleState.collectAsState()
-    val locationUiState by locationVM.locationUiState.collectAsState()
-    print("MainRoute value: ")
-    println(locationUiState)
+fun MainRoute(onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
+    val isProfileVisible by viewModel.isVisibleState.collectAsState()
+    val profileUiState by viewModel.profileUiState.collectAsState()
+    val queueUiState by viewModel.queueUiState.collectAsState()
+    val locationUiState by viewModel.locationUiState.collectAsState()
+
     MainScreen(
         // Navigation function
         onLocationSelectClick,
-        { profileVM.toggleProfile() },
+        { viewModel.toggleProfile() },
         // State
         queueUiState,
         profileUiState,
         locationUiState,
         // Queue
-        {l:Location -> queueVM.joinLeaveQueue(l) },
+        {l:Location -> viewModel.joinLeaveQueue(l) },
         // Profile
         isProfileVisible,
-        {p:String,n:String,c:String -> profileVM.saveProfile(p,n,c) },
-        profileVM.getProviders(),
-        profileVM.getCompanies(),
+        {p:String,n:String,c:String -> viewModel.saveProfile(p,n,c) },
+        viewModel.getProviders(),
+        viewModel.getCompanies(),
         // Location
-        {l: Location -> locationVM.toggleFavorite(l)}
+        {l: Location -> viewModel.toggleFavorite(l)}
     )
 }
 
@@ -209,6 +205,6 @@ fun Overlay() {
 @Composable
 fun MainScreenPreview() {
     GigaChargeTheme {
-        MainRoute({}, hiltViewModel(), hiltViewModel(), hiltViewModel())
+        MainRoute({}, hiltViewModel())
     }
 }

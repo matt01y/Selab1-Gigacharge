@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,7 +14,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 //import be.ugent.gigacharge.data.local.models.Location
-import be.ugent.gigacharge.features.location.LocationUiState
 import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.model.location.QueueState
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme

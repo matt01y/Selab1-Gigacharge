@@ -1,4 +1,4 @@
-package be.ugent.gigacharge.features.location
+package be.ugent.gigacharge.features
 
 import be.ugent.gigacharge.model.location.Location
 
