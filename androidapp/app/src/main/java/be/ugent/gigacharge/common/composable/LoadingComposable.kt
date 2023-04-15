@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 @Composable
-fun LoadingComposable(spinnerColor: Color = MaterialTheme.colors.secondaryVariant, textColor: Color = MaterialTheme.colors.onBackground) {
+fun LoadingComposable(spinnerColor: Color = MaterialTheme.colors.secondaryVariant, textColor: Color = MaterialTheme.colors.onBackground, text: String = "Loading ...") {
     val transition = rememberInfiniteTransition()
     val rotation by transition.animateFloat(-36F, 324F, InfiniteRepeatableSpec(tween(durationMillis = 1000), RepeatMode.Restart))
 
@@ -30,7 +30,7 @@ fun LoadingComposable(spinnerColor: Color = MaterialTheme.colors.secondaryVarian
             strokeWidth = 3.dp
         )
         Spacer(Modifier.width(8.dp))
-        Text("Loading ...", color = textColor)
+        Text(text, color = textColor)
     }
 }
 
