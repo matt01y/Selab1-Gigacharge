@@ -2,10 +2,10 @@ package be.ugent.gigacharge.features.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import be.ugent.gigacharge.data.local.models.Profile
 import be.ugent.gigacharge.data.local.models.Queue
-import be.ugent.gigacharge.domain.JoinLeaveQueueUseCase
-import be.ugent.gigacharge.domain.profile.GetProfileUseCase
-import be.ugent.gigacharge.domain.profile.ToggleProfileUseCase
+import be.ugent.gigacharge.domain.queue.JoinLeaveQueueUseCase
+import be.ugent.gigacharge.domain.profile.*
 import be.ugent.gigacharge.features.ProfileUiState
 import be.ugent.gigacharge.features.QueueUiState
 import be.ugent.gigacharge.features.LocationUiState
@@ -21,6 +21,9 @@ class MainViewModel @Inject constructor(
     // Profile
     getProfileUseCase: GetProfileUseCase,
     private val toggleProfileUseCase: ToggleProfileUseCase,
+    private val saveProfileUseCase: SaveProfileUseCase,
+    private val getProvidersUseCase: GetProvidersUseCase,
+    private val getCompaniesUseCase: GetCompaniesUseCase,
     // Queue
     private val joinLeaveQueueUseCase: JoinLeaveQueueUseCase
     // Location
@@ -40,22 +43,22 @@ class MainViewModel @Inject constructor(
     }
 
     fun saveProfile(provider: String, card: String, company: String) {
-
+        saveProfileUseCase(Profile(provider, card, company))
     }
 
     fun getProviders(): List<String> {
-        return listOf("MobilityPlus", "BlueCorner")
+        return getProvidersUseCase()
     }
 
     fun getCompanies(): List<String> {
-        return listOf("Roularta", "UGent")
+        return getCompaniesUseCase()
     }
 
     fun joinLeaveQueue(location: Location) = viewModelScope.launch {
         joinLeaveQueueUseCase(location)
     }
 
-    fun toggleFavorite(loc: Location) {
+    fun toggleFavorite(location: Location) {
 
     }
 }

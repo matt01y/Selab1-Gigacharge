@@ -33,7 +33,7 @@ class ProfileRepository @Inject constructor(queueService: QueueService) {
     }
 
     fun saveProfile(profile: Profile) {
-
+        profileFlow.value = profile
     }
 
     fun getProviders(): List<String> {

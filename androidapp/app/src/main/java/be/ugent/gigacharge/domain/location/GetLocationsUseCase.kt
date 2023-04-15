@@ -1,4 +1,4 @@
-package be.ugent.gigacharge.domain
+package be.ugent.gigacharge.domain.location
 
 import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.model.service.QueueService

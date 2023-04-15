@@ -2,8 +2,8 @@ package be.ugent.gigacharge.features.location
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import be.ugent.gigacharge.domain.GetLocationsUseCase
-import be.ugent.gigacharge.domain.SetLocationUseCase
+import be.ugent.gigacharge.domain.location.GetLocationsUseCase
+import be.ugent.gigacharge.domain.location.SetLocationUseCase
 import be.ugent.gigacharge.features.LocationUiState
 import be.ugent.gigacharge.features.LocationsUiState
 import be.ugent.gigacharge.model.location.Location
