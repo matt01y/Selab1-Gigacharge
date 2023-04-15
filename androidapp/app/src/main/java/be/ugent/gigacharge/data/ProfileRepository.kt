@@ -1,5 +1,6 @@
 package be.ugent.gigacharge.data
 
+import android.util.Log
 import be.ugent.gigacharge.data.local.models.Profile
 import be.ugent.gigacharge.data.local.models.ProfileState
 import be.ugent.gigacharge.model.service.QueueService
@@ -10,24 +11,29 @@ import javax.inject.Singleton
 
 @Singleton
 class ProfileRepository @Inject constructor(queueService: QueueService) {
-    private var isProfileVisible: Boolean = false
-    private var profile: Profile? = Profile("MobilityPlus", "1234 - 5678", "Roularta")
+    private var isVisibleFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private var profileFlow: MutableStateFlow<Profile?> = MutableStateFlow(Profile("MobilityPlus", "1234 - 5678", "Roularta"))
 
-    fun getProfile(): Flow<ProfileState> = callbackFlow {
-        if (isProfileVisible) {
-            profile?.let { trySend(ProfileState.Shown(it)) }
+    fun getProfile(): Flow<ProfileState> = profileFlow.flatMapLatest { profile ->
+        if (profile == null) {
+            emptyFlow()
         } else {
-            trySend(ProfileState.Hidden)
+            isVisibleFlow.transform { isVisible ->
+                if (isVisible) {
+                    emit(ProfileState.Shown(profile))
+                } else {
+                    emit(ProfileState.Hidden)
+                }
+            }
         }
-        awaitClose()
     }
 
     fun toggleProfile() {
-        isProfileVisible = !isProfileVisible
+        isVisibleFlow.value = !isVisibleFlow.value
     }
 
     fun saveProfile(profile: Profile) {
-        this.profile = profile
+
     }
 
     fun getProviders(): List<String> {

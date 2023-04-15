@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import be.ugent.gigacharge.data.local.models.Queue
 import be.ugent.gigacharge.domain.JoinLeaveQueueUseCase
 import be.ugent.gigacharge.domain.profile.GetProfileUseCase
+import be.ugent.gigacharge.domain.profile.ToggleProfileUseCase
 import be.ugent.gigacharge.features.ProfileUiState
 import be.ugent.gigacharge.features.QueueUiState
 import be.ugent.gigacharge.features.LocationUiState
@@ -19,6 +20,7 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     // Profile
     getProfileUseCase: GetProfileUseCase,
+    private val toggleProfileUseCase: ToggleProfileUseCase,
     // Queue
     private val joinLeaveQueueUseCase: JoinLeaveQueueUseCase
     // Location
@@ -34,7 +36,7 @@ class MainViewModel @Inject constructor(
     val locationUiState: StateFlow<LocationUiState> = location.asStateFlow()
 
     fun toggleProfile() {
-
+        toggleProfileUseCase()
     }
 
     fun saveProfile(provider: String, card: String, company: String) {
