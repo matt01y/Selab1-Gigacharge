@@ -17,6 +17,10 @@ limitations under the License.
 package be.ugent.gigacharge.model.service.impl
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.model.location.QueueState
 import be.ugent.gigacharge.model.service.AccountService
@@ -25,6 +29,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 import kotlinx.coroutines.tasks.await
@@ -43,36 +48,21 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
         return locationCollection.document(locid).collection(QUEUE_COLLECTION)
     }
 
-    private var locations : List<Location> = emptyList()
 
-    private val emptyEmit : (() -> Unit) = {
-        Log.println(Log.INFO, "queue", "emit geprobeerd maar is null")
-    }
-    private var reEmitLocations : (() -> Unit) = emptyEmit
-
-    override val getLocations: Flow<List<Location>> = callbackFlow {
-        reEmitLocations = {
-            Log.println(Log.INFO, "queue", "emitting now")
-            Log.println(Log.INFO, "queue", locations.toString())
-            trySend(locations)
-        }
-        Log.println(Log.INFO, "queue", "flow has been consumed")
-        trySend(locations)
-        awaitClose{reEmitLocations = emptyEmit}
-    }
+    override val locationMap : SnapshotStateMap<String, Location> = mutableStateMapOf()
 
     override suspend fun updateLocations(): List<Location> {
         Log.println(Log.INFO, "queue", "LOCATION UPDATE")
         val results = mutableListOf<Location>()
         val locationsnap = locationCollection.get().await()
+        locationMap.clear()
         locationsnap.forEach { snap ->
-            results.add(
-                refToLocation(locationCollection.document(snap.id))
-            )
+            val res = refToLocation(locationCollection.document(snap.id))
+            locationMap[res.id] = res
+            results.add(res)
         }
-        locations = results
-        Log.println(Log.INFO, "queue", locations.toString())
-        return locations
+        Log.println(Log.INFO, "queue", locationMap.toMap().toString())
+        return results
     }
 
     override suspend fun getLocation(locId: String): Location {
@@ -106,24 +96,14 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
         }
         batch.commit().await()
         updateLocation(loc)
-        reEmitLocations()
         //TODO("Not yet implemented")
     }
 
     //TODO: testen
     override suspend fun updateLocation(loc: Location): Location {
         val newloc = refToLocation(locationCollection.document(loc.id))
-        locations = locations.mapIndexed{i, oloc ->
-            if(oloc.id == loc.id){
-                Log.println(Log.INFO, "queue", "updated")
-                Log.println(Log.INFO, "queue", newloc.toString())
-                newloc
-            }else{
-                oloc
-            }
-        }
-        Log.println(Log.INFO, "queueupdate", locations.toString())
-        reEmitLocations()
+        locationMap[loc.id] = newloc
+        Log.println(Log.INFO, "queueupdate", locationMap.toMap().toString())
         return newloc
         //TODO("Not yet implemented")
     }

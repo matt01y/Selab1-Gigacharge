@@ -1,20 +1,23 @@
-package be.ugent.quotes.data
+package be.ugent.gigacharge.data
 
-import android.util.Log
-import be.ugent.quotes.data.remote.QueueBackend
+import be.ugent.gigacharge.data.local.models.Queue
+import be.ugent.gigacharge.model.location.Location
+import be.ugent.gigacharge.model.service.QueueService
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class QuotesRepository @Inject constructor(
-    private val backend: QueueBackend
+class QueueRepository @Inject constructor(
+    private val queueService: QueueService
 ) {
+    fun getQueue(): Flow<Queue> = flowOf(Queue(listOf(), "Roularta Roeselare"))
 
-    suspend fun setCardNumber(cardNumber:String){
-        Log.i("repository","KAARTNUMMER GEZET NAAR $cardNumber")
-        backend.cardNumber = cardNumber
+    suspend fun joinLeaveQueue(location: Location) {
+        if (location.amIJoined) {
+            queueService.leaveQueue(location)
+        } else {
+            queueService.joinQueue(location)
+        }
     }
-
-    fun getCardNumber() = backend.cardNumber
-
 }

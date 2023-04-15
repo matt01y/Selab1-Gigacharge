@@ -19,40 +19,37 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import be.ugent.gigacharge.common.composable.*
-import be.ugent.gigacharge.data.local.models.Location
+import be.ugent.gigacharge.data.local.models.ProfileState
+//import be.ugent.gigacharge.data.local.models.Location
 import be.ugent.gigacharge.features.ProfileUiState
-import be.ugent.gigacharge.features.ProfileViewModel
 import be.ugent.gigacharge.features.QueueUiState
-import be.ugent.gigacharge.features.QueueViewModel
-import be.ugent.gigacharge.features.location.LocationUiState
-import be.ugent.gigacharge.features.location.LocationViewModel
+import be.ugent.gigacharge.features.LocationUiState
+import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 
 @Composable
-fun MainRoute(onLocationSelectClick : () -> Unit, queueVM: QueueViewModel, profileVM: ProfileViewModel, locationVM: LocationViewModel) {
-    val queueUiState by queueVM.uiState.collectAsState()
-    val profileUiState by profileVM.uiState.collectAsState()
-    val isProfileVisible by profileVM.isVisibleState.collectAsState()
-    val locationUiState by locationVM.locationUiState.collectAsState()
+fun MainRoute(onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
+    val profileUiState by viewModel.profileUiState.collectAsState()
+    val queueUiState by viewModel.queueUiState.collectAsState()
+    val locationUiState by viewModel.locationUiState.collectAsState()
 
     MainScreen(
         // Navigation function
         onLocationSelectClick,
-        { profileVM.toggleProfile() },
+        { viewModel.toggleProfile() },
         // State
         queueUiState,
         profileUiState,
         locationUiState,
         // Queue
-        {n:String -> queueVM.joinLeaveQueue(n) },
+        {l:Location -> viewModel.joinLeaveQueue(l) },
         // Profile
-        isProfileVisible,
-        {p:String,n:String,c:String -> profileVM.saveProfile(p,n,c) },
-        profileVM.getProviders(),
-        profileVM.getCompanies(),
+        {p:String,n:String,c:String -> viewModel.saveProfile(p,n,c) },
+        viewModel.getProviders(),
+        viewModel.getCompanies(),
         // Location
-        {l:Location  -> locationVM.toggleFavorite(l)}
+        {l: Location -> viewModel.toggleFavorite(l)}
     )
 }
 
@@ -66,9 +63,8 @@ fun MainScreen(
     profileUiState: ProfileUiState,
     locationUiState: LocationUiState,
     // Queue
-    joinLeaveQueue: (String) -> Unit,
+    joinLeaveQueue: (Location) -> Unit,
     // Profile
-    isProfileVisible: Boolean,
     saveProfile: (String,String,String) -> Unit,
     providers : List<String>,
     companies : List<String>,
@@ -80,33 +76,38 @@ fun MainScreen(
             MainHeaderComposable(
                 onProfileSelectClick
             ) {
-                if (isProfileVisible) {
-                    when (profileUiState) {
-                        ProfileUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary)
-                        is ProfileUiState.Success -> {
-                            val profile = profileUiState.profile
-                            ProfileFormComposable(
-                                provider = profile.provider,
-                                providers = providers,
-                                cardNumber = profile.cardNumber,
-                                company = profile.company,
-                                companies = companies,
-                                cancel = onProfileSelectClick,
-                                saveProfile = saveProfile
-                            )
-                        }
-                    }
-                } else {
-                    when (locationUiState) {
-                        LocationUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary)
-                        is LocationUiState.Success -> {
-                            val location = locationUiState.location
-                            LocationButtonComposable(
-                                onLocationSelectClick,
-                                { toggleFavorite(location) },
-                                location,
-                                true
-                            )
+                when (profileUiState) {
+                    ProfileUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary, text="Loading profile ...")
+                    is ProfileUiState.Success -> {
+                        when (profileUiState.profile) {
+                            // Profile is not visible, show setLocationButton
+                            ProfileState.Hidden -> {
+                                when (locationUiState) {
+                                    LocationUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary, text="Loading location ...")
+                                    is LocationUiState.Success -> {
+                                        val location = locationUiState.location
+                                        LocationButtonComposable(
+                                            onLocationSelectClick,
+                                            { toggleFavorite(location) },
+                                            location,
+                                            true
+                                        )
+                                    }
+                                }
+                            }
+                            // Profile is visible, show form
+                            is ProfileState.Shown -> {
+                                val profile = profileUiState.profile.profile
+                                ProfileFormComposable(
+                                    provider = profile.provider,
+                                    providers = providers,
+                                    cardNumber = profile.cardNumber,
+                                    company = profile.company,
+                                    companies = companies,
+                                    cancel = onProfileSelectClick,
+                                    saveProfile = saveProfile
+                                )
+                            }
                         }
                     }
                 }
@@ -114,17 +115,16 @@ fun MainScreen(
         },
         bottomBar = {
             Box(Modifier.height(IntrinsicSize.Max)) {
-                // BottomBar
-                if (queueUiState is QueueUiState.Success) {
-                    val queue = queueUiState.queue.queue
-                    val profile = (profileUiState as ProfileUiState.Success).profile
+                // Join/Leave button
+                if (locationUiState is LocationUiState.Success) {
+                    val location = locationUiState.location
                     QueueButtonComposable(
-                        { joinLeaveQueue(profile.cardNumber) },
-                        queue.contains(profile.cardNumber)
+                        { joinLeaveQueue(location) },
+                        location.amIJoined, // TODO InQueueUseCase
                     )
                 }
-                // Overlay
-                if (isProfileVisible) {
+                // Overlay if profile is visible
+                if (profileUiState is ProfileUiState.Success && profileUiState.profile is ProfileState.Shown) {
                     Overlay()
                 }
             }
@@ -132,14 +132,13 @@ fun MainScreen(
     ) {
         paddingValues -> Column(Modifier.padding(paddingValues)) {
             Box {
-                // Home screen
+                // Show queue information
                 when (queueUiState) {
-                    QueueUiState.Loading -> {
-                        LoadingComposable()
-                    }
+                    // Waiting on queue information
+                    QueueUiState.Loading -> LoadingComposable()
+                    // Show the queue information
                     is QueueUiState.Success -> {
                         val queue = queueUiState.queue;
-
                         LazyColumn {
                             item {
                                 QueueInfoComposable(queue.queue.size)
@@ -147,8 +146,8 @@ fun MainScreen(
                         }
                     }
                 }
-                // Overlay when needed
-                if (isProfileVisible) {
+                // Overlay if profile is visible
+                if (profileUiState is ProfileUiState.Success && profileUiState.profile is ProfileState.Shown) {
                     Overlay()
                 }
             }
@@ -205,6 +204,6 @@ fun Overlay() {
 @Composable
 fun MainScreenPreview() {
     GigaChargeTheme {
-        MainRoute({}, hiltViewModel(), hiltViewModel(), hiltViewModel())
+        MainRoute({}, hiltViewModel())
     }
 }
