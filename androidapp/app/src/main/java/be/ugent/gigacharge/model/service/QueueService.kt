@@ -16,11 +16,11 @@ limitations under the License.
 
 package be.ugent.gigacharge.model.service
 
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import be.ugent.gigacharge.model.location.Location
-import kotlinx.coroutines.flow.Flow
 
 interface QueueService {
-  val getLocations: Flow<List<Location>>
+  val getLocations: SnapshotStateList<Location>
   suspend fun updateLocations() : List<Location>
 
   suspend fun getLocation(locId: String): Location?

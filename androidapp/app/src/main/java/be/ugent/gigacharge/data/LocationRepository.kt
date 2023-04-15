@@ -1,5 +1,6 @@
 package be.ugent.gigacharge.data
 
+import androidx.compose.runtime.snapshotFlow
 import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.model.service.QueueService
 import kotlinx.coroutines.flow.*
@@ -29,7 +30,7 @@ class LocationRepository @Inject constructor(
     }
 
     fun getLocations(): Flow<List<Location>> {
-        return queueService.getLocations
+        return snapshotFlow { queueService.getLocations.toList() }
     }
 
     fun setLocation(location: Location) {
