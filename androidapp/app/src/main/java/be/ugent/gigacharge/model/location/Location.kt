@@ -22,6 +22,7 @@ data class Location(
   @DocumentId val id: String = "",
   val name: String = "",
   val queue : QueueState,
+  val status : LocationStatus,
   val amountWaiting : Long
 ){
   val amIJoined : Boolean

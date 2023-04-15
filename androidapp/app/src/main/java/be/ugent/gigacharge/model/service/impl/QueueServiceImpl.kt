@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import be.ugent.gigacharge.model.location.Location
+import be.ugent.gigacharge.model.location.LocationStatus
 import be.ugent.gigacharge.model.location.QueueState
 import be.ugent.gigacharge.model.service.AccountService
 import be.ugent.gigacharge.model.service.QueueService
@@ -133,6 +134,7 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
             id = snap.id,
             name = snap.getString(NAME_FIELD)?:"ERROR GEEN NAAM",
             amountWaiting = amountwaiting,
+            status = LocationStatus.valueOf(snap.get("status") as String),
             queue = state
         )
     }
