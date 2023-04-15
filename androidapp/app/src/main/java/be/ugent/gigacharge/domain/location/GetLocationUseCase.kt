@@ -1,14 +1,12 @@
 package be.ugent.gigacharge.domain.location
 
+import be.ugent.gigacharge.data.LocationRepository
 import be.ugent.gigacharge.model.location.Location
-import be.ugent.gigacharge.model.service.QueueService
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 
 class GetLocationUseCase @Inject constructor(
-    private val queueService : QueueService
+    private val locationRepository: LocationRepository
 ) {
-    suspend operator fun invoke(id : String): Flow<Location?> = flowOf(queueService.getLocation(id))
+    operator fun invoke(): Flow<Location> = locationRepository.getLocation()
 }

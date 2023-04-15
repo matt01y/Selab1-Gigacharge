@@ -1,10 +1,8 @@
 package be.ugent.gigacharge.data
 
-import android.util.Log
 import be.ugent.gigacharge.data.local.models.Profile
 import be.ugent.gigacharge.data.local.models.ProfileState
 import be.ugent.gigacharge.model.service.QueueService
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import javax.inject.Singleton
