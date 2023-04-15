@@ -36,7 +36,7 @@ class MainViewModel @Inject constructor(
 ): ViewModel() {
     val profileUiState: StateFlow<ProfileUiState> = getProfileUseCase().map{ProfileUiState.Success(it)}.stateIn(viewModelScope, SharingStarted.Eagerly, ProfileUiState.Loading)
     val queueUiState: StateFlow<QueueUiState> = getQueueUseCase().map{QueueUiState.Success(it)}.stateIn(viewModelScope, SharingStarted.Eagerly, QueueUiState.Loading)
-    val locationUiState: StateFlow<LocationUiState> = getLocationUseCase().map{LocationUiState.Success(it)}.stateIn(viewModelScope, SharingStarted.Eagerly, LocationUiState.Loading)
+    val locationUiState: StateFlow<LocationUiState> = getLocationUseCase().map{LocationUiState.Success(it?:Location("notloaded", "notloaded", QueueState.NotJoined, 0))}.stateIn(viewModelScope, SharingStarted.Eagerly, LocationUiState.Loading)
 
     fun toggleProfile() {
         toggleProfileUseCase()

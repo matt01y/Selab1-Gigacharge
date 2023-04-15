@@ -120,7 +120,7 @@ fun MainScreen(
                     val location = locationUiState.location
                     QueueButtonComposable(
                         { joinLeaveQueue(location) },
-                        true, // TODO InQueueUseCase
+                        location.amIJoined, // TODO InQueueUseCase
                     )
                 }
                 // Overlay if profile is visible

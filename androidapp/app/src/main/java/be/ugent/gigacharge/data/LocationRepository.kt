@@ -11,30 +11,14 @@ import javax.inject.Singleton
 class LocationRepository @Inject constructor(
     private val queueService: QueueService
 ) {
-    private val locationFlow: MutableStateFlow<Location?> = MutableStateFlow(null)
+    private val locationIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
+    public val locations : Flow<Map<String, Location>> = snapshotFlow { queueService.locationMap.toMap() }
 
-    fun getLocation(): Flow<Location> = locationFlow.flatMapLatest { location ->
-        // If the location is null, get the first, first favorite, last used, ... location
-        // Simplest: first in locations
-        if (location == null) {
-            getLocations().transform { locations ->
-                if (locations.isEmpty()) {
-                    emptyFlow<Location>()
-                } else {
-                    emit(locations[0])
-                }
-            }
-        } else {
-            flowOf(location)
-        }
-    }
+    val getLocation : Flow<Location?> = locations.combine(locationIdFlow){map, id -> map[id]}
 
-    fun getLocations(): Flow<List<Location>> {
-        return snapshotFlow { queueService.getLocations.toList() }
-    }
 
     fun setLocation(location: Location) {
-        locationFlow.value = location
+        locationIdFlow.value = location.id
     }
 
     fun toggleFavorite(location: Location) {

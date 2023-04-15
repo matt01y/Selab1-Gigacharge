@@ -18,7 +18,9 @@ package be.ugent.gigacharge.model.service.impl
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.model.location.QueueState
 import be.ugent.gigacharge.model.service.AccountService
@@ -47,20 +49,19 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
     }
 
 
-    override val getLocations: SnapshotStateList<Location> = mutableStateListOf()
+    override val locationMap : SnapshotStateMap<String, Location> = mutableStateMapOf()
 
     override suspend fun updateLocations(): List<Location> {
         Log.println(Log.INFO, "queue", "LOCATION UPDATE")
         val results = mutableListOf<Location>()
         val locationsnap = locationCollection.get().await()
+        locationMap.clear()
         locationsnap.forEach { snap ->
-            results.add(
-                refToLocation(locationCollection.document(snap.id))
-            )
+            val res = refToLocation(locationCollection.document(snap.id))
+            locationMap[res.id] = res
+            results.add(res)
         }
-        getLocations.clear()
-        getLocations.addAll(results)
-        Log.println(Log.INFO, "queue", getLocations.toList().toString())
+        Log.println(Log.INFO, "queue", locationMap.toMap().toString())
         return results
     }
 
@@ -101,16 +102,8 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
     //TODO: testen
     override suspend fun updateLocation(loc: Location): Location {
         val newloc = refToLocation(locationCollection.document(loc.id))
-        getLocations.replaceAll {
-            if (it.id == loc.id) {
-                Log.println(Log.INFO, "queue", "updated")
-                Log.println(Log.INFO, "queue", newloc.toString())
-                newloc
-            } else {
-                it
-            }
-        }
-        Log.println(Log.INFO, "queueupdate", getLocations.toString())
+        locationMap[loc.id] = newloc
+        Log.println(Log.INFO, "queueupdate", locationMap.toMap().toString())
         return newloc
         //TODO("Not yet implemented")
     }
