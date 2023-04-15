@@ -1,7 +1,6 @@
 package be.ugent.gigacharge.data
 
 import be.ugent.gigacharge.model.location.Location
-import be.ugent.gigacharge.model.location.QueueState
 import be.ugent.gigacharge.model.service.QueueService
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -35,5 +34,9 @@ class LocationRepository @Inject constructor(
 
     fun setLocation(location: Location) {
         locationFlow.value = location
+    }
+
+    fun toggleFavorite(location: Location) {
+        // Suggestion: at most 1
     }
 }

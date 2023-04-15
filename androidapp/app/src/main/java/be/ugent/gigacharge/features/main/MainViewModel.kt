@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import be.ugent.gigacharge.data.local.models.Profile
 import be.ugent.gigacharge.data.local.models.Queue
 import be.ugent.gigacharge.domain.location.GetLocationUseCase
+import be.ugent.gigacharge.domain.location.ToggleFavoriteLocationUseCase
 import be.ugent.gigacharge.domain.queue.JoinLeaveQueueUseCase
 import be.ugent.gigacharge.domain.profile.*
 import be.ugent.gigacharge.features.ProfileUiState
@@ -28,7 +29,8 @@ class MainViewModel @Inject constructor(
     // Queue
     private val joinLeaveQueueUseCase: JoinLeaveQueueUseCase,
     // Location
-    getLocationUseCase: GetLocationUseCase
+    getLocationUseCase: GetLocationUseCase,
+    private val toggleFavoriteLocationUseCase: ToggleFavoriteLocationUseCase
 ): ViewModel() {
     // Profile
     val profileUiState: StateFlow<ProfileUiState> = getProfileUseCase().map{ProfileUiState.Success(it)}.stateIn(viewModelScope, SharingStarted.Eagerly, ProfileUiState.Loading)
@@ -59,6 +61,6 @@ class MainViewModel @Inject constructor(
     }
 
     fun toggleFavorite(location: Location) {
-
+        toggleFavoriteLocationUseCase(location)
     }
 }
