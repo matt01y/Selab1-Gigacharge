@@ -8,6 +8,7 @@ import be.ugent.gigacharge.domain.location.GetLocationUseCase
 import be.ugent.gigacharge.domain.location.ToggleFavoriteLocationUseCase
 import be.ugent.gigacharge.domain.queue.JoinLeaveQueueUseCase
 import be.ugent.gigacharge.domain.profile.*
+import be.ugent.gigacharge.domain.queue.GetQueueUseCase
 import be.ugent.gigacharge.features.ProfileUiState
 import be.ugent.gigacharge.features.QueueUiState
 import be.ugent.gigacharge.features.LocationUiState
@@ -27,17 +28,14 @@ class MainViewModel @Inject constructor(
     private val getProvidersUseCase: GetProvidersUseCase,
     private val getCompaniesUseCase: GetCompaniesUseCase,
     // Queue
+    getQueueUseCase: GetQueueUseCase,
     private val joinLeaveQueueUseCase: JoinLeaveQueueUseCase,
     // Location
     getLocationUseCase: GetLocationUseCase,
     private val toggleFavoriteLocationUseCase: ToggleFavoriteLocationUseCase
 ): ViewModel() {
-    // Profile
     val profileUiState: StateFlow<ProfileUiState> = getProfileUseCase().map{ProfileUiState.Success(it)}.stateIn(viewModelScope, SharingStarted.Eagerly, ProfileUiState.Loading)
-    // Queue
-    private var queue: MutableStateFlow<Queue> = MutableStateFlow(Queue(listOf(), "Roularta Roeselare"))
-    val queueUiState: StateFlow<QueueUiState> = queue.map{ QueueUiState.Success(it)}.stateIn(viewModelScope, SharingStarted.Eagerly, QueueUiState.Loading)
-    // Location
+    val queueUiState: StateFlow<QueueUiState> = getQueueUseCase().map{QueueUiState.Success(it)}.stateIn(viewModelScope, SharingStarted.Eagerly, QueueUiState.Loading)
     val locationUiState: StateFlow<LocationUiState> = getLocationUseCase().map{LocationUiState.Success(it)}.stateIn(viewModelScope, SharingStarted.Eagerly, LocationUiState.Loading)
 
     fun toggleProfile() {
