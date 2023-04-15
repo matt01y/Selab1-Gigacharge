@@ -14,11 +14,17 @@ class LocationRepository @Inject constructor(
     private val locationIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
     private val locations : Flow<Map<String, Location>> = snapshotFlow { queueService.locationMap.toMap() }
 
-    fun getLocation(): Flow<Location> = locations.combine(locationIdFlow){map, id -> map[id]}.transform { location ->
-        if (location == null) {
-            emit(locations.last().values.first())
+    fun getLocation(): Flow<Location> = locations.flatMapLatest { map ->
+        if (map.isEmpty()) {
+            emptyFlow()
         } else {
-            emit(location)
+            locationIdFlow.transform { id ->
+                if (id == null || !map.containsKey(id)) {
+                    emit(map.values.first())
+                } else {
+                    emit(map[id]!!)
+                }
+            }
         }
     }
 
