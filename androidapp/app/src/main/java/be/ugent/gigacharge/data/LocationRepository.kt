@@ -12,10 +12,19 @@ class LocationRepository @Inject constructor(
     private val queueService: QueueService
 ) {
     private val locationIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
-    public val locations : Flow<Map<String, Location>> = snapshotFlow { queueService.locationMap.toMap() }
+    private val locations : Flow<Map<String, Location>> = snapshotFlow { queueService.locationMap.toMap() }
 
-    val getLocation : Flow<Location?> = locations.combine(locationIdFlow){map, id -> map[id]}
+    fun getLocation(): Flow<Location> = locations.combine(locationIdFlow){map, id -> map[id]}.transform { location ->
+        if (location == null) {
+            emit(locations.last().values.first())
+        } else {
+            emit(location)
+        }
+    }
 
+    fun getLocations(): Flow<List<Location>> {
+        return locations.map { it.values.toList() }
+    }
 
     fun setLocation(location: Location) {
         locationIdFlow.value = location.id
