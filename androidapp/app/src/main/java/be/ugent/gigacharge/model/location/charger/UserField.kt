@@ -1,4 +1,4 @@
-package be.ugent.gigacharge.model.location
+package be.ugent.gigacharge.model.location.charger
 
 sealed interface UserField {
     object Null : UserField

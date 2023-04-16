@@ -1,4 +1,4 @@
-package be.ugent.gigacharge.model.location
+package be.ugent.gigacharge.model.location.charger
 
 data class Charger (
     val status: ChargerStatus,
