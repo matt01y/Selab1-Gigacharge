@@ -6,4 +6,11 @@ data class Charger (
     val user : UserField,
     val usertype: UserType,
     val assignedJoin: String
-)
+) {
+    constructor() : this(ChargerStatus.OUT,
+                        "",
+                        UserField.Null,
+                        UserType.NONUSER,
+                        ""
+    )
+}

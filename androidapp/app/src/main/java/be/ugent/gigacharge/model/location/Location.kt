@@ -25,6 +25,12 @@ data class Location(
   val status : LocationStatus,
   val amountWaiting : Long
 ){
+  constructor() : this("",
+                          "",
+                          QueueState.NotJoined,
+                          LocationStatus.OUT,
+                          0
+  )
   val amIJoined : Boolean
     get() = queue is QueueState.Joined
 }
