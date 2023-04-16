@@ -24,6 +24,10 @@ import androidx.compose.runtime.snapshots.SnapshotStateMap
 import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.model.location.LocationStatus
 import be.ugent.gigacharge.model.location.QueueState
+import be.ugent.gigacharge.model.location.charger.Charger
+import be.ugent.gigacharge.model.location.charger.ChargerStatus
+import be.ugent.gigacharge.model.location.charger.UserField
+import be.ugent.gigacharge.model.location.charger.UserType
 import be.ugent.gigacharge.model.service.AccountService
 import be.ugent.gigacharge.model.service.QueueService
 import com.google.firebase.Timestamp
@@ -130,24 +134,27 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
             state = QueueState.NotJoined
         }
 
+
+
+        val chargerdocuments = snap.get("chargers") as List<DocumentSnapshot>?
+        val chargers : List<Charger> = (chargerdocuments ?: listOf()).map {
+            Charger(
+                ChargerStatus.valueOf(it.get("status") as String),
+                "",
+                UserField.Null,
+                UserType.NONUSER,
+                ""
+            )
+        }
+
         val result = Location(
             id = snap.id,
             name = snap.getString(NAME_FIELD)?:"ERROR GEEN NAAM",
             amountWaiting = amountwaiting,
             status = LocationStatus.valueOf(snap.get("status") as String),
             queue = state,
-            chargers = listOf()
+            chargers = chargers
         )
-
-        /* val chargersList = snap.get("chargers") as List<???>
-           for (charger in chargersList) {
-                status: (charging | free | out | assigned) : String
-                description: String
-                user: ID van user | kaartnummer | null
-                usertype: (USER | NONUSER) : String
-                assignedJoin: ID van queue join event (String)
-           }
-         */
 
         println(result.status.toString())
 
