@@ -16,6 +16,7 @@ limitations under the License.
 
 package be.ugent.gigacharge.model.location
 
+import be.ugent.gigacharge.model.location.charger.Charger
 import com.google.firebase.firestore.DocumentId
 
 data class Location(
@@ -23,13 +24,15 @@ data class Location(
   val name: String = "",
   val queue : QueueState,
   val status : LocationStatus,
-  val amountWaiting : Long
+  val amountWaiting : Long,
+  val chargers : List<Charger>
 ){
   constructor() : this("",
                           "",
                           QueueState.NotJoined,
                           LocationStatus.OUT,
-                          0
+                          0,
+                            listOf()
   )
   val amIJoined : Boolean
     get() = queue is QueueState.Joined

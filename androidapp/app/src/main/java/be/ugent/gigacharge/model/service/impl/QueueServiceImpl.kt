@@ -130,13 +130,29 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
             state = QueueState.NotJoined
         }
 
-        return Location(
+        val result = Location(
             id = snap.id,
             name = snap.getString(NAME_FIELD)?:"ERROR GEEN NAAM",
             amountWaiting = amountwaiting,
             status = LocationStatus.valueOf(snap.get("status") as String),
-            queue = state
+            queue = state,
+            chargers = listOf()
         )
+
+        /* val chargersList = snap.get("chargers") as List<???>
+           for (charger in chargersList) {
+                status: (charging | free | out | assigned) : String
+                description: String
+                user: ID van user | kaartnummer | null
+                usertype: (USER | NONUSER) : String
+                assignedJoin: ID van queue join event (String)
+           }
+         */
+
+        println(result.status.toString())
+
+
+        return result
     }
 
 
