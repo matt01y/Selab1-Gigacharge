@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 //import be.ugent.gigacharge.data.local.models.Location
 import be.ugent.gigacharge.model.location.Location
+import be.ugent.gigacharge.model.location.LocationStatus
 import be.ugent.gigacharge.model.location.QueueState
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
@@ -73,6 +74,6 @@ fun LocationButtonComposable(
 @Composable
 fun LocationButtonComposablePreview() {
     GigaChargeTheme {
-        LocationButtonComposable({}, {}, Location("", "Roularta Rouselare", QueueState.NotJoined, 0), false)
+        LocationButtonComposable({}, {}, Location("", "Roularta Rouselare", QueueState.NotJoined, LocationStatus.OUT, 0, listOf()), false)
     }
 }

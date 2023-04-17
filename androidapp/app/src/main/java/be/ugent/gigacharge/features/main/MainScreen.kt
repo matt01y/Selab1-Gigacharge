@@ -19,12 +19,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import be.ugent.gigacharge.common.composable.*
-import be.ugent.gigacharge.data.local.models.ProfileState
-//import be.ugent.gigacharge.data.local.models.Location
 import be.ugent.gigacharge.features.ProfileUiState
 import be.ugent.gigacharge.features.QueueUiState
 import be.ugent.gigacharge.features.LocationUiState
 import be.ugent.gigacharge.model.location.Location
+import be.ugent.gigacharge.model.location.LocationStatus
+import be.ugent.gigacharge.model.location.QueueState
+import be.ugent.gigacharge.model.location.charger.ChargerStatus
+import be.ugent.gigacharge.model.location.charger.UserField
+import be.ugent.gigacharge.model.location.charger.UserType
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 
@@ -45,7 +48,7 @@ fun MainRoute(onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
         // Queue
         {l:Location -> viewModel.joinLeaveQueue(l) },
         // Profile
-        {p:String,n:String,c:String -> viewModel.saveProfile(p,n,c) },
+        {p:String,n:String,c:String,b:Boolean -> viewModel.saveProfile(p,n,c,b) },
         viewModel.getProviders(),
         viewModel.getCompanies(),
         // Location
@@ -65,23 +68,22 @@ fun MainScreen(
     // Queue
     joinLeaveQueue: (Location) -> Unit,
     // Profile
-    saveProfile: (String,String,String) -> Unit,
+    saveProfile: (String,String,String,Boolean) -> Unit,
     providers : List<String>,
     companies : List<String>,
     // Location
     toggleFavorite: (Location) -> Unit
 ) {
-    Scaffold(
-        topBar = {
-            MainHeaderComposable(
-                onProfileSelectClick
-            ) {
-                when (profileUiState) {
-                    ProfileUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary, text="Loading profile ...")
-                    is ProfileUiState.Success -> {
-                        when (profileUiState.profile) {
-                            // Profile is not visible, show setLocationButton
-                            ProfileState.Hidden -> {
+    Box {
+        Scaffold(
+            topBar = {
+                MainHeaderComposable(
+                    onProfileSelectClick
+                ) {
+                    when (profileUiState) {
+                        ProfileUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary, text="Loading profile ...")
+                        is ProfileUiState.Success -> {
+                            if (!profileUiState.profile.visible) {
                                 when (locationUiState) {
                                     LocationUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary, text="Loading location ...")
                                     is LocationUiState.Success -> {
@@ -95,9 +97,8 @@ fun MainScreen(
                                     }
                                 }
                             }
-                            // Profile is visible, show form
-                            is ProfileState.Shown -> {
-                                val profile = profileUiState.profile.profile
+                            else {
+                                val profile = profileUiState.profile
                                 ProfileFormComposable(
                                     provider = profile.provider,
                                     providers = providers,
@@ -108,55 +109,82 @@ fun MainScreen(
                                     saveProfile = saveProfile
                                 )
                             }
+
+                        }
+                    }
+                }
+            },
+            bottomBar = {
+                if (!(locationUiState is LocationUiState.Success && locationUiState.location.status == LocationStatus.OPEN)) {
+                    Box(Modifier.height(IntrinsicSize.Max)) {
+                        // Join/Leave button
+                        if (locationUiState is LocationUiState.Success) {
+                            val location = locationUiState.location
+                            QueueButtonComposable(
+                                { joinLeaveQueue(location) },
+                                location.amIJoined
+                            )
+                        }
+                        if (profileUiState is ProfileUiState.Success && profileUiState.profile.visible) {
+                            Overlay()
                         }
                     }
                 }
             }
-        },
-        bottomBar = {
-            Box(Modifier.height(IntrinsicSize.Max)) {
-                // Join/Leave button
-                if (locationUiState is LocationUiState.Success) {
-                    val location = locationUiState.location
-                    QueueButtonComposable(
-                        { joinLeaveQueue(location) },
-                        location.amIJoined, // TODO InQueueUseCase
-                    )
-                }
-                // Overlay if profile is visible
-                if (profileUiState is ProfileUiState.Success && profileUiState.profile is ProfileState.Shown) {
-                    Overlay()
-                }
-            }
-        }
-    ) {
-        paddingValues -> Column(Modifier.padding(paddingValues)) {
+        ) {
+                paddingValues -> Column(Modifier.padding(paddingValues)) {
             Box {
-                // Show queue information
-                when (queueUiState) {
-                    // Waiting on queue information
-                    QueueUiState.Loading -> LoadingComposable()
-                    // Show the queue information
-                    is QueueUiState.Success -> {
-                        val queue = queueUiState.queue;
-                        LazyColumn {
-                            item {
-                                QueueInfoComposable(queue.queue.size)
+                when (locationUiState) {
+                    LocationUiState.Loading -> LoadingComposable()
+                    is LocationUiState.Success -> {
+                        if (locationUiState.location.status == LocationStatus.OPEN) {
+                            Column(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(30.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text("Vrij parkeerplaats", color = MaterialTheme.colors.onBackground, fontSize = 25.sp)
+                            }
+                        } else {
+                            val location = locationUiState.location;
+                            LazyColumn {
+                                item {
+                                    QueueInfoComposable(location.amountWaiting, location.queue, locationUiState, profileUiState)
+                                }
                             }
                         }
                     }
                 }
-                // Overlay if profile is visible
-                if (profileUiState is ProfileUiState.Success && profileUiState.profile is ProfileState.Shown) {
+                if (profileUiState is ProfileUiState.Success && profileUiState.profile.visible) {
                     Overlay()
                 }
+
             }
         }
+        }
+        // Overlay if profile is visible
+        /*if (profileUiState is ProfileUiState.Success && profileUiState.profile.visible) {
+            Overlay()
+        }*/
     }
+
+
 }
 
 @Composable
-fun QueueInfoComposable(queueSize: Int) {
+fun QueueInfoAssignedComposable(
+    expireTime : String
+) {
+    Text("you have been assigned")
+    Text("your reservation expires at: " + expireTime)
+
+}
+
+@Composable
+fun QueueInfoComposable(queueSize: Long, queueStatus: QueueState,
+                        locationUiState : LocationUiState,
+                        profileUiState: ProfileUiState) {
     Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
         Text("Queue Information", color = MaterialTheme.colors.onBackground, fontSize = 25.sp, fontWeight = FontWeight.Bold)
         Column(
@@ -166,6 +194,53 @@ fun QueueInfoComposable(queueSize: Int) {
                 .padding(10.dp)
         ) {
             Text("In queue: $queueSize", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            when (queueStatus) {
+                QueueState.NotJoined -> {
+                    Text("Queue position: Not joined", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
+                is QueueState.Joined -> {
+                    Text("Queue position: ${queueStatus.myPosition}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+
+            when (locationUiState) {
+                is LocationUiState.Success -> {
+                    for (charger in locationUiState.location.chargers) {
+                        if (charger.status == ChargerStatus.ASSIGNED) {
+                            when (charger.usertype) {
+                                UserType.USER -> {
+                                    when (profileUiState) {
+                                        ProfileUiState.Loading -> {}
+                                        is ProfileUiState.Success -> {
+                                            if ((charger.user as UserField.UserID).id.equals(profileUiState.profile)) {
+                                                // status == assigned
+                                                println("status is assigned")
+                                                QueueInfoAssignedComposable(expireTime = "placeholder")
+                                            }
+                                        }
+                                    }
+
+                                }
+                                UserType.NONUSER -> {
+                                    when (profileUiState) {
+                                        ProfileUiState.Loading -> {}
+                                        is ProfileUiState.Success -> {
+                                            if ((charger.user as UserField.CardNumber).cardnum.equals(profileUiState.profile.cardNumber)) {
+                                                // status == assigned
+                                                println("status is assigned")
+                                                QueueInfoAssignedComposable(expireTime = "placeholder")
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else -> {}
+            }
+
+
         }
     }
 }

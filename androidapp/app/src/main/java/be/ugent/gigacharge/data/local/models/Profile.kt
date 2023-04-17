@@ -1,3 +1,3 @@
 package be.ugent.gigacharge.data.local.models
 
-data class Profile(val provider: String, val cardNumber: String, val company: String)
+data class Profile(val provider: String, val cardNumber: String, val company: String, val visible: Boolean)
