@@ -109,6 +109,14 @@ class AccountServiceImpl @Inject constructor(private val auth: FirebaseAuth, pri
     isEnabledObservers.forEach { (it(new)) }
   }
 
+  override suspend fun init(){
+
+  }
+
+  override fun sendToken(token : String){
+    userCollection.document(currentUserId).update("fcmtoken", token);
+  }
+
   companion object {
     private const val LINK_ACCOUNT_TRACE = "linkAccount"
     private const val USERS_COLLECTION_NAME = "users"
