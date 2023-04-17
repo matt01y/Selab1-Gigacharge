@@ -25,6 +25,7 @@ import be.ugent.gigacharge.features.QueueUiState
 import be.ugent.gigacharge.features.LocationUiState
 import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.model.location.LocationStatus
+import be.ugent.gigacharge.model.location.QueueState
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 
@@ -134,30 +135,26 @@ fun MainScreen(
     ) {
         paddingValues -> Column(Modifier.padding(paddingValues)) {
             Box {
-                if (locationUiState is LocationUiState.Success && locationUiState.location.status == LocationStatus.OPEN) {
-                    Column(
-                        Modifier.fillMaxWidth().padding(30.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text("Vrij parkeerplaats", color = MaterialTheme.colors.onBackground, fontSize = 25.sp)
-                    }
-                } else {
-                    // Show queue information
-                    when (queueUiState) {
-                        // Waiting on queue information
-                        QueueUiState.Loading -> LoadingComposable()
-                        // Show the queue information
-                        is QueueUiState.Success -> {
-                            val queue = queueUiState.queue;
+                when (locationUiState) {
+                    LocationUiState.Loading -> LoadingComposable()
+                    is LocationUiState.Success -> {
+                        if (locationUiState.location.status == LocationStatus.OPEN) {
+                            Column(
+                                Modifier.fillMaxWidth().padding(30.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text("Vrij parkeerplaats", color = MaterialTheme.colors.onBackground, fontSize = 25.sp)
+                            }
+                        } else {
+                            val location = locationUiState.location;
                             LazyColumn {
                                 item {
-                                    QueueInfoComposable(queue.queue.size)
+                                    QueueInfoComposable(location.amountWaiting, location.queue)
                                 }
                             }
                         }
                     }
                 }
-
                 // Overlay if profile is visible
                 if (profileUiState is ProfileUiState.Success && profileUiState.profile is ProfileState.Shown) {
                     Overlay()
@@ -168,7 +165,7 @@ fun MainScreen(
 }
 
 @Composable
-fun QueueInfoComposable(queueSize: Int) {
+fun QueueInfoComposable(queueSize: Long, queueStatus: QueueState) {
     Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
         Text("Queue Information", color = MaterialTheme.colors.onBackground, fontSize = 25.sp, fontWeight = FontWeight.Bold)
         Column(
@@ -178,6 +175,14 @@ fun QueueInfoComposable(queueSize: Int) {
                 .padding(10.dp)
         ) {
             Text("In queue: $queueSize", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            when (queueStatus) {
+                QueueState.NotJoined -> {
+                    Text("Queue position: Not joined", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
+                is QueueState.Joined -> {
+                    Text("Queue position: ${queueStatus.myPosition}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
+            }
         }
     }
 }
