@@ -16,6 +16,7 @@ limitations under the License.
 
 package be.ugent.gigacharge.model.service.module
 
+import be.ugent.gigacharge.SellerFirebaseService
 import be.ugent.gigacharge.model.service.*
 import be.ugent.gigacharge.model.service.impl.*
 import dagger.Binds
@@ -37,4 +38,5 @@ abstract class ServiceModule {
 
   @Binds
   abstract fun provideQueueService(impl: QueueServiceImpl): QueueService
+
 }
