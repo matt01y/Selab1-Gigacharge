@@ -26,6 +26,9 @@ import be.ugent.gigacharge.features.LocationUiState
 import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.model.location.LocationStatus
 import be.ugent.gigacharge.model.location.QueueState
+import be.ugent.gigacharge.model.location.charger.ChargerStatus
+import be.ugent.gigacharge.model.location.charger.UserField
+import be.ugent.gigacharge.model.location.charger.UserType
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 
@@ -140,7 +143,9 @@ fun MainScreen(
                     is LocationUiState.Success -> {
                         if (locationUiState.location.status == LocationStatus.OPEN) {
                             Column(
-                                Modifier.fillMaxWidth().padding(30.dp),
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(30.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Text("Vrij parkeerplaats", color = MaterialTheme.colors.onBackground, fontSize = 25.sp)
@@ -149,7 +154,7 @@ fun MainScreen(
                             val location = locationUiState.location;
                             LazyColumn {
                                 item {
-                                    QueueInfoComposable(location.amountWaiting, location.queue)
+                                    QueueInfoComposable(location.amountWaiting, location.queue, locationUiState, profileUiState)
                                 }
                             }
                         }
@@ -165,7 +170,18 @@ fun MainScreen(
 }
 
 @Composable
-fun QueueInfoComposable(queueSize: Long, queueStatus: QueueState) {
+fun QueueInfoAssignedComposable(
+    expireTime : String
+) {
+    Text("you have been assigned")
+    Text("your reservation expires at: " + expireTime)
+
+}
+
+@Composable
+fun QueueInfoComposable(queueSize: Long, queueStatus: QueueState,
+                        locationUiState : LocationUiState,
+                        profileUiState: ProfileUiState) {
     Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
         Text("Queue Information", color = MaterialTheme.colors.onBackground, fontSize = 25.sp, fontWeight = FontWeight.Bold)
         Column(
@@ -183,6 +199,51 @@ fun QueueInfoComposable(queueSize: Long, queueStatus: QueueState) {
                     Text("Queue position: ${queueStatus.myPosition}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
             }
+
+            when (locationUiState) {
+                is LocationUiState.Success -> {
+                    for (charger in locationUiState.location.chargers) {
+                        if (charger.status == ChargerStatus.ASSIGNED) {
+                            when (charger.usertype) {
+                                UserType.USER -> {
+                                    when (profileUiState) {
+                                        ProfileUiState.Loading -> {}
+                                        is ProfileUiState.Success -> {
+                                            if ((charger.user as UserField.UserID).id.equals(profileUiState.profile)) {
+                                                // status == assigned
+                                                println("status is assigned")
+                                                QueueInfoAssignedComposable(expireTime = "placeholder")
+                                            }
+                                        }
+                                    }
+
+                                }
+                                UserType.NONUSER -> {
+                                    when (profileUiState) {
+                                        ProfileUiState.Loading -> {}
+                                        is ProfileUiState.Success -> {
+                                            when (profileUiState.profile) {
+                                                ProfileState.Hidden -> {}
+                                                is ProfileState.Shown -> {
+                                                    if ((charger.user as UserField.CardNumber).cardnum.equals(profileUiState.profile.profile.cardNumber)) {
+                                                        // status == assigned
+                                                        println("status is assigned")
+                                                        QueueInfoAssignedComposable(expireTime = "placeholder")
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else -> {}
+            }
+
+
         }
     }
 }
