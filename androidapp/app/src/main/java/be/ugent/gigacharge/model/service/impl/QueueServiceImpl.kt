@@ -22,7 +22,12 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import be.ugent.gigacharge.model.location.Location
+import be.ugent.gigacharge.model.location.LocationStatus
 import be.ugent.gigacharge.model.location.QueueState
+import be.ugent.gigacharge.model.location.charger.Charger
+import be.ugent.gigacharge.model.location.charger.ChargerStatus
+import be.ugent.gigacharge.model.location.charger.UserField
+import be.ugent.gigacharge.model.location.charger.UserType
 import be.ugent.gigacharge.model.service.AccountService
 import be.ugent.gigacharge.model.service.QueueService
 import com.google.firebase.Timestamp
@@ -119,9 +124,9 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
                 STATUS_FIELD, STATUS_WAITING).limit(1).get().await()
             if(myJoinEvent.size() >= 1){
                 val time =  myJoinEvent.first().getTimestamp(TIMESTAMP_FIELD)?:Timestamp.now() //TODO: deze null case beter maken
-                val myPostition = queuecollection.whereLessThanOrEqualTo(TIMESTAMP_FIELD, time).whereEqualTo(
+                val myPosition = queuecollection.whereLessThanOrEqualTo(TIMESTAMP_FIELD, time).whereEqualTo(
                     STATUS_FIELD, STATUS_WAITING).count().get(AggregateSource.SERVER).await().count
-                state = QueueState.Joined(myPosition = myPostition)
+                state = QueueState.Joined(myPosition = myPosition)
             }else{
                 state = QueueState.NotJoined
             }
@@ -129,12 +134,32 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
             state = QueueState.NotJoined
         }
 
-        return Location(
+
+
+        val chargerdocuments = snap.get("chargers") as List<DocumentSnapshot>?
+        val chargers : List<Charger> = (chargerdocuments ?: listOf()).map {
+            Charger(
+                ChargerStatus.valueOf(it.get("status") as String),
+                "",
+                UserField.Null,
+                UserType.NONUSER,
+                ""
+            )
+        }
+
+        val result = Location(
             id = snap.id,
             name = snap.getString(NAME_FIELD)?:"ERROR GEEN NAAM",
             amountWaiting = amountwaiting,
-            queue = state
+            status = LocationStatus.valueOf(snap.get("status") as String),
+            queue = state,
+            chargers = chargers
         )
+
+        println(result.status.toString())
+
+
+        return result
     }
 
 
