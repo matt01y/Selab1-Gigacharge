@@ -40,8 +40,8 @@ class MainViewModel @Inject constructor(
         toggleProfileUseCase()
     }
 
-    fun saveProfile(provider: String, card: String, company: String) {
-        saveProfileUseCase(Profile(provider, card, company))
+    fun saveProfile(provider: String, card: String, company: String, visible: Boolean) {
+        saveProfileUseCase(Profile(provider, card, company, visible))
     }
 
     fun getProviders(): List<String> {

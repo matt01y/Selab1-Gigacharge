@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import be.ugent.gigacharge.common.composable.*
-import be.ugent.gigacharge.data.local.models.ProfileState
 import be.ugent.gigacharge.features.ProfileUiState
 import be.ugent.gigacharge.features.QueueUiState
 import be.ugent.gigacharge.features.LocationUiState
@@ -49,7 +48,7 @@ fun MainRoute(onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
         // Queue
         {l:Location -> viewModel.joinLeaveQueue(l) },
         // Profile
-        {p:String,n:String,c:String -> viewModel.saveProfile(p,n,c) },
+        {p:String,n:String,c:String,b:Boolean -> viewModel.saveProfile(p,n,c,b) },
         viewModel.getProviders(),
         viewModel.getCompanies(),
         // Location
@@ -69,7 +68,7 @@ fun MainScreen(
     // Queue
     joinLeaveQueue: (Location) -> Unit,
     // Profile
-    saveProfile: (String,String,String) -> Unit,
+    saveProfile: (String,String,String,Boolean) -> Unit,
     providers : List<String>,
     companies : List<String>,
     // Location
@@ -83,36 +82,33 @@ fun MainScreen(
                 when (profileUiState) {
                     ProfileUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary, text="Loading profile ...")
                     is ProfileUiState.Success -> {
-                        when (profileUiState.profile) {
-                            // Profile is not visible, show setLocationButton
-                            ProfileState.Hidden -> {
-                                when (locationUiState) {
-                                    LocationUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary, text="Loading location ...")
-                                    is LocationUiState.Success -> {
-                                        val location = locationUiState.location
-                                        LocationButtonComposable(
-                                            onLocationSelectClick,
-                                            { toggleFavorite(location) },
-                                            location,
-                                            true
-                                        )
-                                    }
+                        if (!profileUiState.profile.visible) {
+                            when (locationUiState) {
+                                LocationUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary, text="Loading location ...")
+                                is LocationUiState.Success -> {
+                                    val location = locationUiState.location
+                                    LocationButtonComposable(
+                                        onLocationSelectClick,
+                                        { toggleFavorite(location) },
+                                        location,
+                                        true
+                                    )
                                 }
                             }
-                            // Profile is visible, show form
-                            is ProfileState.Shown -> {
-                                val profile = profileUiState.profile.profile
-                                ProfileFormComposable(
-                                    provider = profile.provider,
-                                    providers = providers,
-                                    cardNumber = profile.cardNumber,
-                                    company = profile.company,
-                                    companies = companies,
-                                    cancel = onProfileSelectClick,
-                                    saveProfile = saveProfile
-                                )
-                            }
                         }
+                        else {
+                            val profile = profileUiState.profile
+                            ProfileFormComposable(
+                                provider = profile.provider,
+                                providers = providers,
+                                cardNumber = profile.cardNumber,
+                                company = profile.company,
+                                companies = companies,
+                                cancel = onProfileSelectClick,
+                                saveProfile = saveProfile
+                            )
+                        }
+
                     }
                 }
             }
@@ -131,7 +127,7 @@ fun MainScreen(
                 }
             }
             // Overlay if profile is visible
-            if (profileUiState is ProfileUiState.Success && profileUiState.profile is ProfileState.Shown) {
+            if (profileUiState is ProfileUiState.Success && profileUiState.profile.visible) {
                 Overlay()
             }
         }
@@ -161,7 +157,7 @@ fun MainScreen(
                     }
                 }
                 // Overlay if profile is visible
-                if (profileUiState is ProfileUiState.Success && profileUiState.profile is ProfileState.Shown) {
+                if (profileUiState is ProfileUiState.Success && profileUiState.profile.visible) {
                     Overlay()
                 }
             }
@@ -222,17 +218,11 @@ fun QueueInfoComposable(queueSize: Long, queueStatus: QueueState,
                                     when (profileUiState) {
                                         ProfileUiState.Loading -> {}
                                         is ProfileUiState.Success -> {
-                                            when (profileUiState.profile) {
-                                                ProfileState.Hidden -> {}
-                                                is ProfileState.Shown -> {
-                                                    if ((charger.user as UserField.CardNumber).cardnum.equals(profileUiState.profile.profile.cardNumber)) {
-                                                        // status == assigned
-                                                        println("status is assigned")
-                                                        QueueInfoAssignedComposable(expireTime = "placeholder")
-                                                    }
-                                                }
+                                            if ((charger.user as UserField.CardNumber).cardnum.equals(profileUiState.profile.cardNumber)) {
+                                                // status == assigned
+                                                println("status is assigned")
+                                                QueueInfoAssignedComposable(expireTime = "placeholder")
                                             }
-
                                         }
                                     }
                                 }
