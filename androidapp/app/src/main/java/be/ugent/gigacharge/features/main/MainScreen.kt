@@ -20,11 +20,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import be.ugent.gigacharge.common.composable.*
 import be.ugent.gigacharge.data.local.models.ProfileState
-//import be.ugent.gigacharge.data.local.models.Location
 import be.ugent.gigacharge.features.ProfileUiState
 import be.ugent.gigacharge.features.QueueUiState
 import be.ugent.gigacharge.features.LocationUiState
 import be.ugent.gigacharge.model.location.Location
+import be.ugent.gigacharge.model.location.LocationStatus
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 
@@ -114,38 +114,50 @@ fun MainScreen(
             }
         },
         bottomBar = {
-            Box(Modifier.height(IntrinsicSize.Max)) {
-                // Join/Leave button
-                if (locationUiState is LocationUiState.Success) {
-                    val location = locationUiState.location
-                    QueueButtonComposable(
-                        { joinLeaveQueue(location) },
-                        location.amIJoined, // TODO InQueueUseCase
-                    )
+            if (!(locationUiState is LocationUiState.Success && locationUiState.location.status == LocationStatus.OPEN)) {
+                Box(Modifier.height(IntrinsicSize.Max)) {
+                    // Join/Leave button
+                    if (locationUiState is LocationUiState.Success) {
+                        val location = locationUiState.location
+                        QueueButtonComposable(
+                            { joinLeaveQueue(location) },
+                            location.amIJoined
+                        )
+                    }
                 }
-                // Overlay if profile is visible
-                if (profileUiState is ProfileUiState.Success && profileUiState.profile is ProfileState.Shown) {
-                    Overlay()
-                }
+            }
+            // Overlay if profile is visible
+            if (profileUiState is ProfileUiState.Success && profileUiState.profile is ProfileState.Shown) {
+                Overlay()
             }
         }
     ) {
         paddingValues -> Column(Modifier.padding(paddingValues)) {
             Box {
-                // Show queue information
-                when (queueUiState) {
-                    // Waiting on queue information
-                    QueueUiState.Loading -> LoadingComposable()
-                    // Show the queue information
-                    is QueueUiState.Success -> {
-                        val queue = queueUiState.queue;
-                        LazyColumn {
-                            item {
-                                QueueInfoComposable(queue.queue.size)
+                if (locationUiState is LocationUiState.Success && locationUiState.location.status == LocationStatus.OPEN) {
+                    Column(
+                        Modifier.fillMaxWidth().padding(30.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("Vrij parkeerplaats", color = MaterialTheme.colors.onBackground, fontSize = 25.sp)
+                    }
+                } else {
+                    // Show queue information
+                    when (queueUiState) {
+                        // Waiting on queue information
+                        QueueUiState.Loading -> LoadingComposable()
+                        // Show the queue information
+                        is QueueUiState.Success -> {
+                            val queue = queueUiState.queue;
+                            LazyColumn {
+                                item {
+                                    QueueInfoComposable(queue.queue.size)
+                                }
                             }
                         }
                     }
                 }
+
                 // Overlay if profile is visible
                 if (profileUiState is ProfileUiState.Success && profileUiState.profile is ProfileState.Shown) {
                     Overlay()

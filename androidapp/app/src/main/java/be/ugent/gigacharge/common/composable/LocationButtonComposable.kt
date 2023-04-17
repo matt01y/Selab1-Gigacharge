@@ -74,6 +74,6 @@ fun LocationButtonComposable(
 @Composable
 fun LocationButtonComposablePreview() {
     GigaChargeTheme {
-        LocationButtonComposable({}, {}, Location("", "Roularta Rouselare", QueueState.NotJoined, LocationStatus.OUT,0), false)
+        LocationButtonComposable({}, {}, Location("", "Roularta Rouselare", QueueState.NotJoined, LocationStatus.OUT, 0, listOf()), false)
     }
 }
