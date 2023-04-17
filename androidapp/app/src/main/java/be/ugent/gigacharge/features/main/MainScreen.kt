@@ -74,65 +74,65 @@ fun MainScreen(
     // Location
     toggleFavorite: (Location) -> Unit
 ) {
-    Scaffold(
-        topBar = {
-            MainHeaderComposable(
-                onProfileSelectClick
-            ) {
-                when (profileUiState) {
-                    ProfileUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary, text="Loading profile ...")
-                    is ProfileUiState.Success -> {
-                        if (!profileUiState.profile.visible) {
-                            when (locationUiState) {
-                                LocationUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary, text="Loading location ...")
-                                is LocationUiState.Success -> {
-                                    val location = locationUiState.location
-                                    LocationButtonComposable(
-                                        onLocationSelectClick,
-                                        { toggleFavorite(location) },
-                                        location,
-                                        true
-                                    )
+    Box {
+        Scaffold(
+            topBar = {
+                MainHeaderComposable(
+                    onProfileSelectClick
+                ) {
+                    when (profileUiState) {
+                        ProfileUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary, text="Loading profile ...")
+                        is ProfileUiState.Success -> {
+                            if (!profileUiState.profile.visible) {
+                                when (locationUiState) {
+                                    LocationUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary, text="Loading location ...")
+                                    is LocationUiState.Success -> {
+                                        val location = locationUiState.location
+                                        LocationButtonComposable(
+                                            onLocationSelectClick,
+                                            { toggleFavorite(location) },
+                                            location,
+                                            true
+                                        )
+                                    }
                                 }
                             }
+                            else {
+                                val profile = profileUiState.profile
+                                ProfileFormComposable(
+                                    provider = profile.provider,
+                                    providers = providers,
+                                    cardNumber = profile.cardNumber,
+                                    company = profile.company,
+                                    companies = companies,
+                                    cancel = onProfileSelectClick,
+                                    saveProfile = saveProfile
+                                )
+                            }
+
                         }
-                        else {
-                            val profile = profileUiState.profile
-                            ProfileFormComposable(
-                                provider = profile.provider,
-                                providers = providers,
-                                cardNumber = profile.cardNumber,
-                                company = profile.company,
-                                companies = companies,
-                                cancel = onProfileSelectClick,
-                                saveProfile = saveProfile
+                    }
+                }
+            },
+            bottomBar = {
+                if (!(locationUiState is LocationUiState.Success && locationUiState.location.status == LocationStatus.OPEN)) {
+                    Box(Modifier.height(IntrinsicSize.Max)) {
+                        // Join/Leave button
+                        if (locationUiState is LocationUiState.Success) {
+                            val location = locationUiState.location
+                            QueueButtonComposable(
+                                { joinLeaveQueue(location) },
+                                location.amIJoined
                             )
                         }
-
+                        if (profileUiState is ProfileUiState.Success && profileUiState.profile.visible) {
+                            Overlay()
+                        }
                     }
                 }
             }
-        },
-        bottomBar = {
-            if (!(locationUiState is LocationUiState.Success && locationUiState.location.status == LocationStatus.OPEN)) {
-                Box(Modifier.height(IntrinsicSize.Max)) {
-                    // Join/Leave button
-                    if (locationUiState is LocationUiState.Success) {
-                        val location = locationUiState.location
-                        QueueButtonComposable(
-                            { joinLeaveQueue(location) },
-                            location.amIJoined
-                        )
-                    }
-                }
-            }
-            // Overlay if profile is visible
-            if (profileUiState is ProfileUiState.Success && profileUiState.profile.visible) {
-                Overlay()
-            }
-        }
-    ) {
-        paddingValues -> Column(Modifier.padding(paddingValues)) {
+        ) {
+                paddingValues -> Column(Modifier.padding(paddingValues)) {
             Box {
                 when (locationUiState) {
                     LocationUiState.Loading -> LoadingComposable()
@@ -156,13 +156,20 @@ fun MainScreen(
                         }
                     }
                 }
-                // Overlay if profile is visible
                 if (profileUiState is ProfileUiState.Success && profileUiState.profile.visible) {
                     Overlay()
                 }
+
             }
         }
+        }
+        // Overlay if profile is visible
+        /*if (profileUiState is ProfileUiState.Success && profileUiState.profile.visible) {
+            Overlay()
+        }*/
     }
+
+
 }
 
 @Composable
