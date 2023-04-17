@@ -3,6 +3,7 @@ require('dotenv').config({ path: __dirname + '/.env' })
 const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
 const { getFirestore, Timestamp, FieldValue } = require('firebase-admin/firestore');
 const { getAuth } = require('firebase-admin/auth');
+const {getMessaging} = require('firebase-admin/messaging')
 
 var serviceAccount = require(process.env.SERVICE_ACCOUNT);
 
@@ -42,6 +43,7 @@ const auth = getAuth();
 const starttime = Timestamp.fromDate(new Date()); //tijd waar script is opgestart
 const users = db.collection('users');
 const queuequery = db.collectionGroup(CHARGERS_COLLECTION);
+const messaging = getMessaging();
 
 
 
@@ -85,6 +87,22 @@ const observer = queuequery.onSnapshot(snap => {
                                 console.log(`user ${firstInLineData['user-id']} wordt ge-assigned`)
                                 queueCollection.doc(firstInLine.id).update({status: STATUS_ASSIGNED, assigned: chargerref.id, expires:Timestamp.fromDate(expiretime)})
                                 chargerref.update({status: STATUS_ASSIGNED, assignedJoin: firstInLine.id, assignedUser: firstInLineData['user-id']})
+
+                                
+                                const user = (await users.doc(firstInLineData['user-id']).get()).data();
+                                if(user.fcmtoken){
+                                    const message = {
+                                        notification: {
+                                            title: "Er is een laadpaal vrij",
+                                            body: `U kan u wagen opladen bij ${charger.description}`
+                                        },
+                                        token: user.fcmtoken
+                                    }
+                                    messaging.send(message)
+                                }else{
+                                    console.log("GEEN FCMTOKEN BIJ USER")
+                                }
+                                
                             }
                         }else if(charger.status === STATUS_CHARGING || charger.status === STATUS_OUT){
                             //als we in queue modus zijn,
@@ -98,7 +116,7 @@ const observer = queuequery.onSnapshot(snap => {
                                 }else{
                                     //frick, het is een andere user
                                     const freechargersQuery = chargersCollection.where(STATUS_FIELD, "==", STATUS_FREE)
-                                    const freechargersCount = await freechargersQuery.count().get()
+                                    const freechargersCount = await (await freechargersQuery.count().get()).data().count
                                     if(freechargersCount <= 0){
                                         //geen vrije laders meer om toe te wijzen aan de ongelukkige persoon
                                         queueCollection.doc(charger.assignedJoin).update({status: STATUS_WAITING, assigned: FieldValue.delete()})
@@ -109,6 +127,20 @@ const observer = queuequery.onSnapshot(snap => {
                                         //TODO: stuur FCM melding
                                         freecharger.ref.update({status: STATUS_ASSIGNED, assignedJoin: firstInLine.id, assignedUser: firstInLineData['user-id']})
                                         queueCollection.doc(charger.assignedJoin).update({status: STATUS_ASSIGNED, assigned: freecharger.id, expires:Timestamp.fromDate(expiretime)})
+
+                                        const user = (await users.doc(firstInLineData['user-id']).get()).data();
+                                        if(user.fcmtoken){
+                                            const message = {
+                                                notification: {
+                                                    title: "Er is een laadpaal vrij",
+                                                    body: `U kan u wagen opladen bij ${charger.description}`
+                                                },
+                                                token: user.fcmtoken
+                                            }
+                                            messaging.send(message)
+                                        }else{
+                                            console.log("GEEN FCMTOKEN BIJ USER")
+                                        }
                                     }
                                 }
                             }else{
