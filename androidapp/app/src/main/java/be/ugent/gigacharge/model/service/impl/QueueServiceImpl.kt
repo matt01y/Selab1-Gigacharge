@@ -17,9 +17,7 @@ limitations under the License.
 package be.ugent.gigacharge.model.service.impl
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.model.location.LocationStatus
@@ -32,10 +30,6 @@ import be.ugent.gigacharge.model.service.AccountService
 import be.ugent.gigacharge.model.service.QueueService
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.*
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 import kotlinx.coroutines.tasks.await
 import javax.inject.Singleton
@@ -116,7 +110,7 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
     private suspend fun refToLocation(ref : DocumentReference) : Location {
         val snap = ref.get().await()
         val queuecollection = ref.collection(QUEUE_COLLECTION)
-        val amountwaiting = queuecollection.count().get(AggregateSource.SERVER).await().count
+        val amountwaiting = queuecollection.whereEqualTo(STATUS_FIELD, STATUS_WAITING).count().get(AggregateSource.SERVER).await().count
 
         val state : QueueState
         if(amountwaiting > 0){
