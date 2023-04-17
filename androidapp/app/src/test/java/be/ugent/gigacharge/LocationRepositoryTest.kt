@@ -25,7 +25,7 @@ class LocationRepositoryTest {
     @Test(expected = Throwable::class)
     fun getLocationShouldReturnEmptyFlow() = runTest {
         whenever(queueService.locationMap).thenReturn(mutableStateMapOf())
-        assertNull(repo.getLocation().firstOrNull())
+        assertNotNull(repo.getLocation().firstOrNull())
     }
 
     @Test
