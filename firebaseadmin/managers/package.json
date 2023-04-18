@@ -2,7 +2,7 @@
   "name": "firebaseadmin",
   "version": "1.0.0",
   "description": "",
-  "main": "authmanager.js",
+  "main": "src/queuemanager.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -11,5 +11,11 @@
   "dependencies": {
     "dotenv": "^16.0.3",
     "firebase-admin": "^11.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.11",
+    "nodemon": "^2.0.22",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
   }
 }

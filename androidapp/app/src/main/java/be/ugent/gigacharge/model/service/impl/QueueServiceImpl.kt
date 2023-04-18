@@ -17,20 +17,19 @@ limitations under the License.
 package be.ugent.gigacharge.model.service.impl
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import be.ugent.gigacharge.model.location.Location
+import be.ugent.gigacharge.model.location.LocationStatus
 import be.ugent.gigacharge.model.location.QueueState
+import be.ugent.gigacharge.model.location.charger.Charger
+import be.ugent.gigacharge.model.location.charger.ChargerStatus
+import be.ugent.gigacharge.model.location.charger.UserField
+import be.ugent.gigacharge.model.location.charger.UserType
 import be.ugent.gigacharge.model.service.AccountService
 import be.ugent.gigacharge.model.service.QueueService
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.*
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 import kotlinx.coroutines.tasks.await
 import javax.inject.Singleton
@@ -111,7 +110,7 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
     private suspend fun refToLocation(ref : DocumentReference) : Location {
         val snap = ref.get().await()
         val queuecollection = ref.collection(QUEUE_COLLECTION)
-        val amountwaiting = queuecollection.count().get(AggregateSource.SERVER).await().count
+        val amountwaiting = queuecollection.whereEqualTo(STATUS_FIELD, STATUS_WAITING).count().get(AggregateSource.SERVER).await().count
 
         val state : QueueState
         if(amountwaiting > 0){
@@ -119,9 +118,9 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
                 STATUS_FIELD, STATUS_WAITING).limit(1).get().await()
             if(myJoinEvent.size() >= 1){
                 val time =  myJoinEvent.first().getTimestamp(TIMESTAMP_FIELD)?:Timestamp.now() //TODO: deze null case beter maken
-                val myPostition = queuecollection.whereLessThanOrEqualTo(TIMESTAMP_FIELD, time).whereEqualTo(
+                val myPosition = queuecollection.whereLessThanOrEqualTo(TIMESTAMP_FIELD, time).whereEqualTo(
                     STATUS_FIELD, STATUS_WAITING).count().get(AggregateSource.SERVER).await().count
-                state = QueueState.Joined(myPosition = myPostition)
+                state = QueueState.Joined(myPosition = myPosition)
             }else{
                 state = QueueState.NotJoined
             }
@@ -129,12 +128,32 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
             state = QueueState.NotJoined
         }
 
-        return Location(
+
+
+        val chargerdocuments = snap.get("chargers") as List<DocumentSnapshot>?
+        val chargers : List<Charger> = (chargerdocuments ?: listOf()).map {
+            Charger(
+                ChargerStatus.valueOf(it.get("status") as String),
+                "",
+                UserField.Null,
+                UserType.NONUSER,
+                ""
+            )
+        }
+
+        val result = Location(
             id = snap.id,
             name = snap.getString(NAME_FIELD)?:"ERROR GEEN NAAM",
             amountWaiting = amountwaiting,
-            queue = state
+            status = LocationStatus.valueOf(snap.get("status") as String),
+            queue = state,
+            chargers = chargers
         )
+
+        println(result.status.toString())
+
+
+        return result
     }
 
 

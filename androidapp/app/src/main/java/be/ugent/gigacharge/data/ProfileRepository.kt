@@ -1,7 +1,6 @@
 package be.ugent.gigacharge.data
 
 import be.ugent.gigacharge.data.local.models.Profile
-import be.ugent.gigacharge.data.local.models.ProfileState
 import be.ugent.gigacharge.model.service.QueueService
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -10,18 +9,18 @@ import javax.inject.Singleton
 @Singleton
 class ProfileRepository @Inject constructor(queueService: QueueService) {
     private var isVisibleFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private var profileFlow: MutableStateFlow<Profile?> = MutableStateFlow(Profile("MobilityPlus", "1234 - 5678", "Roularta"))
+    private var profileFlow: MutableStateFlow<Profile?> = MutableStateFlow(Profile("MobilityPlus", "1234 - 5678", "Roularta", false))
 
-    fun getProfile(): Flow<ProfileState> = profileFlow.flatMapLatest { profile ->
+    fun getProfile(): Flow<Profile> = profileFlow.flatMapLatest { profile ->
         if (profile == null) {
             emptyFlow()
         } else {
             isVisibleFlow.transform { isVisible ->
-                if (isVisible) {
-                    emit(ProfileState.Shown(profile))
-                } else {
-                    emit(ProfileState.Hidden)
-                }
+                val profile2 = Profile(profile.provider,
+                                        profile.cardNumber,
+                                        profile.company,
+                                        isVisible)
+                emit(profile2)
             }
         }
     }

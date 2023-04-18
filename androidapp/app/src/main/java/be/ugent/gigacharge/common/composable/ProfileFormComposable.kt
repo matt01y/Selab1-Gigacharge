@@ -22,7 +22,7 @@ fun ProfileFormComposable(
     company: String,
     companies: List<String>,
     cancel: () -> Unit,
-    saveProfile: (String, String, String) -> Unit
+    saveProfile: (String, String, String, Boolean) -> Unit
 ) {
     var providerState by remember { mutableStateOf(provider) }
     var companyState by remember { mutableStateOf(company) }
@@ -108,8 +108,8 @@ fun ProfileFormComposable(
             Spacer(Modifier.width(20.dp))
             Button(
                 onClick = {
-                    saveProfile(providerState, cardNumberState, companyState)
-                    cancel()
+                    saveProfile(providerState, cardNumberState, companyState, false)
+                    //cancel()
                 },
                 colors = ButtonDefaults.buttonColors(backgroundColor = Green)
             ) {
@@ -123,6 +123,6 @@ fun ProfileFormComposable(
 @Composable
 fun ProfileFormComposablePreview() {
     GigaChargeTheme {
-        ProfileFormComposable("test", listOf("test","test"), "", "comp", listOf("comp"), {}, { _: String, _: String, _: String -> })
+        ProfileFormComposable("test", listOf("test","test"), "", "comp", listOf("comp"), {}, { _: String, _: String, _: String, _:Boolean -> })
     }
 }
