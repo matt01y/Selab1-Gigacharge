@@ -78,7 +78,7 @@ fun RegisterScreen(
 @Composable
 fun RegisterTopBar() {
     TopAppBar(
-        backgroundColor = MaterialTheme.colors.secondary,
+        backgroundColor = MaterialTheme.colors.onSecondary,
         title = {
             Box(
                 modifier = Modifier.fillMaxWidth(),
@@ -86,7 +86,7 @@ fun RegisterTopBar() {
             ) {
                 Text(
                     text = "GigaCharge",
-                    fontSize = 42.sp,
+                    fontSize = 40.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colors.primary
                 )
