@@ -12,6 +12,9 @@ import be.ugent.gigacharge.features.ProfileUiState
 import be.ugent.gigacharge.features.QueueUiState
 import be.ugent.gigacharge.features.LocationUiState
 import be.ugent.gigacharge.model.location.Location
+import be.ugent.gigacharge.model.service.LogService
+import be.ugent.gigacharge.model.service.QueueService
+import be.ugent.gigacharge.screens.GigaChargeViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -30,8 +33,9 @@ class MainViewModel @Inject constructor(
     private val joinLeaveQueueUseCase: JoinLeaveQueueUseCase,
     // Location
     getLocationUseCase: GetLocationUseCase,
-    private val toggleFavoriteLocationUseCase: ToggleFavoriteLocationUseCase
-): ViewModel() {
+    private val toggleFavoriteLocationUseCase: ToggleFavoriteLocationUseCase,
+    private val queueService: QueueService, logService: LogService
+): GigaChargeViewModel(logService) {
     val profileUiState: StateFlow<ProfileUiState> = getProfileUseCase().map{ProfileUiState.Success(it)}.stateIn(viewModelScope, SharingStarted.Eagerly, ProfileUiState.Loading)
     val queueUiState: StateFlow<QueueUiState> = getQueueUseCase().map{QueueUiState.Success(it)}.stateIn(viewModelScope, SharingStarted.Eagerly, QueueUiState.Loading)
     val locationUiState: StateFlow<LocationUiState> = getLocationUseCase().map{LocationUiState.Success(it)}.stateIn(viewModelScope, SharingStarted.Eagerly, LocationUiState.Loading)
@@ -58,5 +62,11 @@ class MainViewModel @Inject constructor(
 
     fun toggleFavorite(location: Location) {
         toggleFavoriteLocationUseCase(location)
+    }
+
+    fun updateLocation() {
+        launchCatching {
+            queueService.updateLocations()
+        }
     }
 }

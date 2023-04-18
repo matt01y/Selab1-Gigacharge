@@ -52,7 +52,8 @@ fun MainRoute(onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
         viewModel.getProviders(),
         viewModel.getCompanies(),
         // Location
-        {l: Location -> viewModel.toggleFavorite(l)}
+        {l: Location -> viewModel.toggleFavorite(l)},
+        viewModel
     )
 }
 
@@ -72,7 +73,8 @@ fun MainScreen(
     providers : List<String>,
     companies : List<String>,
     // Location
-    toggleFavorite: (Location) -> Unit
+    toggleFavorite: (Location) -> Unit,
+    viewModel: MainViewModel // TODO:VERWIJDEREN NA DEMO
 ) {
     Box {
         Scaffold(
@@ -115,6 +117,10 @@ fun MainScreen(
                 }
             },
             bottomBar = {
+                // TODO: VERWIJDEREN IN FINAL BUILD (ONLY FOR DEMO)
+                Button(onClick = {viewModel.updateLocation()}) {
+                    Text(text = "refresh")
+                }
                 if (!(locationUiState is LocationUiState.Success && locationUiState.location.status == LocationStatus.OPEN)) {
                     Box(Modifier.height(IntrinsicSize.Max)) {
                         // Join/Leave button
@@ -147,7 +153,7 @@ fun MainScreen(
                                 Text("Vrij parkeerplaats", color = MaterialTheme.colors.onBackground, fontSize = 25.sp)
                             }
                         } else {
-                            val location = locationUiState.location;
+                            val location = locationUiState.location
                             LazyColumn {
                                 item {
                                     QueueInfoComposable(location.amountWaiting, location.queue, locationUiState, profileUiState)
