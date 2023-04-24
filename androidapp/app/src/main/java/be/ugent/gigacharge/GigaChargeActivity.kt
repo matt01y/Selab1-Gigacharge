@@ -1,35 +1,16 @@
 package be.ugent.gigacharge
-import android.Manifest.permission.POST_NOTIFICATIONS
+
+
+import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
-
-
-import android.Manifest
-import android.content.Context
-import android.util.Log
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
-import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.Timestamp
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.messaging.FirebaseMessaging
-import com.google.firebase.messaging.ktx.messaging
-import com.google.firebase.messaging.ktx.remoteMessage
-import java.util.Calendar
-import java.util.Date
-import java.util.concurrent.atomic.AtomicInteger
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 @AndroidEntryPoint
 @ExperimentalMaterialApi
@@ -76,8 +57,6 @@ class GigaChargeActivity : AppCompatActivity() {
 
         setContent { GigaChargeApp() }
     }
-
-
 
 
 }

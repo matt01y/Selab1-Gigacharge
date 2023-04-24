@@ -17,36 +17,32 @@ limitations under the License.
 package be.ugent.gigacharge.model.service.impl
 
 //import be.ugent.gigacharge.BuildConfig
-import be.ugent.gigacharge.R.xml as AppConfig
 import be.ugent.gigacharge.model.service.ConfigurationService
-import be.ugent.gigacharge.model.service.trace
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.get
 import com.google.firebase.remoteconfig.ktx.remoteConfig
-import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import javax.inject.Inject
-import kotlinx.coroutines.tasks.await
+import be.ugent.gigacharge.R.xml as AppConfig
 
 class ConfigurationServiceImpl @Inject constructor() : ConfigurationService {
-  private val remoteConfig
-    get() = Firebase.remoteConfig
+    private val remoteConfig
+        get() = Firebase.remoteConfig
 
-  init {
-    /*if (BuildConfig.DEBUG) {
-      val configSettings = remoteConfigSettings { minimumFetchIntervalInSeconds = 0 }
-      remoteConfig.setConfigSettingsAsync(configSettings)
-    }*/
+    init {
+        /*if (BuildConfig.DEBUG) {
+          val configSettings = remoteConfigSettings { minimumFetchIntervalInSeconds = 0 }
+          remoteConfig.setConfigSettingsAsync(configSettings)
+        }*/
 
-    remoteConfig.setDefaultsAsync(AppConfig.remote_config_defaults)
-  }
+        remoteConfig.setDefaultsAsync(AppConfig.remote_config_defaults)
+    }
 
-  override suspend fun fetchConfiguration(): Boolean = true
+    override suspend fun fetchConfiguration(): Boolean = true
 
-  override val isShowTaskEditButtonConfig: Boolean
-    get() = true
+    override val isShowTaskEditButtonConfig: Boolean
+        get() = true
 
-  companion object {
-    private const val SHOW_TASK_EDIT_BUTTON_KEY = "show_task_edit_button"
-    private const val FETCH_CONFIG_TRACE = "fetchConfig"
-  }
+    companion object {
+        private const val SHOW_TASK_EDIT_BUTTON_KEY = "show_task_edit_button"
+        private const val FETCH_CONFIG_TRACE = "fetchConfig"
+    }
 }

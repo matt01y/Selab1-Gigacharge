@@ -1,11 +1,8 @@
 package be.ugent.gigacharge
 
 import android.util.Log
-import be.ugent.gigacharge.model.service.AccountService
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import javax.inject.Singleton
-import javax.inject.Inject
 
 /**
  * Override base class methods to handle any events required by the application.
@@ -19,8 +16,7 @@ import javax.inject.Inject
  */
 
 class SellerFirebaseService
-    constructor(): FirebaseMessagingService() {
-
+    : FirebaseMessagingService() {
 
 
     /**
@@ -28,13 +24,13 @@ class SellerFirebaseService
      * the previous token had been compromised. Note that this is called when the InstanceID token
      * is initially generated so this is where you would retrieve the token.
      */
-    var onToken : (String) -> Unit = {token ->
+    var onToken: (String) -> Unit = { token ->
         Log.i("SellerFirebaseService ", "empty token listener :: $token")
     }
 
-    public var token : String? = null
+    var token: String? = null
 
-    fun hasToken() : Boolean{
+    fun hasToken(): Boolean {
         return token != null
     }
 

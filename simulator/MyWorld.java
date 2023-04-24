@@ -27,10 +27,10 @@ public class MyWorld extends World {
         System.out.println("api done");
         State.cars.clear();
 
-        for(int i = 0; i < Config.userids.size(); i++){
-            CarActor car = new CarActor(Config.userids.get(i));
+        for(int i = 0; i < Config.userids.size(); i+=2){
+            CarActor car = new CarActor(Config.userids.get(i), Config.userids.get(i + 1));
             System.out.println(car);
-            addObject(car, i * (10 + CarActor.carimage.getWidth()) + CarActor.carimage.getWidth(), getHeight() - CarActor.carimage.getHeight());
+            addObject(car, i * 38 + 100, getHeight() - car.carimage.getHeight());
         }
         
         for(int i = 0; i < chargers.size(); i++){
@@ -38,7 +38,7 @@ public class MyWorld extends World {
             addObject(new ChargerActor(chargers.get(i)), i * (10 + ChargerActor.width) + ChargerActor.width, ChargerActor.height / 2);
         }
         
-        addObject(new RefreshButton(), getWidth() - 100, getHeight() - 100);
+        addObject(new RefreshButton(), getWidth() - 100, getHeight() - 500);
 
     }
 }

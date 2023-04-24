@@ -25,20 +25,20 @@ import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 @Composable
-fun LocationRoute(onBackArrowClick : () -> Unit, viewModel: LocationViewModel) {
+fun LocationRoute(onBackArrowClick: () -> Unit, viewModel: LocationViewModel) {
     val locationsUiState by viewModel.locationsUiState.collectAsState()
 
     LocationScreen(
         onBackArrowClick,
         locationsUiState,
-        {l: Location -> viewModel.setLocation(l)},
-        {l:Location -> viewModel.toggleFavorite(l)}
+        { l: Location -> viewModel.setLocation(l) },
+        { l: Location -> viewModel.toggleFavorite(l) }
     )
 }
 
 @Composable
 fun LocationScreen(
-    onBackArrowClick : () -> Unit,
+    onBackArrowClick: () -> Unit,
     locationsUiState: LocationsUiState,
     setLocation: (Location) -> Unit,
     toggleFavorite: (Location) -> Unit
@@ -88,7 +88,8 @@ fun ItemBreak() {
         Modifier
             .fillMaxWidth()
             .height(2.dp)
-            .background(Color.LightGray)) {}
+            .background(Color.LightGray)
+    ) {}
 }
 
 @Preview

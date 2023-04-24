@@ -5,7 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -15,11 +16,23 @@ import androidx.compose.ui.unit.dp
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 @Composable
-fun LoadingComposable(spinnerColor: Color = MaterialTheme.colors.secondaryVariant, textColor: Color = MaterialTheme.colors.onBackground, text: String = "Loading ...") {
+fun LoadingComposable(
+    spinnerColor: Color = MaterialTheme.colors.secondaryVariant,
+    textColor: Color = MaterialTheme.colors.onBackground,
+    text: String = "Loading ..."
+) {
     val transition = rememberInfiniteTransition()
-    val rotation by transition.animateFloat(-36F, 324F, InfiniteRepeatableSpec(tween(durationMillis = 1000), RepeatMode.Restart))
+    val rotation by transition.animateFloat(
+        -36F,
+        324F,
+        InfiniteRepeatableSpec(tween(durationMillis = 1000), RepeatMode.Restart)
+    )
 
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         CircularProgressIndicator(
             0.2F,
             Modifier

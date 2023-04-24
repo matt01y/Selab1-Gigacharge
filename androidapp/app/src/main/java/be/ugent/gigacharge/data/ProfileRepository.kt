@@ -9,17 +9,20 @@ import javax.inject.Singleton
 @Singleton
 class ProfileRepository @Inject constructor(queueService: QueueService) {
     private var isVisibleFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private var profileFlow: MutableStateFlow<Profile?> = MutableStateFlow(Profile("MobilityPlus", "1234 - 5678", "Roularta", false))
+    private var profileFlow: MutableStateFlow<Profile?> =
+        MutableStateFlow(Profile("MobilityPlus", "1234 - 5678", "Roularta", false))
 
     fun getProfile(): Flow<Profile> = profileFlow.flatMapLatest { profile ->
         if (profile == null) {
             emptyFlow()
         } else {
             isVisibleFlow.transform { isVisible ->
-                val profile2 = Profile(profile.provider,
-                                        profile.cardNumber,
-                                        profile.company,
-                                        isVisible)
+                val profile2 = Profile(
+                    profile.provider,
+                    profile.cardNumber,
+                    profile.company,
+                    isVisible
+                )
                 emit(profile2)
             }
         }
