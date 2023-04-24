@@ -14,3 +14,5 @@
 - high level functies krijgen comments
 - low level functies krijgen 1 lijn commentaar
 
+
+Als je ziet dat iemand zich hier niet aanhoud laat die dat direct weten.
