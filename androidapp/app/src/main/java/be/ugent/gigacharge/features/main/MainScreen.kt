@@ -48,9 +48,7 @@ fun MainRoute(onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
         // Queue
         {l:Location -> viewModel.joinLeaveQueue(l) },
         // Profile
-        {p:String,n:String,c:String,b:Boolean -> viewModel.saveProfile(p,n,c,b) },
-        viewModel.getProviders(),
-        viewModel.getCompanies(),
+        {n:String,b:Boolean -> viewModel.saveProfile(n,b)},
         // Location
         {l: Location -> viewModel.toggleFavorite(l)},
         viewModel
@@ -69,9 +67,7 @@ fun MainScreen(
     // Queue
     joinLeaveQueue: (Location) -> Unit,
     // Profile
-    saveProfile: (String,String,String,Boolean) -> Unit,
-    providers : List<String>,
-    companies : List<String>,
+    saveProfile: (String,Boolean) -> Unit,
     // Location
     toggleFavorite: (Location) -> Unit,
     viewModel: MainViewModel // TODO:VERWIJDEREN NA DEMO
@@ -102,11 +98,7 @@ fun MainScreen(
                             else {
                                 val profile = profileUiState.profile
                                 ProfileFormComposable(
-                                    provider = profile.provider,
-                                    providers = providers,
                                     cardNumber = profile.cardNumber,
-                                    company = profile.company,
-                                    companies = companies,
                                     cancel = onProfileSelectClick,
                                     saveProfile = saveProfile
                                 )

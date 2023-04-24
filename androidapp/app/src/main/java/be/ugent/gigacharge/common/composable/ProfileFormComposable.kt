@@ -16,35 +16,13 @@ import be.ugent.gigacharge.ui.theme.Red
 
 @Composable
 fun ProfileFormComposable(
-    provider: String,
-    providers: List<String>,
     cardNumber: String,
-    company: String,
-    companies: List<String>,
     cancel: () -> Unit,
-    saveProfile: (String, String, String, Boolean) -> Unit
+    saveProfile: (String, Boolean) -> Unit
 ) {
-    var providerState by remember { mutableStateOf(provider) }
-    var companyState by remember { mutableStateOf(company) }
     var cardNumberState by remember { mutableStateOf(cardNumber) }
 
     Column() {
-        // Provider
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("Kaartdeler",
-                Modifier.weight(0.4F),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            MyDropdown(providerState, providers, {s:String -> providerState = s }, Modifier.weight(0.6F))
-        }
-
         // CardNumber
         Row(
             Modifier
@@ -74,23 +52,6 @@ fun ProfileFormComposable(
                 textStyle = androidx.compose.ui.text.TextStyle(color = MaterialTheme.colors.onBackground)
             )
         }
-
-        // Company
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("Bedrijf",
-                Modifier.weight(0.4F),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            MyDropdown(companyState, companies, {s:String -> companyState = s }, Modifier.weight(0.6F))
-        }
-
         // Buttons
         Row(
             Modifier
@@ -108,8 +69,8 @@ fun ProfileFormComposable(
             Spacer(Modifier.width(20.dp))
             Button(
                 onClick = {
-                    saveProfile(providerState, cardNumberState, companyState, false)
-                    //cancel()
+                    saveProfile(cardNumberState, false)
+                    cancel()
                 },
                 colors = ButtonDefaults.buttonColors(backgroundColor = Green)
             ) {
@@ -123,6 +84,6 @@ fun ProfileFormComposable(
 @Composable
 fun ProfileFormComposablePreview() {
     GigaChargeTheme {
-        ProfileFormComposable("test", listOf("test","test"), "", "comp", listOf("comp"), {}, { _: String, _: String, _: String, _:Boolean -> })
+        ProfileFormComposable("test", {}, { _:String, _:Boolean -> })
     }
 }
