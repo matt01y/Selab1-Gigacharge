@@ -17,6 +17,6 @@ limitations under the License.
 package be.ugent.gigacharge.model.service
 
 interface ConfigurationService {
-  suspend fun fetchConfiguration(): Boolean
-  val isShowTaskEditButtonConfig: Boolean
+    suspend fun fetchConfiguration(): Boolean
+    val isShowTaskEditButtonConfig: Boolean
 }

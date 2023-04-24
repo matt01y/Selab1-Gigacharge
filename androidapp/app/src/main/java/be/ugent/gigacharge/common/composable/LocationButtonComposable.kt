@@ -39,7 +39,7 @@ fun LocationButtonComposable(
                 .fillMaxHeight()
                 .weight(0.85F),
             colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
-            elevation = ButtonDefaults.elevation(0.dp,0.dp)
+            elevation = ButtonDefaults.elevation(0.dp, 0.dp)
         ) {
             Column(Modifier.fillMaxWidth()) {
                 if (title) {
@@ -74,6 +74,18 @@ fun LocationButtonComposable(
 @Composable
 fun LocationButtonComposablePreview() {
     GigaChargeTheme {
-        LocationButtonComposable({}, {}, Location("", "Roularta Rouselare", QueueState.NotJoined, LocationStatus.OUT, 0, listOf()), false)
+        LocationButtonComposable(
+            {},
+            {},
+            Location(
+                "",
+                "Roularta Rouselare",
+                QueueState.NotJoined,
+                LocationStatus.OUT,
+                0,
+                listOf()
+            ),
+            false
+        )
     }
 }

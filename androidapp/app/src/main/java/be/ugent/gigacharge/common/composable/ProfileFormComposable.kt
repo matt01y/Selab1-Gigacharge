@@ -28,7 +28,7 @@ fun ProfileFormComposable(
     var companyState by remember { mutableStateOf(company) }
     var cardNumberState by remember { mutableStateOf(cardNumber) }
 
-    Column() {
+    Column {
         // Provider
         Row(
             Modifier
@@ -36,13 +36,19 @@ fun ProfileFormComposable(
                 .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Kaartdeler",
+            Text(
+                "Kaartdeler",
                 Modifier.weight(0.4F),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
-            MyDropdown(providerState, providers, {s:String -> providerState = s }, Modifier.weight(0.6F))
+            MyDropdown(
+                providerState,
+                providers,
+                { s: String -> providerState = s },
+                Modifier.weight(0.6F)
+            )
         }
 
         // CardNumber
@@ -61,7 +67,7 @@ fun ProfileFormComposable(
             )
             TextField(
                 cardNumberState,
-                {s:String -> cardNumberState = s},
+                { s: String -> cardNumberState = s },
                 Modifier
                     .weight(0.6F)
                     .height(50.dp),
@@ -82,13 +88,19 @@ fun ProfileFormComposable(
                 .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Bedrijf",
+            Text(
+                "Bedrijf",
                 Modifier.weight(0.4F),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
-            MyDropdown(companyState, companies, {s:String -> companyState = s }, Modifier.weight(0.6F))
+            MyDropdown(
+                companyState,
+                companies,
+                { s: String -> companyState = s },
+                Modifier.weight(0.6F)
+            )
         }
 
         // Buttons
@@ -103,7 +115,7 @@ fun ProfileFormComposable(
                 onClick = cancel,
                 colors = ButtonDefaults.buttonColors(backgroundColor = Red)
             ) {
-                Text("Annuleer", fontWeight = FontWeight.Bold , color = Color.White)
+                Text("Annuleer", fontWeight = FontWeight.Bold, color = Color.White)
             }
             Spacer(Modifier.width(20.dp))
             Button(
@@ -123,6 +135,13 @@ fun ProfileFormComposable(
 @Composable
 fun ProfileFormComposablePreview() {
     GigaChargeTheme {
-        ProfileFormComposable("test", listOf("test","test"), "", "comp", listOf("comp"), {}, { _: String, _: String, _: String, _:Boolean -> })
+        ProfileFormComposable(
+            "test",
+            listOf("test", "test"),
+            "",
+            "comp",
+            listOf("comp"),
+            {},
+            { _: String, _: String, _: String, _: Boolean -> })
     }
 }
