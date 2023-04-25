@@ -9,17 +9,14 @@ import javax.inject.Singleton
 @Singleton
 class ProfileRepository @Inject constructor(queueService: QueueService) {
     private var isVisibleFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private var profileFlow: MutableStateFlow<Profile?> = MutableStateFlow(Profile("MobilityPlus", "1234 - 5678", "Roularta", false))
+    private var profileFlow: MutableStateFlow<Profile?> = MutableStateFlow(Profile("1234 - 5678", false))
 
     fun getProfile(): Flow<Profile> = profileFlow.flatMapLatest { profile ->
         if (profile == null) {
             emptyFlow()
         } else {
             isVisibleFlow.transform { isVisible ->
-                val profile2 = Profile(profile.provider,
-                                        profile.cardNumber,
-                                        profile.company,
-                                        isVisible)
+                val profile2 = Profile(profile.cardNumber, isVisible)
                 emit(profile2)
             }
         }
@@ -31,13 +28,5 @@ class ProfileRepository @Inject constructor(queueService: QueueService) {
 
     fun saveProfile(profile: Profile) {
         profileFlow.value = profile
-    }
-
-    fun getProviders(): List<String> {
-        return listOf("MobilityPlus", "BlueCorner")
-    }
-
-    fun getCompanies(): List<String> {
-        return listOf("Roularta", "UGent")
     }
 }

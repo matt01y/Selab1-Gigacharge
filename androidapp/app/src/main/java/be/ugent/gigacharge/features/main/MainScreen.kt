@@ -1,5 +1,6 @@
 package be.ugent.gigacharge.features.main
 
+import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import be.ugent.gigacharge.R
 import be.ugent.gigacharge.common.composable.*
 import be.ugent.gigacharge.features.ProfileUiState
 import be.ugent.gigacharge.features.QueueUiState
@@ -29,7 +31,7 @@ import be.ugent.gigacharge.model.location.charger.ChargerStatus
 import be.ugent.gigacharge.model.location.charger.UserField
 import be.ugent.gigacharge.model.location.charger.UserType
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
-
+import androidx.compose.ui.res.stringResource;
 
 @Composable
 fun MainRoute(onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
@@ -48,9 +50,7 @@ fun MainRoute(onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
         // Queue
         {l:Location -> viewModel.joinLeaveQueue(l) },
         // Profile
-        {p:String,n:String,c:String,b:Boolean -> viewModel.saveProfile(p,n,c,b) },
-        viewModel.getProviders(),
-        viewModel.getCompanies(),
+        {n:String,b:Boolean -> viewModel.saveProfile(n,b)},
         // Location
         {l: Location -> viewModel.toggleFavorite(l)},
         viewModel
@@ -69,9 +69,7 @@ fun MainScreen(
     // Queue
     joinLeaveQueue: (Location) -> Unit,
     // Profile
-    saveProfile: (String,String,String,Boolean) -> Unit,
-    providers : List<String>,
-    companies : List<String>,
+    saveProfile: (String,Boolean) -> Unit,
     // Location
     toggleFavorite: (Location) -> Unit,
     viewModel: MainViewModel // TODO:VERWIJDEREN NA DEMO
@@ -102,11 +100,7 @@ fun MainScreen(
                             else {
                                 val profile = profileUiState.profile
                                 ProfileFormComposable(
-                                    provider = profile.provider,
-                                    providers = providers,
                                     cardNumber = profile.cardNumber,
-                                    company = profile.company,
-                                    companies = companies,
                                     cancel = onProfileSelectClick,
                                     saveProfile = saveProfile
                                 )
@@ -150,7 +144,7 @@ fun MainScreen(
                                     .padding(30.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text("Vrij parkeerplaats", color = MaterialTheme.colors.onBackground, fontSize = 25.sp)
+                                Text(stringResource(R.string.empty_parking), color = MaterialTheme.colors.onBackground, fontSize = 25.sp)
                             }
                         } else {
                             val location = locationUiState.location
@@ -182,9 +176,8 @@ fun MainScreen(
 fun QueueInfoAssignedComposable(
     expireTime : String
 ) {
-    Text("you have been assigned")
-    Text("your reservation expires at: " + expireTime)
-
+    Text(stringResource(R.string.assigned))
+    Text("${stringResource(R.string.reservation_expires)}: $expireTime")
 }
 
 @Composable
@@ -192,20 +185,20 @@ fun QueueInfoComposable(queueSize: Long, queueStatus: QueueState,
                         locationUiState : LocationUiState,
                         profileUiState: ProfileUiState) {
     Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-        Text("Queue Information", color = MaterialTheme.colors.onBackground, fontSize = 25.sp, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.queue_info), color = MaterialTheme.colors.onBackground, fontSize = 25.sp, fontWeight = FontWeight.Bold)
         Column(
             Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colors.surface, shape = RoundedCornerShape(5.dp))
                 .padding(10.dp)
         ) {
-            Text("In queue: $queueSize", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text("${stringResource(R.string.in_queue)}: $queueSize", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             when (queueStatus) {
                 QueueState.NotJoined -> {
-                    Text("Queue position: Not joined", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text("${stringResource(R.string.queue_position)}: ${stringResource(R.string.queue_not_joined)}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
                 is QueueState.Joined -> {
-                    Text("Queue position: ${queueStatus.myPosition}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text("${stringResource(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -265,7 +258,7 @@ fun QueueButtonComposable(onQueueButtonSelectClick: () -> Unit, inQueue: Boolean
                 Modifier.height(50.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)
             ) {
-                Text(if (inQueue) "Leave queue" else "Join queue", fontSize= 20.sp, fontWeight= FontWeight.Bold)
+                Text(if (inQueue) stringResource(R.string.leave_queue) else stringResource(R.string.join_queue), fontSize= 20.sp, fontWeight= FontWeight.Bold)
             }
         }
     }
