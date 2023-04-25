@@ -13,11 +13,37 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-//import be.ugent.gigacharge.data.local.models.Location
 import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.model.location.LocationStatus
 import be.ugent.gigacharge.model.location.QueueState
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
+
+
+@Composable
+fun VestigingButton(
+    title: Boolean = false,
+    location: Location,
+    setLocation: () -> Unit
+) {
+    Button(
+        setLocation,
+        Modifier
+            .fillMaxHeight(),
+            //.weight(0.85F),
+        colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+        elevation = ButtonDefaults.elevation(0.dp,0.dp)
+    ) {
+        Column(Modifier.fillMaxWidth()) {
+            if (title) {
+                Text("Vestiging", color = Color.Gray, fontSize = 10.sp)
+            }
+            Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
+                Text(location.name, color = MaterialTheme.colors.onSurface, fontSize = 18.sp)
+            }
+        }
+    }
+}
+
 
 @Composable
 fun LocationButtonComposable(
@@ -33,23 +59,9 @@ fun LocationButtonComposable(
             .height(50.dp)
             .background(Color.White, shape = RoundedCornerShape(5.dp))
     ) {
-        Button(
-            setLocation,
-            Modifier
-                .fillMaxHeight()
-                .weight(0.85F),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
-            elevation = ButtonDefaults.elevation(0.dp,0.dp)
-        ) {
-            Column(Modifier.fillMaxWidth()) {
-                if (title) {
-                    Text("Vestiging", color = Color.Gray, fontSize = 10.sp)
-                }
-                Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
-                    Text(location.name, color = MaterialTheme.colors.onSurface, fontSize = 18.sp)
-                }
-            }
-        }
+
+        VestigingButton(title, location, setLocation)
+
         IconButton(
             toggleFavorite,
             Modifier
