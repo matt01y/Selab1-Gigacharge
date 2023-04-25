@@ -1,6 +1,10 @@
 package be.ugent.gigacharge.features.main
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -140,7 +144,7 @@ fun MainScreen(
                             )
                         }
                         if (profileUiState is ProfileUiState.Success && profileUiState.profile.visible) {
-                            Overlay()
+                            Overlay(onProfileSelectClick)
                         }
                     }
                 }
@@ -180,7 +184,7 @@ fun MainScreen(
                         }
                     }
                     if (profileUiState is ProfileUiState.Success && profileUiState.profile.visible) {
-                        Overlay()
+                        Overlay(onProfileSelectClick)
                     }
 
                 }
@@ -321,12 +325,12 @@ fun QueueButtonComposable(onQueueButtonSelectClick: () -> Unit, inQueue: Boolean
 }
 
 @Composable
-fun Overlay() {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .clip(RectangleShape)
-            .background(Color(0.0F, 0.0F, 0.0F, 0.5F))
+fun Overlay(cancel: () -> Unit) {
+    Column(Modifier
+        .fillMaxSize()
+        .clip(RectangleShape)
+        .background(Color(0.0F, 0.0F, 0.0F, 0.5F))
+        .clickable(MutableInteractionSource(), null, onClick = cancel)
     ) {}
 }
 
