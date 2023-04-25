@@ -135,7 +135,8 @@ async function handleChange(change : firestore.QueryDocumentSnapshot<firestore.D
                 
                 if(charger.assignedUser !== undefined){
                     if(charger.usertype === USER_TYPE && charger.user === charger.assignedUser){
-                        queueCollection.doc(charger.assignedJoin).update({status: STATUS_COMPLETE, assignedUser: firestore.FieldValue.delete(), assignedJoin: firestore.FieldValue.delete()}) //YIPPIE!
+                        queueCollection.doc(charger.assignedJoin).update({status: STATUS_COMPLETE}) //YIPPIE!
+                        chargerref.update({assignedUser: firestore.FieldValue.delete(), assignedJoin: firestore.FieldValue.delete()});
                     }else{
                         //frick, het is een andere user
                         const freechargersQuery = chargersCollection.where(STATUS_FIELD, "==", STATUS_FREE)
@@ -143,7 +144,7 @@ async function handleChange(change : firestore.QueryDocumentSnapshot<firestore.D
                         if(freechargersCount <= 0){
                             //geen vrije laders meer om toe te wijzen aan de ongelukkige persoon
                             queueCollection.doc(charger.assignedJoin).update({status: STATUS_WAITING, assigned: firestore.FieldValue.delete()})
-                            chargerref.update({assignedJoin: firestore.FieldValue.delete()})
+                            chargerref.update({assignedJoin: firestore.FieldValue.delete(), assignedUser : firestore.FieldValue.delete()})
                         }else{
                             if(charger.assignedJoin == undefined){
 
