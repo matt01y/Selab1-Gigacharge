@@ -1,5 +1,5 @@
 import * as firebase from 'firebase-admin'
-import * as firestore from 'firebase-admin/firestore'
+import * as fs from 'firebase-admin/firestore'
 import * as fbauth from 'firebase-admin/auth'
 import * as fcm from 'firebase-admin/messaging'
 import * as serviceAccount from './env/key.json'
@@ -47,10 +47,10 @@ const STATUS_COMPLETE = "complete"  //persoon is aan het laden / heeft geladen
 const USER_TYPE = "USER"
 const NONUSER_TYPE = "NONUSER"
 
-const db = firestore.getFirestore();
+const db = fs.getFirestore();
 const auth = fbauth.getAuth();
 
-const starttime = firestore.Timestamp.fromDate(new Date()); //tijd waar script is opgestart
+const starttime = fs.Timestamp.fromDate(new Date()); //tijd waar script is opgestart
 const users = db.collection('users');
 const queuequery = db.collectionGroup(CHARGERS_COLLECTION);
 const messaging = fcm.getMessaging();
@@ -74,7 +74,7 @@ const observer = queuequery.onSnapshot(snap => {
     console.log(`error: ${err}`)
 })
 
-async function handleChange(change : firestore.QueryDocumentSnapshot<firestore.DocumentData>){
+async function handleChange(change : fs.QueryDocumentSnapshot<fs.DocumentData>){
     try {
         const chargerref = change.ref
         const charger = change.data()
@@ -98,32 +98,11 @@ async function handleChange(change : firestore.QueryDocumentSnapshot<firestore.D
                 if(topOfLine == undefined){
                     console.log("niemand in rij, dus naar open programma")
                     locationref!.update({status: OPEN_PROGRAM});
-                    chargerref.update({assignedJoin: firestore.FieldValue.delete(), assignedUser: firestore.FieldValue.delete()})
+                    chargerref.update({assignedJoin: fs.FieldValue.delete(), assignedUser: fs.FieldValue.delete()})
                 }else{
                     
                     const firstInLineData = topOfLine!.data();
-                    //TODO: zend de FCM melding naar de user
-                    
-                    let expiretime = new Date(new Date().getTime() + 15 * 60_000); //15 minuten om naar de laadpaal te gaan
-                    //TODO: start een timer die de wachtrij join expiret na de ingestelde tijd, en de beurt aan iemand anders geeft
-                    console.log(`user ${firstInLineData['user-id']} wordt ge-assigned`)
-                    queueCollection.doc(topOfLine!.id).update({status: STATUS_ASSIGNED, assigned: chargerref.id, expires:firestore.Timestamp.fromDate(expiretime)})
-                    chargerref.update({status: STATUS_ASSIGNED, assignedJoin: topOfLine.id, assignedUser: firstInLineData['user-id']})
-
-                    
-                    const user = (await users.doc(firstInLineData['user-id']).get()).data();
-                    if(user!.fcmtoken){
-                        const message = {
-                            notification: {
-                                title: "Er is een laadpaal vrij",
-                                body: `U kan u wagen opladen bij ${charger.description}`
-                            },
-                            token: user!.fcmtoken
-                        }
-                        messaging.send(message)
-                    }else{
-                        console.log("GEEN FCMTOKEN BIJ USER")
-                    }
+                    assignUserToCharger(topOfLine.ref, chargerref)
                     
                 }
             }else if(charger.status === STATUS_CHARGING || charger.status === STATUS_OUT){
@@ -136,15 +115,15 @@ async function handleChange(change : firestore.QueryDocumentSnapshot<firestore.D
                 if(charger.assignedUser !== undefined){
                     if(charger.usertype === USER_TYPE && charger.user === charger.assignedUser){
                         queueCollection.doc(charger.assignedJoin).update({status: STATUS_COMPLETE}) //YIPPIE!
-                        chargerref.update({assignedUser: firestore.FieldValue.delete(), assignedJoin: firestore.FieldValue.delete()});
+                        chargerref.update({assignedUser: fs.FieldValue.delete(), assignedJoin: fs.FieldValue.delete()});
                     }else{
                         //frick, het is een andere user
                         const freechargersQuery = chargersCollection.where(STATUS_FIELD, "==", STATUS_FREE)
                         const freechargersCount = await (await freechargersQuery.count().get()).data().count
                         if(freechargersCount <= 0){
                             //geen vrije laders meer om toe te wijzen aan de ongelukkige persoon
-                            queueCollection.doc(charger.assignedJoin).update({status: STATUS_WAITING, assigned: firestore.FieldValue.delete()})
-                            chargerref.update({assignedJoin: firestore.FieldValue.delete(), assignedUser : firestore.FieldValue.delete()})
+                            queueCollection.doc(charger.assignedJoin).update({status: STATUS_WAITING, assigned: fs.FieldValue.delete()})
+                            chargerref.update({assignedJoin: fs.FieldValue.delete(), assignedUser : fs.FieldValue.delete()})
                         }else{
                             if(charger.assignedJoin == undefined){
 
@@ -153,7 +132,7 @@ async function handleChange(change : firestore.QueryDocumentSnapshot<firestore.D
                                 const freecharger = (await freechargersQuery.limit(1).get()).docs[0];
                                 let expiretime = new Date(new Date().getTime() + 15 * 60_000); //15 minuten om naar de laadpaal te gaan
                                 freecharger.ref.update({status: STATUS_ASSIGNED, assignedJoin: charger.assignedJoin, assignedUser: charger.assignedUser})
-                                queueCollection.doc(charger.assignedJoin).update({status: STATUS_ASSIGNED, assigned: freecharger.id, expires: firestore.Timestamp.fromDate(expiretime)})
+                                queueCollection.doc(charger.assignedJoin).update({status: STATUS_ASSIGNED, assigned: freecharger.id, expires: fs.Timestamp.fromDate(expiretime)})
 
                                 
                                 const user = (await users.doc(charger.assignedUser).get()).data();
@@ -170,7 +149,7 @@ async function handleChange(change : firestore.QueryDocumentSnapshot<firestore.D
                                     console.log("GEEN FCMTOKEN BIJ USER")
                                 }
 
-                                chargerref.update({assignedJoin: firestore.FieldValue.delete(), assignedUser: firestore.FieldValue.delete()}); //verwijder toegewezen join.
+                                chargerref.update({assignedJoin: fs.FieldValue.delete(), assignedUser: fs.FieldValue.delete()}); //verwijder toegewezen join.
                             }
                         }
                     }
@@ -194,7 +173,36 @@ async function handleChange(change : firestore.QueryDocumentSnapshot<firestore.D
     }
 }
 
-async function getTopOfLine(queueCollection : firestore.CollectionReference){
+async function assignUserToCharger(joinDoc : fs.DocumentReference, chargerDoc : fs.DocumentReference){
+    const locationref = chargerDoc.parent.parent;
+    const queueCollection = locationref.collection(QUEUE_COLLECTION);
+    const chargerdata = (await chargerDoc.get()).data()
+    const joindata = (await joinDoc.get()).data();
+    //TODO: zend de FCM melding naar de user
+    
+    let expiretime = new Date(new Date().getTime() + 15 * 60_000); //15 minuten om naar de laadpaal te gaan
+    //TODO: start een timer die de wachtrij join expiret na de ingestelde tijd, en de beurt aan iemand anders geeft
+    console.log(`user ${joindata['user-id']} wordt ge-assigned`)
+    queueCollection.doc(joinDoc!.id).update({status: STATUS_ASSIGNED, assigned: chargerDoc.id, expires:fs.Timestamp.fromDate(expiretime)})
+    chargerDoc.update({status: STATUS_ASSIGNED, assignedJoin: joinDoc.id, assignedUser: joindata['user-id']})
+
+    
+    const user = (await users.doc(joindata['user-id']).get()).data();
+    if(user!.fcmtoken){
+        const message = {
+            notification: {
+                title: "Er is een laadpaal vrij",
+                body: `U kan u wagen opladen bij ${chargerdata.description}`
+            },
+            token: user!.fcmtoken
+        }
+        messaging.send(message)
+    }else{
+        console.log("GEEN FCMTOKEN BIJ USER")
+    }
+}
+
+async function getTopOfLine(queueCollection : fs.CollectionReference){
     try{
         const res = await (await queueCollection.where(STATUS_FIELD, "==", STATUS_WAITING).orderBy(JOINEDAT_FIELD).limit(1).get()).docs[0]
         return res;
