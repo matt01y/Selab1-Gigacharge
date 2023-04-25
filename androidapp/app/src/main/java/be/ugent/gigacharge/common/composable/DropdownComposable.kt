@@ -36,6 +36,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
+fun DropDownButton(
+  selectionState :String,
+  isExpanded : Boolean,
+  onClick: () -> Unit
+) {
+  Button(
+    onClick,
+    Modifier.fillMaxWidth().height(50.dp),
+    colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.background)
+  ) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+      Text(selectionState, Modifier.weight(0.9F), color = MaterialTheme.colors.onBackground)
+      Icon(if (isExpanded) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown, "less", Modifier.weight(0.1F))
+    }
+  }
+}
+
+@Composable
 fun MyDropdown(
   selection: String,
   options: List<String>,
@@ -46,18 +64,8 @@ fun MyDropdown(
   var selectionState by remember { mutableStateOf(selection) }
 
   Box(modifier) {
-    // BUTTON
-    Button(
-      { isExpanded = true },
-      Modifier.fillMaxWidth().height(50.dp),
-      colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.background)
-    ) {
-      Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(selectionState, Modifier.weight(0.9F), color = MaterialTheme.colors.onBackground)
-        Icon(if (isExpanded) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown, "less", Modifier.weight(0.1F))
-      }
-    }
-    // DROPDOWN
+    DropDownButton(selectionState, isExpanded){ isExpanded = true }
+
     DropdownMenu(
       isExpanded,
       { isExpanded = false }
@@ -82,6 +90,15 @@ fun MyDropDownPreview() {
 }
 
 @Composable
+fun MoreIcon() {
+  Icon(
+    modifier = Modifier.padding(8.dp, 0.dp),
+    imageVector = Icons.Default.MoreVert,
+    contentDescription = "More"
+  )
+}
+
+@Composable
 @ExperimentalMaterialApi
 fun DropdownContextMenu(
   options: List<String>,
@@ -96,11 +113,8 @@ fun DropdownContextMenu(
     modifier = modifier,
     onExpandedChange = { isExpanded = !isExpanded }
   ) {
-    Icon(
-      modifier = Modifier.padding(8.dp, 0.dp),
-      imageVector = Icons.Default.MoreVert,
-      contentDescription = "More"
-    )
+
+    MoreIcon()
 
     ExposedDropdownMenu(
       modifier = Modifier.width(180.dp),
