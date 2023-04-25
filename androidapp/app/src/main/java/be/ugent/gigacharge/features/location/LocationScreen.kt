@@ -51,10 +51,10 @@ fun LocationScreen(
         }
     ) {
         Column(Modifier.padding(it)) {
-            when (locationsUiState) {
+            when (val s = locationsUiState) {
                 LocationsUiState.Loading -> LoadingComposable()
                 is LocationsUiState.Success -> {
-                    val locations = (locationsUiState as LocationsUiState.Success).locations
+                    val locations = s.locations
                     LazyColumn {
                         locations.forEach { location: Location ->
                             item {

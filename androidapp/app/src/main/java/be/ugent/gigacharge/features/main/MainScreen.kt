@@ -53,26 +53,24 @@ fun MainScreen(
                 MainHeaderComposable(
                     { viewModel.toggleProfile() }
                 ) {
-                    when (profileUiState) {
+                    when (val s = profileUiState) {
                         ProfileUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary, text="Loading profile ...")
                         is ProfileUiState.Success -> {
-                            val profileUiStateCasted = (profileUiState as ProfileUiState.Success)
-                            if (!profileUiStateCasted.profile.visible) {
-                                when (locationUiState) {
+                            if (s.profile.visible) {
+                                when (val l = locationUiState) {
                                     LocationUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary, text="Loading location ...")
                                     is LocationUiState.Success -> {
-                                        val location = (locationUiState as LocationUiState.Success).location
                                         LocationButtonComposable(
                                             onLocationSelectClick,
-                                            { viewModel.toggleFavorite(location) },
-                                            location,
+                                            { viewModel.toggleFavorite(l.location) },
+                                            l.location,
                                             true
                                         )
                                     }
                                 }
                             }
                             else {
-                                val profile = profileUiStateCasted.profile
+                                val profile = s.profile
                                 ProfileFormComposable(
                                     provider = profile.provider,
                                     providers = viewModel.getProviders(),
@@ -93,17 +91,18 @@ fun MainScreen(
                 Button(onClick = {viewModel.updateLocation()}) {
                     Text(text = "refresh")
                 }
-                if (!(locationUiState is LocationUiState.Success && (locationUiState as LocationUiState.Success).location.status == LocationStatus.OPEN)) {
+                val l = locationUiState
+                if (!(l is LocationUiState.Success && l.location.status == LocationStatus.OPEN)) {
                     Box(Modifier.height(IntrinsicSize.Max)) {
                         // Join/Leave button
-                        if (locationUiState is LocationUiState.Success) {
-                            val location = (locationUiState as LocationUiState.Success).location
+                        if (l is LocationUiState.Success) {
                             QueueButtonComposable(
-                                { viewModel.joinLeaveQueue(location) },
-                                location.amIJoined
+                                { viewModel.joinLeaveQueue(l.location) },
+                                l.location.amIJoined
                             )
                         }
-                        if (profileUiState is ProfileUiState.Success && (profileUiState as ProfileUiState.Success).profile.visible) {
+                        val p = profileUiState
+                        if (p is ProfileUiState.Success && p.profile.visible) {
                             Overlay()
                         }
                     }
@@ -112,10 +111,10 @@ fun MainScreen(
         ) {
                 paddingValues -> Column(Modifier.padding(paddingValues)) {
             Box {
-                when (locationUiState) {
+                when (val l = locationUiState) {
                     LocationUiState.Loading -> LoadingComposable()
                     is LocationUiState.Success -> {
-                        if ((locationUiState as LocationUiState.Success).location.status == LocationStatus.OPEN) {
+                        if (l.location.status == LocationStatus.OPEN) {
                             Column(
                                 Modifier
                                     .fillMaxWidth()
@@ -127,13 +126,14 @@ fun MainScreen(
                         } else {
                             LazyColumn {
                                 item {
-                                    QueueInfoComposable(locationUiState, profileUiState)
+                                    QueueInfoComposable(l, profileUiState)
                                 }
                             }
                         }
                     }
                 }
-                if (profileUiState is ProfileUiState.Success && (profileUiState as ProfileUiState.Success).profile.visible) {
+                val p = profileUiState
+                if (p is ProfileUiState.Success && p.profile.visible) {
                     Overlay()
                 }
 
@@ -159,9 +159,9 @@ fun QueueInfoAssignedComposable(
 }
 
 @Composable
-fun QueueInfoComposable(locationUiState : LocationUiState,
+fun QueueInfoComposable(locationUiState : LocationUiState.Success,
                         profileUiState: ProfileUiState) {
-    val location = (locationUiState as LocationUiState.Success).location
+    val location = locationUiState.location
     val queueSize = location.amountWaiting
     val queueStatus = location.queue
     Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
