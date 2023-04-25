@@ -1,6 +1,7 @@
 package be.ugent.gigacharge.features.register
 
 import android.annotation.SuppressLint
+import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -25,7 +26,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.hilt.navigation.compose.hiltViewModel
+import be.ugent.gigacharge.R
 import be.ugent.gigacharge.common.composable.BasicButton
+import be.ugent.gigacharge.common.composable.CardNumberBox
 import be.ugent.gigacharge.common.composable.ProfileFormComposable
 import be.ugent.gigacharge.common.ext.basicButton
 import be.ugent.gigacharge.common.ext.fieldModifier
@@ -57,37 +60,10 @@ fun RegisterScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = "Welkom!", color = MaterialTheme.colors.primary)
+            Text(Resources.getSystem().getString(R.string.welcome), color = MaterialTheme.colors.primary)
 
             // CardNumber
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    "Kaartnummer",
-                    Modifier.weight(0.4F),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-                TextField(
-                    uiState.cardnumber,
-                    viewModel::onCardNumberChange,
-                    Modifier
-                        .weight(0.6F)
-                        .height(50.dp),
-                    singleLine = true,
-                    colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = MaterialTheme.colors.background,
-                        focusedIndicatorColor = MaterialTheme.colors.secondaryVariant,
-                        cursorColor = MaterialTheme.colors.secondaryVariant
-                    ),
-                    textStyle = androidx.compose.ui.text.TextStyle(color = MaterialTheme.colors.onBackground)
-                )
-            }
+            CardNumberBox(uiState.cardnumber, viewModel::onCardNumberChange)
         }
     }
 }
@@ -102,7 +78,7 @@ fun RegisterTopBar() {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "GigaCharge",
+                    text = Resources.getSystem().getString(R.string.app_name),
                     fontSize = 40.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colors.primary

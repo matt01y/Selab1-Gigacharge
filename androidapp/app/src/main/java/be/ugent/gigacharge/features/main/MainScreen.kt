@@ -1,5 +1,6 @@
 package be.ugent.gigacharge.features.main
 
+import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import be.ugent.gigacharge.R
 import be.ugent.gigacharge.common.composable.*
 import be.ugent.gigacharge.features.ProfileUiState
 import be.ugent.gigacharge.features.QueueUiState
@@ -142,7 +144,7 @@ fun MainScreen(
                                     .padding(30.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text("Vrij parkeerplaats", color = MaterialTheme.colors.onBackground, fontSize = 25.sp)
+                                Text(Resources.getSystem().getString(R.string.empty_parking), color = MaterialTheme.colors.onBackground, fontSize = 25.sp)
                             }
                         } else {
                             val location = locationUiState.location
@@ -174,9 +176,8 @@ fun MainScreen(
 fun QueueInfoAssignedComposable(
     expireTime : String
 ) {
-    Text("you have been assigned")
-    Text("your reservation expires at: " + expireTime)
-
+    Text(Resources.getSystem().getString(R.string.assigned))
+    Text("${Resources.getSystem().getString(R.string.reservation_expires)}: $expireTime")
 }
 
 @Composable
@@ -184,20 +185,20 @@ fun QueueInfoComposable(queueSize: Long, queueStatus: QueueState,
                         locationUiState : LocationUiState,
                         profileUiState: ProfileUiState) {
     Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-        Text("Queue Information", color = MaterialTheme.colors.onBackground, fontSize = 25.sp, fontWeight = FontWeight.Bold)
+        Text(Resources.getSystem().getString(R.string.queue_info), color = MaterialTheme.colors.onBackground, fontSize = 25.sp, fontWeight = FontWeight.Bold)
         Column(
             Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colors.surface, shape = RoundedCornerShape(5.dp))
                 .padding(10.dp)
         ) {
-            Text("In queue: $queueSize", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text("${Resources.getSystem().getString(R.string.in_queue)}: $queueSize", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             when (queueStatus) {
                 QueueState.NotJoined -> {
-                    Text("Queue position: Not joined", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text("${Resources.getSystem().getString(R.string.queue_position)}: ${Resources.getSystem().getString(R.string.queue_not_joined)}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
                 is QueueState.Joined -> {
-                    Text("Queue position: ${queueStatus.myPosition}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text("${Resources.getSystem().getString(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -257,7 +258,7 @@ fun QueueButtonComposable(onQueueButtonSelectClick: () -> Unit, inQueue: Boolean
                 Modifier.height(50.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)
             ) {
-                Text(if (inQueue) "Leave queue" else "Join queue", fontSize= 20.sp, fontWeight= FontWeight.Bold)
+                Text(if (inQueue) Resources.getSystem().getString(R.string.leave_queue) else Resources.getSystem().getString(R.string.join_queue), fontSize= 20.sp, fontWeight= FontWeight.Bold)
             }
         }
     }

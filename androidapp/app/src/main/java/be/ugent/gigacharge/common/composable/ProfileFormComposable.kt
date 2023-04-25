@@ -1,5 +1,6 @@
 package be.ugent.gigacharge.common.composable
 
+import android.content.res.Resources
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -10,6 +11,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import be.ugent.gigacharge.R
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 import be.ugent.gigacharge.ui.theme.Green
 import be.ugent.gigacharge.ui.theme.Red
@@ -26,7 +28,7 @@ fun CardNumberBox(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            "Kaartnummer",
+            Resources.getSystem().getString(R.string.card_number),
             Modifier.weight(0.4F),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
@@ -66,7 +68,7 @@ fun StandardButtonsField(
             onClick = cancel,
             colors = ButtonDefaults.buttonColors(backgroundColor = Red)
         ) {
-            Text("Annuleer", fontWeight = FontWeight.Bold , color = Color.White)
+            Text(Resources.getSystem().getString(R.string.cancel), fontWeight = FontWeight.Bold , color = Color.White)
         }
         Spacer(Modifier.width(20.dp))
         Button(
@@ -76,7 +78,7 @@ fun StandardButtonsField(
             },
             colors = ButtonDefaults.buttonColors(backgroundColor = Green)
         ) {
-            Text("Opslaan", fontWeight = FontWeight.Bold, color = Color.White)
+            Text(Resources.getSystem().getString(R.string.save), fontWeight = FontWeight.Bold, color = Color.White)
         }
     }
 }
