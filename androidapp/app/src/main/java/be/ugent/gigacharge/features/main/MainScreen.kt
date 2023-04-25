@@ -31,7 +31,7 @@ import be.ugent.gigacharge.model.location.charger.ChargerStatus
 import be.ugent.gigacharge.model.location.charger.UserField
 import be.ugent.gigacharge.model.location.charger.UserType
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
-
+import androidx.compose.ui.res.stringResource;
 
 @Composable
 fun MainRoute(onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
@@ -144,7 +144,7 @@ fun MainScreen(
                                     .padding(30.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text(Resources.getSystem().getString(R.string.empty_parking), color = MaterialTheme.colors.onBackground, fontSize = 25.sp)
+                                Text(stringResource(R.string.empty_parking), color = MaterialTheme.colors.onBackground, fontSize = 25.sp)
                             }
                         } else {
                             val location = locationUiState.location
@@ -176,8 +176,8 @@ fun MainScreen(
 fun QueueInfoAssignedComposable(
     expireTime : String
 ) {
-    Text(Resources.getSystem().getString(R.string.assigned))
-    Text("${Resources.getSystem().getString(R.string.reservation_expires)}: $expireTime")
+    Text(stringResource(R.string.assigned))
+    Text("${stringResource(R.string.reservation_expires)}: $expireTime")
 }
 
 @Composable
@@ -185,20 +185,20 @@ fun QueueInfoComposable(queueSize: Long, queueStatus: QueueState,
                         locationUiState : LocationUiState,
                         profileUiState: ProfileUiState) {
     Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-        Text(Resources.getSystem().getString(R.string.queue_info), color = MaterialTheme.colors.onBackground, fontSize = 25.sp, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.queue_info), color = MaterialTheme.colors.onBackground, fontSize = 25.sp, fontWeight = FontWeight.Bold)
         Column(
             Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colors.surface, shape = RoundedCornerShape(5.dp))
                 .padding(10.dp)
         ) {
-            Text("${Resources.getSystem().getString(R.string.in_queue)}: $queueSize", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text("${stringResource(R.string.in_queue)}: $queueSize", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             when (queueStatus) {
                 QueueState.NotJoined -> {
-                    Text("${Resources.getSystem().getString(R.string.queue_position)}: ${Resources.getSystem().getString(R.string.queue_not_joined)}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text("${stringResource(R.string.queue_position)}: ${stringResource(R.string.queue_not_joined)}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
                 is QueueState.Joined -> {
-                    Text("${Resources.getSystem().getString(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text("${stringResource(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -258,7 +258,7 @@ fun QueueButtonComposable(onQueueButtonSelectClick: () -> Unit, inQueue: Boolean
                 Modifier.height(50.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)
             ) {
-                Text(if (inQueue) Resources.getSystem().getString(R.string.leave_queue) else Resources.getSystem().getString(R.string.join_queue), fontSize= 20.sp, fontWeight= FontWeight.Bold)
+                Text(if (inQueue) stringResource(R.string.leave_queue) else stringResource(R.string.join_queue), fontSize= 20.sp, fontWeight= FontWeight.Bold)
             }
         }
     }

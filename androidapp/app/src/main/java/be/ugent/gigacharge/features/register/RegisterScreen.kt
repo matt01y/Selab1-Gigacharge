@@ -33,6 +33,7 @@ import be.ugent.gigacharge.common.composable.ProfileFormComposable
 import be.ugent.gigacharge.common.ext.basicButton
 import be.ugent.gigacharge.common.ext.fieldModifier
 import be.ugent.gigacharge.R.string as AppText
+import androidx.compose.ui.res.stringResource;
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
@@ -60,7 +61,7 @@ fun RegisterScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(Resources.getSystem().getString(R.string.welcome), color = MaterialTheme.colors.primary)
+            Text(stringResource(R.string.welcome), color = MaterialTheme.colors.primary)
 
             // CardNumber
             CardNumberBox(uiState.cardnumber, viewModel::onCardNumberChange)
@@ -78,7 +79,7 @@ fun RegisterTopBar() {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = Resources.getSystem().getString(R.string.app_name),
+                    text = stringResource(R.string.app_name),
                     fontSize = 40.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colors.primary
