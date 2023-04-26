@@ -1,5 +1,6 @@
 package be.ugent.gigacharge.common.composable
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +18,7 @@ import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 import be.ugent.gigacharge.ui.theme.Green
 import be.ugent.gigacharge.ui.theme.Red
 import androidx.compose.ui.res.stringResource;
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 fun CardNumberBox(
@@ -59,7 +61,6 @@ fun StandardButtonsField(
     cancel: () -> Unit,
     saveProfile: (String, Boolean) -> Unit,
     cardNumberState: String,
-    validCardNumberState: Boolean
 ) {
     Row(
         Modifier
@@ -77,10 +78,7 @@ fun StandardButtonsField(
         Spacer(Modifier.width(20.dp))
         Button(
             onClick = {
-                // Only save if the cardNumber is valid
-                if (validCardNumberState) {
-                    saveProfile(cardNumberState, false)
-                }
+                saveProfile(cardNumberState, false)
                 //cancel()
             },
             colors = ButtonDefaults.buttonColors(backgroundColor = Green)
@@ -98,20 +96,18 @@ fun ProfileFormComposable(
     isValidCardNumber: (String) -> Boolean
 ) {
     var cardNumberState by remember { mutableStateOf(cardNumber) }
-    var validCardNumberState by remember { mutableStateOf(isValidCardNumber(cardNumber)) }
+    var validCardNumberState by remember { mutableStateOf(true) }
 
     Column() {
         // CardNumber
-        CardNumberBox(
-            cardNumberState,
-            {
-                cardNumberState = it
-                validCardNumberState = isValidCardNumber(it.trim())
-            },
-            validCardNumberState
-        )
+        CardNumberBox(cardNumberState, { cardNumberState = it }, validCardNumberState)
         // Buttons
-        StandardButtonsField(cancel, saveProfile, cardNumberState, validCardNumberState)
+        StandardButtonsField(cancel, {s:String, b:Boolean ->
+            validCardNumberState = isValidCardNumber(s)
+            if (validCardNumberState) {
+                saveProfile(s,b)
+            }
+        }, cardNumberState)
     }
 }
 

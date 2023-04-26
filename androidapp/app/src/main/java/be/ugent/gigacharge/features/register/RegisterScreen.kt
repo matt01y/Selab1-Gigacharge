@@ -33,7 +33,7 @@ fun RegisterScreen(
     val uiState by viewModel.uiState
     val fieldModifier = Modifier.fieldModifier()
 
-    var validCardNumberState by remember { mutableStateOf(false) }
+    var validCardNumberState by remember { mutableStateOf(true) }
 
     Scaffold(
         topBar = { RegisterTopBar() },
@@ -41,7 +41,12 @@ fun RegisterScreen(
             BasicButton(
                 AppText.create_account,
                 Modifier.basicButton()
-            ) { viewModel.onRegister(openAndPopUp) }
+            ) {
+                validCardNumberState = viewModel.isValidCardNumber(uiState.cardnumber)
+                if (validCardNumberState) {
+                    viewModel.onRegister(openAndPopUp)
+                }
+            }
         },
         modifier = modifier
             .padding(20.dp)
@@ -59,14 +64,7 @@ fun RegisterScreen(
             Text(stringResource(R.string.welcome), color = MaterialTheme.colors.primary)
 
             // CardNumber (not whole form since we don't need a back button, save button, ...)
-            CardNumberBox(
-                uiState.cardnumber,
-                {
-                    (viewModel::onCardNumberChange)(it)
-                    validCardNumberState = viewModel.isValidCardNumber(it)
-                },
-                validCardNumberState
-            )
+            CardNumberBox(uiState.cardnumber, viewModel::onCardNumberChange, validCardNumberState)
         }
     }
 }
