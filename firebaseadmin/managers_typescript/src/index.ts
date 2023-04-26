@@ -55,6 +55,8 @@ const users = db.collection('users');
 const queuequery = db.collectionGroup(CHARGERS_COLLECTION);
 const messaging = fcm.getMessaging();
 
+const deleteField = fs.FieldValue.delete();
+
 
 
 const observer = queuequery.onSnapshot(snap => {
@@ -84,8 +86,6 @@ async function handleChange(change : fs.QueryDocumentSnapshot<fs.DocumentData>){
         const queueCollection = locationref!.collection(QUEUE_COLLECTION)
         console.log(charger);
 
-
-
         //als de locatie momenteel een queue heeft
         if(location!.status === QUEUE_PROGRAM){
             //als de charger vrij is moeten we de volgende in de rij 
@@ -96,14 +96,11 @@ async function handleChange(change : fs.QueryDocumentSnapshot<fs.DocumentData>){
                 const topOfLine = await getTopOfLine(queueCollection);
                 //Als er nu niemand in de queue zit, moet status van de locatie terug naar open
                 if(topOfLine == undefined){
-                    console.log("niemand in rij, dus naar open programma")
-                    locationref!.update({status: OPEN_PROGRAM});
-                    chargerref.update({assignedJoin: fs.FieldValue.delete(), assignedUser: fs.FieldValue.delete()})
+                    console.log("niemand in rij, dus naar open programma");
+                    setProgram(OPEN_PROGRAM, locationref);
+                    chargerref.update({assignedJoin: deleteField, assignedUser: deleteField})
                 }else{
-                    
-                    const firstInLineData = topOfLine!.data();
-                    assignUserToCharger(topOfLine.ref, chargerref)
-                    
+                    assignUserToCharger(topOfLine, await chargerref.get())
                 }
             }else if(charger.status === STATUS_CHARGING || charger.status === STATUS_OUT){
                 //als we in queue modus zijn,
@@ -112,60 +109,34 @@ async function handleChange(change : fs.QueryDocumentSnapshot<fs.DocumentData>){
                 //zo niet, probeer een andere toe te wijzen.
                 //en als dat niet lukt, zet hem opnieuw in de wachtrij
                 
-                if(charger.assignedUser !== undefined){
+                if(charger.assignedUser !== undefined){ //is er iemand assigned aan deze charger?
                     if(charger.usertype === USER_TYPE && charger.user === charger.assignedUser){
+                        //de gebruiker is diegene die assigned is
                         queueCollection.doc(charger.assignedJoin).update({status: STATUS_COMPLETE}) //YIPPIE!
-                        chargerref.update({assignedUser: fs.FieldValue.delete(), assignedJoin: fs.FieldValue.delete()});
+                        unAssignCharger(chargerref);
                     }else{
-                        //frick, het is een andere user
-                        const freechargersQuery = chargersCollection.where(STATUS_FIELD, "==", STATUS_FREE)
-                        const freechargersCount = await (await freechargersQuery.count().get()).data().count
-                        if(freechargersCount <= 0){
-                            //geen vrije laders meer om toe te wijzen aan de ongelukkige persoon
-                            queueCollection.doc(charger.assignedJoin).update({status: STATUS_WAITING, assigned: fs.FieldValue.delete()})
-                            chargerref.update({assignedJoin: fs.FieldValue.delete(), assignedUser : fs.FieldValue.delete()})
+                        //frick, het is een andere user, is er nog een vrije lader die we kunnen gebruiken om toe te wijzen?
+                        const freeCharger = await getFreeChargerIfExists(chargersCollection);
+                        if(freeCharger == undefined){
+                            //geen vrije laders meer om toe te wijzen aan de ongelukkige persoon, persoon moet terug in de wacht
+                            queueCollection.doc(charger.assignedJoin).update({status: STATUS_WAITING, deleteField})
                         }else{
-                            if(charger.assignedJoin == undefined){
-
-                            }else{
-                                //er was iemand assigned aan deze chargrer maar hij is gestolen, geef die mens nen nieuwen
-                                const freecharger = (await freechargersQuery.limit(1).get()).docs[0];
-                                let expiretime = new Date(new Date().getTime() + 15 * 60_000); //15 minuten om naar de laadpaal te gaan
-                                freecharger.ref.update({status: STATUS_ASSIGNED, assignedJoin: charger.assignedJoin, assignedUser: charger.assignedUser})
-                                queueCollection.doc(charger.assignedJoin).update({status: STATUS_ASSIGNED, assigned: freecharger.id, expires: fs.Timestamp.fromDate(expiretime)})
-
-                                
-                                const user = (await users.doc(charger.assignedUser).get()).data();
-                                if(user.fcmtoken){
-                                    const message = {
-                                        notification: {
-                                            title: "Er is een laadpaal vrij",
-                                            body: `U kan u wagen opladen bij ${charger.description}`
-                                        },
-                                        token: user.fcmtoken
-                                    }
-                                    messaging.send(message)
-                                }else{
-                                    console.log("GEEN FCMTOKEN BIJ USER")
-                                }
-
-                                chargerref.update({assignedJoin: fs.FieldValue.delete(), assignedUser: fs.FieldValue.delete()}); //verwijder toegewezen join.
-                            }
+                            //we kunnen de mens nog redden met een nieuwe charger
+                            assignUserToCharger(await queueCollection.doc(charger.assignedJoin).get(), freeCharger);
                         }
+                        unAssignCharger(chargerref);
                     }
                 }else{
                     //geen probleem, we zijn in open modus, er is een wachtrij of maar de paal was niet assigned for some reason
                 }
             }
-        }else{
+        }else if(location!.status === OPEN_PROGRAM){
             //check of een queue moet gestartn worden
             //dat is zo wanneer alle laders bezet zijn
-            const freechargersCount = await (await chargersCollection.where(STATUS_FIELD, "==", STATUS_FREE).count().get()).data().count
-            console.log(`free chargers: ${freechargersCount}`)
-            if(freechargersCount <= 0){
+            if(! (await hasFreeChargers(chargersCollection))){
+                console.log("er zijn geen chargers over, naar queue programma");
                 //start queue op
-                locationref.update({status: QUEUE_PROGRAM})
-                location.status = QUEUE_PROGRAM
+                setProgram(QUEUE_PROGRAM, locationref);
             }
         }
     }catch (err) {
@@ -173,33 +144,55 @@ async function handleChange(change : fs.QueryDocumentSnapshot<fs.DocumentData>){
     }
 }
 
-async function assignUserToCharger(joinDoc : fs.DocumentReference, chargerDoc : fs.DocumentReference){
-    const locationref = chargerDoc.parent.parent;
+async function unAssignCharger(chargerref : fs.DocumentReference){
+    chargerref.update({assignedJoin: deleteField, assignedUser: deleteField});
+}
+
+async function hasFreeChargers(chargersCollection : fs.CollectionReference){
+    const amount : number = (await chargersCollection.where(STATUS_FIELD, "==", STATUS_FREE).limit(1).count().get()).data().count;
+    return amount === 1
+}
+
+async function getFreeChargerIfExists(chargersCollection : fs.CollectionReference){
+    const freecharger = (await chargersCollection.where(STATUS_FIELD, "==", STATUS_FREE).limit(1).get()).docs[0];
+    return freecharger;
+}
+
+async function sendNotification(userId : string, content: fcm.Notification){
+    const fcmtoken = (await users.doc(userId).get()).data().fcmtoken
+
+    if(fcmtoken){
+        const message : fcm.TokenMessage = {
+            notification : content,
+            token : fcmtoken
+        }
+        messaging.send(message)
+    }else{
+        console.error("GEEN FCMTOKEN BIJ USER")
+    }
+}
+
+async function setProgram(program : any, locationRef : fs.DocumentReference){
+    locationRef.update({status: program})
+}
+
+async function assignUserToCharger(joinDoc : fs.DocumentSnapshot, chargerDoc : fs.DocumentSnapshot){
+    const locationref = chargerDoc.ref.parent.parent;
     const queueCollection = locationref.collection(QUEUE_COLLECTION);
-    const chargerdata = (await chargerDoc.get()).data()
-    const joindata = (await joinDoc.get()).data();
+    const chargerdata = chargerDoc.data()
+    const joindata = joinDoc.data()
     //TODO: zend de FCM melding naar de user
     
     let expiretime = new Date(new Date().getTime() + 15 * 60_000); //15 minuten om naar de laadpaal te gaan
     //TODO: start een timer die de wachtrij join expiret na de ingestelde tijd, en de beurt aan iemand anders geeft
     console.log(`user ${joindata['user-id']} wordt ge-assigned`)
     queueCollection.doc(joinDoc!.id).update({status: STATUS_ASSIGNED, assigned: chargerDoc.id, expires:fs.Timestamp.fromDate(expiretime)})
-    chargerDoc.update({status: STATUS_ASSIGNED, assignedJoin: joinDoc.id, assignedUser: joindata['user-id']})
+    chargerDoc.ref.update({status: STATUS_ASSIGNED, assignedJoin: joinDoc.id, assignedUser: joindata['user-id']})
 
-    
-    const user = (await users.doc(joindata['user-id']).get()).data();
-    if(user!.fcmtoken){
-        const message = {
-            notification: {
-                title: "Er is een laadpaal vrij",
-                body: `U kan u wagen opladen bij ${chargerdata.description}`
-            },
-            token: user!.fcmtoken
-        }
-        messaging.send(message)
-    }else{
-        console.log("GEEN FCMTOKEN BIJ USER")
-    }
+    sendNotification(joindata['user-id'], {
+        title: "Er is een laadpaal vrij",
+        body: `U kan u wagen opladen bij ${chargerdata.description}`
+    });
 }
 
 async function getTopOfLine(queueCollection : fs.CollectionReference){
