@@ -1,5 +1,6 @@
 package be.ugent.gigacharge.common.composable
 
+import android.content.res.Resources
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -10,124 +11,94 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import be.ugent.gigacharge.data.local.models.Profile
+import be.ugent.gigacharge.features.main.MainViewModel
+import be.ugent.gigacharge.R
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 import be.ugent.gigacharge.ui.theme.Green
 import be.ugent.gigacharge.ui.theme.Red
+import androidx.compose.ui.res.stringResource;
+
+@Composable
+fun CardNumberBox(
+    cardNumberState : String,
+    onCardNumberStateChange : (String) -> Unit
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            stringResource(R.string.card_number),
+            Modifier.weight(0.4F),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+        TextField(
+            cardNumberState,
+            onCardNumberStateChange,
+            Modifier
+                .weight(0.6F)
+                .height(50.dp),
+            singleLine = true,
+            colors = TextFieldDefaults.textFieldColors(
+                backgroundColor = MaterialTheme.colors.background,
+                focusedIndicatorColor = MaterialTheme.colors.secondaryVariant,
+                cursorColor = MaterialTheme.colors.secondaryVariant
+            ),
+            textStyle = androidx.compose.ui.text.TextStyle(color = MaterialTheme.colors.onBackground)
+        )
+    }
+}
+
+@Composable
+fun StandardButtonsField(
+    cancel: () -> Unit,
+    saveProfile: (String, Boolean) -> Unit,
+    cardNumberState: String,
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(10.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Button(
+            onClick = cancel,
+            colors = ButtonDefaults.buttonColors(backgroundColor = Red)
+        ) {
+            Text(stringResource(R.string.cancel), fontWeight = FontWeight.Bold , color = Color.White)
+        }
+        Spacer(Modifier.width(20.dp))
+        Button(
+            onClick = {
+                saveProfile(cardNumberState, false)
+                //cancel()
+            },
+            colors = ButtonDefaults.buttonColors(backgroundColor = Green)
+        ) {
+            Text(stringResource(R.string.save), fontWeight = FontWeight.Bold, color = Color.White)
+        }
+    }
+}
 
 @Composable
 fun ProfileFormComposable(
-    provider: String,
-    providers: List<String>,
     cardNumber: String,
-    company: String,
-    companies: List<String>,
     cancel: () -> Unit,
-    saveProfile: (String, String, String, Boolean) -> Unit
+    saveProfile: (String, Boolean) -> Unit
 ) {
-    var providerState by remember { mutableStateOf(provider) }
-    var companyState by remember { mutableStateOf(company) }
     var cardNumberState by remember { mutableStateOf(cardNumber) }
 
-    Column {
-        // Provider
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                "Kaartdeler",
-                Modifier.weight(0.4F),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            MyDropdown(
-                providerState,
-                providers,
-                { s: String -> providerState = s },
-                Modifier.weight(0.6F)
-            )
-        }
-
+    Column() {
         // CardNumber
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                "Kaartnummer",
-                Modifier.weight(0.4F),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            TextField(
-                cardNumberState,
-                { s: String -> cardNumberState = s },
-                Modifier
-                    .weight(0.6F)
-                    .height(50.dp),
-                singleLine = true,
-                colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = MaterialTheme.colors.background,
-                    focusedIndicatorColor = MaterialTheme.colors.secondaryVariant,
-                    cursorColor = MaterialTheme.colors.secondaryVariant
-                ),
-                textStyle = androidx.compose.ui.text.TextStyle(color = MaterialTheme.colors.onBackground)
-            )
-        }
-
-        // Company
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                "Bedrijf",
-                Modifier.weight(0.4F),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            MyDropdown(
-                companyState,
-                companies,
-                { s: String -> companyState = s },
-                Modifier.weight(0.6F)
-            )
-        }
-
+        CardNumberBox(cardNumberState) { cardNumberState = it }
         // Buttons
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = cancel,
-                colors = ButtonDefaults.buttonColors(backgroundColor = Red)
-            ) {
-                Text("Annuleer", fontWeight = FontWeight.Bold, color = Color.White)
-            }
-            Spacer(Modifier.width(20.dp))
-            Button(
-                onClick = {
-                    saveProfile(providerState, cardNumberState, companyState, false)
-                    //cancel()
-                },
-                colors = ButtonDefaults.buttonColors(backgroundColor = Green)
-            ) {
-                Text("Opslaan", fontWeight = FontWeight.Bold, color = Color.White)
-            }
-        }
+        StandardButtonsField(cancel, saveProfile, cardNumberState)
     }
 }
 
@@ -135,13 +106,6 @@ fun ProfileFormComposable(
 @Composable
 fun ProfileFormComposablePreview() {
     GigaChargeTheme {
-        ProfileFormComposable(
-            "test",
-            listOf("test", "test"),
-            "",
-            "comp",
-            listOf("comp"),
-            {},
-            { _: String, _: String, _: String, _: Boolean -> })
+        ProfileFormComposable("test", {}, { _: String, _:Boolean -> })
     }
 }
