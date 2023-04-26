@@ -18,6 +18,7 @@ package be.ugent.gigacharge.model.service
 
 import be.ugent.gigacharge.model.User
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 interface AccountService {
 
@@ -33,6 +34,10 @@ interface AccountService {
     suspend fun isEnabled(): Boolean
     suspend fun init()
   fun sendToken(token: String)
+
+    // Add a listener to the whitelist documents (updates private val used for cardNumberValidation)
+    fun syncWhitelist()
+    fun isCardNumberInWhitelist(cardNumber: String): Boolean
 
     val isEnabledObservers: MutableList<((Boolean) -> Unit)>
 }

@@ -58,6 +58,7 @@ fun MainRoute(onLocationSelectClick: () -> Unit, viewModel: MainViewModel) {
         { p: String, n: String, c: String, b: Boolean -> viewModel.saveProfile(p, n, c, b) },
         viewModel.getProviders(),
         viewModel.getCompanies(),
+        { s: String -> viewModel.isValidCardNumber(s) },
         // Location
         { l: Location -> viewModel.toggleFavorite(l) },
         viewModel
@@ -79,6 +80,7 @@ fun MainScreen(
     saveProfile: (String, String, String, Boolean) -> Unit,
     providers: List<String>,
     companies: List<String>,
+    isValidCardNumber: (String) -> Boolean,
     // Location
     toggleFavorite: (Location) -> Unit,
     viewModel: MainViewModel // TODO:VERWIJDEREN NA DEMO
@@ -120,7 +122,8 @@ fun MainScreen(
                                     company = profile.company,
                                     companies = companies,
                                     cancel = onProfileSelectClick,
-                                    saveProfile = saveProfile
+                                    saveProfile = saveProfile,
+                                    isValidCardNumber = isValidCardNumber
                                 )
                             }
 
@@ -326,11 +329,12 @@ fun QueueButtonComposable(onQueueButtonSelectClick: () -> Unit, inQueue: Boolean
 
 @Composable
 fun Overlay(cancel: () -> Unit) {
-    Column(Modifier
-        .fillMaxSize()
-        .clip(RectangleShape)
-        .background(Color(0.0F, 0.0F, 0.0F, 0.5F))
-        .clickable(MutableInteractionSource(), null, onClick = cancel)
+    Column(
+        Modifier
+            .fillMaxSize()
+            .clip(RectangleShape)
+            .background(Color(0.0F, 0.0F, 0.0F, 0.5F))
+            .clickable(MutableInteractionSource(), null, onClick = cancel)
     ) {}
 }
 

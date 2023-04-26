@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,6 +31,7 @@ class MainViewModel @Inject constructor(
     private val saveProfileUseCase: SaveProfileUseCase,
     private val getProvidersUseCase: GetProvidersUseCase,
     private val getCompaniesUseCase: GetCompaniesUseCase,
+    private val isValidCardNumberUseCase: IsValidCardNumberUseCase,
     // Queue
     getQueueUseCase: GetQueueUseCase,
     private val joinLeaveQueueUseCase: JoinLeaveQueueUseCase,
@@ -75,5 +77,9 @@ class MainViewModel @Inject constructor(
         launchCatching {
             queueService.updateLocations()
         }
+    }
+
+    fun isValidCardNumber(cardNumber: String): Boolean {
+        return isValidCardNumberUseCase(cardNumber)
     }
 }
