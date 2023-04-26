@@ -15,8 +15,7 @@ class ProfileRepository @Inject constructor(
     private val accountService: AccountService
 ) {
     private var isVisibleFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private var profileFlow: MutableStateFlow<Profile?> =
-        MutableStateFlow(Profile("MobilityPlus", "1234 - 5678", "Roularta", false))
+    private var profileFlow: MutableStateFlow<Profile?> = MutableStateFlow(Profile("1234 - 5678", false))
 
     init {
         // Add listener to the whitelist documents
@@ -28,12 +27,7 @@ class ProfileRepository @Inject constructor(
             emptyFlow()
         } else {
             isVisibleFlow.transform { isVisible ->
-                val profile2 = Profile(
-                    profile.provider,
-                    profile.cardNumber,
-                    profile.company,
-                    isVisible
-                )
+                val profile2 = Profile(profile.cardNumber, isVisible)
                 emit(profile2)
             }
         }
@@ -45,14 +39,6 @@ class ProfileRepository @Inject constructor(
 
     fun saveProfile(profile: Profile) {
         profileFlow.value = profile
-    }
-
-    fun getProviders(): List<String> {
-        return listOf("MobilityPlus", "BlueCorner")
-    }
-
-    fun getCompanies(): List<String> {
-        return listOf("Roularta", "UGent")
     }
 
     fun isValidCardNumber(cardNumber: String): Boolean {

@@ -1,7 +1,5 @@
 package be.ugent.gigacharge.features.main
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -27,6 +25,7 @@ import be.ugent.gigacharge.common.composable.LocationButtonComposable
 import be.ugent.gigacharge.common.composable.MainHeaderComposable
 import be.ugent.gigacharge.common.composable.ProfileFormComposable
 import be.ugent.gigacharge.features.LocationUiState
+import be.ugent.gigacharge.R
 import be.ugent.gigacharge.features.ProfileUiState
 import be.ugent.gigacharge.features.QueueUiState
 import be.ugent.gigacharge.model.location.Location
@@ -36,7 +35,7 @@ import be.ugent.gigacharge.model.location.charger.ChargerStatus
 import be.ugent.gigacharge.model.location.charger.UserField
 import be.ugent.gigacharge.model.location.charger.UserType
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
-
+import androidx.compose.ui.res.stringResource;
 
 @Composable
 fun MainRoute(onLocationSelectClick: () -> Unit, viewModel: MainViewModel) {
@@ -55,9 +54,7 @@ fun MainRoute(onLocationSelectClick: () -> Unit, viewModel: MainViewModel) {
         // Queue
         { l: Location -> viewModel.joinLeaveQueue(l) },
         // Profile
-        { p: String, n: String, c: String, b: Boolean -> viewModel.saveProfile(p, n, c, b) },
-        viewModel.getProviders(),
-        viewModel.getCompanies(),
+        {n:String,b:Boolean -> viewModel.saveProfile(n,b)},
         { s: String -> viewModel.isValidCardNumber(s) },
         // Location
         { l: Location -> viewModel.toggleFavorite(l) },
@@ -77,9 +74,7 @@ fun MainScreen(
     // Queue
     joinLeaveQueue: (Location) -> Unit,
     // Profile
-    saveProfile: (String, String, String, Boolean) -> Unit,
-    providers: List<String>,
-    companies: List<String>,
+    saveProfile: (String, Boolean) -> Unit,
     isValidCardNumber: (String) -> Boolean,
     // Location
     toggleFavorite: (Location) -> Unit,
@@ -116,11 +111,7 @@ fun MainScreen(
                             } else {
                                 val profile = profileUiState.profile
                                 ProfileFormComposable(
-                                    provider = profile.provider,
-                                    providers = providers,
                                     cardNumber = profile.cardNumber,
-                                    company = profile.company,
-                                    companies = companies,
                                     cancel = onProfileSelectClick,
                                     saveProfile = saveProfile,
                                     isValidCardNumber = isValidCardNumber
@@ -166,7 +157,7 @@ fun MainScreen(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     Text(
-                                        "Vrij parkeerplaats",
+                                        stringResource(R.string.empty_parking),
                                         color = MaterialTheme.colors.onBackground,
                                         fontSize = 25.sp
                                     )
@@ -187,28 +178,51 @@ fun MainScreen(
                         }
                     }
                     if (profileUiState is ProfileUiState.Success && profileUiState.profile.visible) {
-                        Overlay(onProfileSelectClick)
+                        Overlay { onProfileSelectClick }
                     }
-
                 }
             }
         }
-        // Overlay if profile is visible
-        /*if (profileUiState is ProfileUiState.Success && profileUiState.profile.visible) {
-            Overlay()
-        }*/
     }
+}
 
+@Composable
+fun QueueButtonComposable(onQueueButtonSelectClick: () -> Unit, inQueue: Boolean) {
+    Row(
+        Modifier
+            .height(100.dp)
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Button(
+                onQueueButtonSelectClick,
+                Modifier.height(50.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)
+            ) {
+                Text(if (inQueue) stringResource(R.string.leave_queue) else stringResource(R.string.join_queue), fontSize= 20.sp, fontWeight= FontWeight.Bold)
+            }
+        }
+    }
+}
 
+@Composable
+fun Overlay(cancel: () -> Unit) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .clip(RectangleShape)
+            .background(Color(0.0F, 0.0F, 0.0F, 0.5F))
+            .clickable(MutableInteractionSource(), null, onClick = cancel)
+    ) {}
 }
 
 @Composable
 fun QueueInfoAssignedComposable(
     expireTime: String
 ) {
-    Text("you have been assigned")
-    Text("your reservation expires at: " + expireTime)
-
+    Text(stringResource(R.string.assigned))
+    Text("${stringResource(R.string.reservation_expires)}: $expireTime")
 }
 
 @Composable
@@ -218,40 +232,20 @@ fun QueueInfoComposable(
     profileUiState: ProfileUiState
 ) {
     Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-        Text(
-            "Queue Information",
-            color = MaterialTheme.colors.onBackground,
-            fontSize = 25.sp,
-            fontWeight = FontWeight.Bold
-        )
+        Text(stringResource(R.string.queue_info), color = MaterialTheme.colors.onBackground, fontSize = 25.sp, fontWeight = FontWeight.Bold)
         Column(
             Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colors.surface, shape = RoundedCornerShape(5.dp))
                 .padding(10.dp)
         ) {
-            Text(
-                "In queue: $queueSize",
-                color = MaterialTheme.colors.onSurface,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Text("${stringResource(R.string.in_queue)}: $queueSize", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             when (queueStatus) {
                 QueueState.NotJoined -> {
-                    Text(
-                        "Queue position: Not joined",
-                        color = MaterialTheme.colors.onSurface,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Text("${stringResource(R.string.queue_position)}: ${stringResource(R.string.queue_not_joined)}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
                 is QueueState.Joined -> {
-                    Text(
-                        "Queue position: ${queueStatus.myPosition}",
-                        color = MaterialTheme.colors.onSurface,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Text("${stringResource(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -301,41 +295,6 @@ fun QueueInfoComposable(
 
         }
     }
-}
-
-@Composable
-fun QueueButtonComposable(onQueueButtonSelectClick: () -> Unit, inQueue: Boolean) {
-    Row(
-        Modifier
-            .height(100.dp)
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Button(
-                onQueueButtonSelectClick,
-                Modifier.height(50.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)
-            ) {
-                Text(
-                    if (inQueue) "Leave queue" else "Join queue",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun Overlay(cancel: () -> Unit) {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .clip(RectangleShape)
-            .background(Color(0.0F, 0.0F, 0.0F, 0.5F))
-            .clickable(MutableInteractionSource(), null, onClick = cancel)
-    ) {}
 }
 
 @Preview
