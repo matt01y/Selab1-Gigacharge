@@ -2,6 +2,7 @@ package be.ugent.gigacharge.features.register
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
+import be.ugent.gigacharge.domain.profile.IsValidCardNumberUseCase
 import be.ugent.gigacharge.model.service.AccountService
 import be.ugent.gigacharge.model.service.LogService
 import be.ugent.gigacharge.model.service.QueueService
@@ -14,7 +15,8 @@ import javax.inject.Inject
 class RegisterViewModel @Inject constructor(
     private val accountService: AccountService,
     private val queueService: QueueService,
-    logService: LogService
+    logService: LogService,
+    private val isValidCardNumberUseCase: IsValidCardNumberUseCase
 ) : GigaChargeViewModel(logService) {
     var uiState = mutableStateOf(RegisterUiState())
         private set
@@ -56,5 +58,9 @@ class RegisterViewModel @Inject constructor(
             accountService.tryEnable(cardnumber)
             //queueService.updateLocations()
         }
+    }
+
+    fun isValidCardNumber(cardNumber: String): Boolean {
+        return isValidCardNumberUseCase(cardNumber)
     }
 }

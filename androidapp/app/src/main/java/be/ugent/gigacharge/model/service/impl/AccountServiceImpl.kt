@@ -137,7 +137,6 @@ class AccountServiceImpl @Inject constructor(
         }
     }
     override fun isCardNumberInWhitelist(cardNumber: String): Boolean {
-        Log.i("whitelist", "CardNumber: $cardNumber, in the whitelist: ${whitelist.value.contains(cardNumber.trim())}")
         return whitelist.value.contains(cardNumber.trim())
     }
 
