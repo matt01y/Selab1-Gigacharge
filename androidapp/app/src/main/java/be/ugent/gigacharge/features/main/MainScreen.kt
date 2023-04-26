@@ -29,7 +29,7 @@ import be.ugent.gigacharge.model.location.charger.ChargerStatus
 import be.ugent.gigacharge.model.location.charger.UserField
 import be.ugent.gigacharge.model.location.charger.UserType
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
-import androidx.compose.ui.res.stringResource;
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun MainRoute(onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
@@ -58,7 +58,7 @@ fun MainScreen(
                     when (val s = profileUiState) {
                         ProfileUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary, text="Loading profile ...")
                         is ProfileUiState.Success -> {
-                            if (s.profile.visible) {
+                            if (!s.profile.visible) {
                                 when (val l = locationUiState) {
                                     LocationUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary, text="Loading location ...")
                                     is LocationUiState.Success -> {
@@ -70,13 +70,12 @@ fun MainScreen(
                                         )
                                     }
                                 }
-                            }
-                            else {
+                            } else {
                                 val profile = s.profile
                                 ProfileFormComposable(
                                     cardNumber = profile.cardNumber,
-                                    cancel = onProfileSelectClick,
-                                    saveProfile = saveProfile
+                                    cancel = { viewModel.toggleProfile() },
+                                    saveProfile = { a:String, b:Boolean -> viewModel.saveProfile(a, b) }
                                 )
                             }
                         }
