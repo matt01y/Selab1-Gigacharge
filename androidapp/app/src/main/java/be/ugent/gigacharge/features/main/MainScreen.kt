@@ -72,16 +72,10 @@ fun MainScreen(
                             else {
                                 val profile = s.profile
                                 ProfileFormComposable(
-                                    provider = profile.provider,
-                                    providers = viewModel.getProviders(),
-                                    cardNumber = profile.cardNumber,
-                                    company = profile.company,
-                                    companies = viewModel.getCompanies(),
-                                    cancel = { viewModel.toggleProfile() },
-                                    saveProfile = { p:String,n:String,c:String,b:Boolean -> viewModel.saveProfile(p,n,c,b) }
+                                    profile = profile,
+                                    viewModel = viewModel
                                 )
                             }
-
                         }
                     }
                 }

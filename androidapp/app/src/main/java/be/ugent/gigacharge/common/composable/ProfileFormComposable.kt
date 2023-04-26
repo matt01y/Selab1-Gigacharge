@@ -10,23 +10,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import be.ugent.gigacharge.data.local.models.Profile
+import be.ugent.gigacharge.features.main.MainViewModel
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 import be.ugent.gigacharge.ui.theme.Green
 import be.ugent.gigacharge.ui.theme.Red
 
 @Composable
 fun ProfileFormComposable(
-    provider: String,
-    providers: List<String>,
-    cardNumber: String,
-    company: String,
-    companies: List<String>,
-    cancel: () -> Unit,
-    saveProfile: (String, String, String, Boolean) -> Unit
+    profile: Profile,
+    viewModel: MainViewModel
 ) {
-    var providerState by remember { mutableStateOf(provider) }
-    var companyState by remember { mutableStateOf(company) }
-    var cardNumberState by remember { mutableStateOf(cardNumber) }
+    var providerState by remember { mutableStateOf(profile.provider) }
+    var companyState by remember { mutableStateOf(profile.company) }
+    var cardNumberState by remember { mutableStateOf(profile.cardNumber) }
 
     Column() {
         // Provider
@@ -42,7 +39,7 @@ fun ProfileFormComposable(
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
-            MyDropdown(providerState, providers, {s:String -> providerState = s }, Modifier.weight(0.6F))
+            MyDropdown(providerState, viewModel.getProviders(), {s:String -> providerState = s }, Modifier.weight(0.6F))
         }
 
         // CardNumber
@@ -88,7 +85,7 @@ fun ProfileFormComposable(
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
-            MyDropdown(companyState, companies, {s:String -> companyState = s }, Modifier.weight(0.6F))
+            MyDropdown(companyState, viewModel.getCompanies(), {s:String -> companyState = s }, Modifier.weight(0.6F))
         }
 
         // Buttons
@@ -100,7 +97,7 @@ fun ProfileFormComposable(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Button(
-                onClick = cancel,
+                onClick = { viewModel.toggleProfile() },
                 colors = ButtonDefaults.buttonColors(backgroundColor = Red)
             ) {
                 Text("Annuleer", fontWeight = FontWeight.Bold , color = Color.White)
@@ -108,7 +105,7 @@ fun ProfileFormComposable(
             Spacer(Modifier.width(20.dp))
             Button(
                 onClick = {
-                    saveProfile(providerState, cardNumberState, companyState, false)
+                    viewModel.saveProfile(providerState, cardNumberState, companyState, false)
                     //cancel()
                 },
                 colors = ButtonDefaults.buttonColors(backgroundColor = Green)
@@ -119,10 +116,10 @@ fun ProfileFormComposable(
     }
 }
 
-@Preview
-@Composable
-fun ProfileFormComposablePreview() {
-    GigaChargeTheme {
-        ProfileFormComposable("test", listOf("test","test"), "", "comp", listOf("comp"), {}, { _: String, _: String, _: String, _:Boolean -> })
-    }
-}
+//@Preview
+//@Composable
+//fun ProfileFormComposablePreview() {
+//    GigaChargeTheme {
+//        ProfileFormComposable("test", listOf("test","test"), "", "comp", listOf("comp"), {}, { _: String, _: String, _: String, _:Boolean -> })
+//    }
+//}
