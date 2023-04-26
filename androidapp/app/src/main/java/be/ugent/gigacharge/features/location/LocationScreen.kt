@@ -26,23 +26,18 @@ import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 @Composable
 fun LocationRoute(onBackArrowClick : () -> Unit, viewModel: LocationViewModel) {
-    val locationsUiState by viewModel.locationsUiState.collectAsState()
-
     LocationScreen(
         onBackArrowClick,
-        locationsUiState,
-        {l: Location -> viewModel.setLocation(l)},
-        {l:Location -> viewModel.toggleFavorite(l)}
+        viewModel
     )
 }
 
 @Composable
 fun LocationScreen(
     onBackArrowClick : () -> Unit,
-    locationsUiState: LocationsUiState,
-    setLocation: (Location) -> Unit,
-    toggleFavorite: (Location) -> Unit
+    viewModel: LocationViewModel
 ) {
+    val locationsUiState by viewModel.locationsUiState.collectAsState()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -56,19 +51,19 @@ fun LocationScreen(
         }
     ) {
         Column(Modifier.padding(it)) {
-            when (locationsUiState) {
+            when (val s = locationsUiState) {
                 LocationsUiState.Loading -> LoadingComposable()
                 is LocationsUiState.Success -> {
-                    val locations = locationsUiState.locations
+                    val locations = s.locations
                     LazyColumn {
                         locations.forEach { location: Location ->
                             item {
                                 LocationButtonComposable(
                                     {
-                                        setLocation(location)
+                                        viewModel.setLocation(location)
                                         onBackArrowClick()
                                     },
-                                    { toggleFavorite(location) },
+                                    { viewModel.toggleFavorite(location) },
                                     location,
                                     modifier = Modifier.padding(0.dp, 8.dp)
                                 )
