@@ -28,27 +28,26 @@ fun CardNumberBox(
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            stringResource(R.string.card_number),
-            Modifier.weight(0.4F),
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
-        )
-        TextField(
-            cardNumberState,
-            onCardNumberStateChange,
-            Modifier
-                .weight(0.6F)
-                .height(50.dp),
-            singleLine = true,
-            colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = MaterialTheme.colors.background,
-                focusedIndicatorColor = MaterialTheme.colors.secondaryVariant,
-                cursorColor = MaterialTheme.colors.secondaryVariant
-            ),
-            textStyle = androidx.compose.ui.text.TextStyle(color = MaterialTheme.colors.onBackground)
-        )
+        Column() {
+            Text(text = "Kaartnummer",
+                color = MaterialTheme.colors.onBackground,
+                fontSize = 20.sp
+            )
+
+            OutlinedTextField(
+                value = cardNumberState,
+                onValueChange = onCardNumberStateChange,
+                //label = {Text("Kaartnummer")},
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = MaterialTheme.colors.onBackground,
+                    unfocusedBorderColor = MaterialTheme.colors.onBackground,
+                    cursorColor = MaterialTheme.colors.onBackground,
+                    textColor = MaterialTheme.colors.onBackground
+                ),
+                textStyle = androidx.compose.ui.text.TextStyle(color = MaterialTheme.colors.onBackground)
+            )
+        }
+
     }
 }
 

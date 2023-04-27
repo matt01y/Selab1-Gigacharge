@@ -31,14 +31,14 @@ fun LocationButtonComposable(
         modifier
             .fillMaxWidth()
             .height(50.dp)
-            .background(Color.White, shape = RoundedCornerShape(5.dp))
+            .background(MaterialTheme.colors.background, shape = RoundedCornerShape(5.dp))
     ) {
         Button(
             setLocation,
             Modifier
                 .fillMaxHeight()
                 .weight(0.85F),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+            colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.background),
             elevation = ButtonDefaults.elevation(0.dp,0.dp)
         ) {
             Column(Modifier.fillMaxWidth()) {
@@ -46,7 +46,7 @@ fun LocationButtonComposable(
                     Text("Vestiging", color = Color.Gray, fontSize = 10.sp)
                 }
                 Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
-                    Text(location.name, color = MaterialTheme.colors.onSurface, fontSize = 18.sp)
+                    Text(location.name, color = MaterialTheme.colors.onBackground, fontSize = 18.sp)
                 }
             }
         }
@@ -64,7 +64,7 @@ fun LocationButtonComposable(
                 //if (location.favorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
                 //if (location.favorite) "Remove favorite" else "Make favorite",
                 Modifier.size(40.dp),
-                tint = Color(1.0F, 0.75F, 0.0F, 1.0F)
+                tint = MaterialTheme.colors.secondary//Color(1.0F, 0.75F, 0.0F, 1.0F)
             )
         }
     }
