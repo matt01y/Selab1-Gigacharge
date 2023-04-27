@@ -17,11 +17,6 @@ class ProfileRepository @Inject constructor(
     private var isVisibleFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private var profileFlow: MutableStateFlow<Profile?> = MutableStateFlow(Profile("1234 - 5678", false))
 
-    init {
-        // Add listener to the whitelist documents
-        accountService.syncWhitelist()
-    }
-
     fun getProfile(): Flow<Profile> = profileFlow.flatMapLatest { profile ->
         if (profile == null) {
             emptyFlow()
@@ -37,11 +32,7 @@ class ProfileRepository @Inject constructor(
         isVisibleFlow.value = !isVisibleFlow.value
     }
 
-    fun saveProfile(profile: Profile) {
-        profileFlow.value = profile
-    }
-
-    fun isValidCardNumber(cardNumber: String): Boolean {
-        return accountService.isCardNumberInWhitelist(cardNumber)
+    fun deleteProfile() {
+        accountService.deleteProfile()
     }
 }

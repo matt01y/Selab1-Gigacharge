@@ -54,7 +54,7 @@ fun RegisterScreen(
                 AppText.create_account,
                 Modifier.basicButton()
             ) {
-                validCardNumberState = viewModel.isValidCardNumber(uiState.cardnumber)
+                // validCardNumberState = viewModel.isValidCardNumber(uiState.cardnumber)
                 if (validCardNumberState) {
                     viewModel.onRegister(openAndPopUp)
                 }

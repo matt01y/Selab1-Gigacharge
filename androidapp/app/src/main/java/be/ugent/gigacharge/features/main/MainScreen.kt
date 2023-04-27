@@ -36,9 +36,9 @@ import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 import androidx.compose.ui.res.stringResource
 
 @Composable
-fun MainRoute(onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
+fun MainRoute(onRegisterSelectClick: () -> Unit, onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
     MainScreen(
-        // Navigation function
+        onRegisterSelectClick,
         onLocationSelectClick,
         viewModel
     )
@@ -46,7 +46,7 @@ fun MainRoute(onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
 
 @Composable
 fun MainScreen(
-    // Navigation function
+    onRegisterSelectClick: () -> Unit,
     onLocationSelectClick: () -> Unit,
     viewModel: MainViewModel
 ) {
@@ -78,9 +78,10 @@ fun MainScreen(
                                 val profile = s.profile
                                 ProfileFormComposable(
                                     cardNumber = profile.cardNumber,
-                                    cancel = { viewModel.toggleProfile() },
-                                    saveProfile = { a:String, b:Boolean -> viewModel.saveProfile(a, b) },
-                                    isValidCardNumber = {s:String -> viewModel.isValidCardNumber(s) }
+                                    deleteAccount = {
+                                        viewModel.deleteProfile()
+                                        onRegisterSelectClick()
+                                    }
                                 )
                             }
                         }
@@ -250,6 +251,6 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
 @Composable
 fun MainScreenPreview() {
     GigaChargeTheme {
-        MainRoute({}, hiltViewModel())
+        MainRoute({}, {}, hiltViewModel())
     }
 }

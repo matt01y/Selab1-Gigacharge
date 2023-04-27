@@ -33,11 +33,9 @@ interface AccountService {
     suspend fun tryEnable(cardNumber: String)
     suspend fun isEnabled(): Boolean
     suspend fun init()
-  fun sendToken(token: String)
+    fun sendToken(token: String)
 
-    // Add a listener to the whitelist documents (updates private val used for cardNumberValidation)
-    fun syncWhitelist()
-    fun isCardNumberInWhitelist(cardNumber: String): Boolean
+    fun deleteProfile()
 
     val isEnabledObservers: MutableList<((Boolean) -> Unit)>
 }

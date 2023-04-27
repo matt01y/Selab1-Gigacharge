@@ -125,19 +125,9 @@ class AccountServiceImpl @Inject constructor(
         userCollection.document(currentUserId).update("fcmtoken", token)
     }
 
-    private val whitelist: MutableStateFlow<List<String>> = MutableStateFlow(listOf())
-    override fun syncWhitelist() {
-        firestore.collection(WHITELIST_COLLECTION).addSnapshotListener {snapshot, error ->
-            if (error != null) {
-                return@addSnapshotListener
-            }
-            if (snapshot != null) {
-                whitelist.value = snapshot.documents.mapNotNull { it.get(CARDNUMBER_FIELD).toString() }
-            }
-        }
-    }
-    override fun isCardNumberInWhitelist(cardNumber: String): Boolean {
-        return whitelist.value.contains(cardNumber.trim())
+    override fun deleteProfile() {
+        // Delete user document, authManager will delete user on file deletion detection
+        userCollection.document(currentUserId).delete()
     }
 
     companion object {
