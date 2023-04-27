@@ -30,8 +30,8 @@ import be.ugent.gigacharge.model.service.AccountService
 import be.ugent.gigacharge.model.service.QueueService
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.*
-import javax.inject.Inject
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
@@ -43,12 +43,12 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
     private val locationCollection: CollectionReference
         get() = firestore.collection(LOCATION_COLLECTION)
 
-    private fun queueCollection(locid : String) : CollectionReference{
+    private fun queueCollection(locid: String): CollectionReference {
         return locationCollection.document(locid).collection(QUEUE_COLLECTION)
     }
 
 
-    override val locationMap : SnapshotStateMap<String, Location> = mutableStateMapOf()
+    override val locationMap: SnapshotStateMap<String, Location> = mutableStateMapOf()
 
     override suspend fun updateLocations(): List<Location> {
         Log.println(Log.INFO, "queue", "LOCATION UPDATE")
@@ -73,11 +73,13 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
         Log.println(Log.INFO, "queue", "JOINING")
         val locid = loc.id
 
-        queueCollection(locid).add(hashMapOf<String, Any>(
-            USERID_FIELD to accountService.currentUserId,
-            JOINEDAT_FIELD to FieldValue.serverTimestamp(),
-            STATUS_FIELD to STATUS_WAITING
-        )).await()
+        queueCollection(locid).add(
+            hashMapOf<String, Any>(
+                USERID_FIELD to accountService.currentUserId,
+                JOINEDAT_FIELD to FieldValue.serverTimestamp(),
+                STATUS_FIELD to STATUS_WAITING
+            )
+        ).await()
 
         updateLocation(loc)
 
@@ -89,9 +91,11 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
         val batch = firestore.batch()
         val queue = queueCollection(loc.id)
         queue.whereEqualTo(USERID_FIELD, accountService.currentUserId).get().await().forEach {
-            batch.update(queue.document(it.id), hashMapOf<String, Any>(
-                STATUS_FIELD to STATUS_LEFT
-            ))
+            batch.update(
+                queue.document(it.id), hashMapOf<String, Any>(
+                    STATUS_FIELD to STATUS_LEFT
+                )
+            )
         }
         batch.commit().await()
         updateLocation(loc)
@@ -107,31 +111,37 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
         //TODO("Not yet implemented")
     }
 
-    private suspend fun refToLocation(ref : DocumentReference) : Location {
+    private suspend fun refToLocation(ref: DocumentReference): Location {
         val snap = ref.get().await()
         val queuecollection = ref.collection(QUEUE_COLLECTION)
-        val amountwaiting = queuecollection.whereEqualTo(STATUS_FIELD, STATUS_WAITING).count().get(AggregateSource.SERVER).await().count
+        val amountwaiting = queuecollection.whereEqualTo(STATUS_FIELD, STATUS_WAITING).count()
+            .get(AggregateSource.SERVER).await().count
 
-        val state : QueueState
-        if(amountwaiting > 0){
-            val myJoinEvent = queuecollection.whereEqualTo(USERID_FIELD, accountService.currentUserId).whereEqualTo(
-                STATUS_FIELD, STATUS_WAITING).limit(1).get().await()
-            if(myJoinEvent.size() >= 1){
-                val time =  myJoinEvent.first().getTimestamp(TIMESTAMP_FIELD)?:Timestamp.now() //TODO: deze null case beter maken
-                val myPosition = queuecollection.whereLessThanOrEqualTo(TIMESTAMP_FIELD, time).whereEqualTo(
-                    STATUS_FIELD, STATUS_WAITING).count().get(AggregateSource.SERVER).await().count
+        val state: QueueState
+        if (amountwaiting > 0) {
+            val myJoinEvent =
+                queuecollection.whereEqualTo(USERID_FIELD, accountService.currentUserId)
+                    .whereEqualTo(
+                        STATUS_FIELD, STATUS_WAITING
+                    ).limit(1).get().await()
+            if (myJoinEvent.size() >= 1) {
+                val time = myJoinEvent.first().getTimestamp(TIMESTAMP_FIELD)
+                    ?: Timestamp.now() //TODO: deze null case beter maken
+                val myPosition =
+                    queuecollection.whereLessThanOrEqualTo(TIMESTAMP_FIELD, time).whereEqualTo(
+                        STATUS_FIELD, STATUS_WAITING
+                    ).count().get(AggregateSource.SERVER).await().count
                 state = QueueState.Joined(myPosition = myPosition)
-            }else{
+            } else {
                 state = QueueState.NotJoined
             }
-        }else{
+        } else {
             state = QueueState.NotJoined
         }
 
 
-
         val chargerdocuments = snap.get("chargers") as List<DocumentSnapshot>?
-        val chargers : List<Charger> = (chargerdocuments ?: listOf()).map {
+        val chargers: List<Charger> = (chargerdocuments ?: listOf()).map {
             Charger(
                 ChargerStatus.valueOf(it.get("status") as String),
                 "",
@@ -143,7 +153,7 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
 
         val result = Location(
             id = snap.id,
-            name = snap.getString(NAME_FIELD)?:"ERROR GEEN NAAM",
+            name = snap.getString(NAME_FIELD) ?: "ERROR GEEN NAAM",
             amountWaiting = amountwaiting,
             status = LocationStatus.valueOf(snap.get("status") as String),
             queue = state,

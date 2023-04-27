@@ -16,7 +16,6 @@ limitations under the License.
 
 package be.ugent.gigacharge.model.service.module
 
-import be.ugent.gigacharge.SellerFirebaseService
 import be.ugent.gigacharge.model.service.*
 import be.ugent.gigacharge.model.service.impl.*
 import dagger.Binds
@@ -27,16 +26,19 @@ import dagger.hilt.components.SingletonComponent
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class ServiceModule {
-  @Binds abstract fun provideAccountService(impl: AccountServiceImpl): AccountService
+    @Binds
+    abstract fun provideAccountService(impl: AccountServiceImpl): AccountService
 
-  @Binds abstract fun provideLogService(impl: LogServiceImpl): LogService
+    @Binds
+    abstract fun provideLogService(impl: LogServiceImpl): LogService
 
-  @Binds abstract fun provideStorageService(impl: StorageServiceImpl): StorageService
+    @Binds
+    abstract fun provideStorageService(impl: StorageServiceImpl): StorageService
 
-  @Binds
-  abstract fun provideConfigurationService(impl: ConfigurationServiceImpl): ConfigurationService
+    @Binds
+    abstract fun provideConfigurationService(impl: ConfigurationServiceImpl): ConfigurationService
 
-  @Binds
-  abstract fun provideQueueService(impl: QueueServiceImpl): QueueService
+    @Binds
+    abstract fun provideQueueService(impl: QueueServiceImpl): QueueService
 
 }

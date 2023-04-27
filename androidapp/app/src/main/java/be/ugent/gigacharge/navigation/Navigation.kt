@@ -15,15 +15,18 @@ fun Navigation() {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = Destinations.SPLASH_SCREEN) {
         composable(Destinations.SPLASH_SCREEN) {
-            SplashScreen(openAndPopUp = { s : String -> navController.navigate(s) })
+            SplashScreen(openAndPopUp = { s: String -> navController.navigate(s) })
         }
 
-        composable(Destinations.REGISTER_SCREEN){
+        composable(Destinations.REGISTER_SCREEN) {
             RegisterScreen(openAndPopUp = { navController.navigate(Destinations.MAIN) })
         }
 
         composable(Destinations.MAIN) {
-            MainRoute(onLocationSelectClick = { navController.navigate(Destinations.LOCATION_SELECTION) }, hiltViewModel())
+            MainRoute(
+                onLocationSelectClick = { navController.navigate(Destinations.LOCATION_SELECTION) },
+                hiltViewModel()
+            )
         }
         composable(Destinations.LOCATION_SELECTION) {
             LocationRoute(onBackArrowClick = { navController.navigateUp() }, hiltViewModel())

@@ -1,13 +1,7 @@
 package be.ugent.gigacharge.features.splash
 
-import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Build
 import android.util.Log
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.mutableStateOf
-import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
-import androidx.core.content.ContextCompat
 import be.ugent.gigacharge.model.service.AccountService
 import be.ugent.gigacharge.model.service.ConfigurationService
 import be.ugent.gigacharge.model.service.LogService
@@ -37,14 +31,14 @@ class SplashViewModel @Inject constructor(
         showError.value = false
         launchCatching(snackbar = false) {
             Log.println(Log.INFO, "frick", "coroutine van splashcreen gestart")
-            if (accountService.isEnabled()){
+            if (accountService.isEnabled()) {
 
                 FirebaseMessaging.getInstance().token.addOnSuccessListener { result ->
-                    if(result != null){
+                    if (result != null) {
                         Log.i("token", result)
                         accountService.sendToken(result)
                         // DO your thing with your firebase token
-                    }else{
+                    } else {
                         Log.i("token", "geen token gevonden")
                     }
                 }
@@ -53,8 +47,7 @@ class SplashViewModel @Inject constructor(
                 //queueService.updateLocations()
                 queueService.updateLocations()
                 openAndPopUp(Destinations.MAIN)
-            }
-            else {
+            } else {
                 Log.println(Log.INFO, "frick", "niet enabled, create anon")
                 try {
                     accountService.createAnonymousAccount()

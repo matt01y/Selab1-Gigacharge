@@ -1,13 +1,16 @@
 import greenfoot.GreenfootImage;
 
 public class CarActor extends Draggable{
-    public final static GreenfootImage carimage = new GreenfootImage("4.png");
+    public final GreenfootImage carimage = new GreenfootImage("4.png");
     public String uid;
     public ChargerActor chargingOn = null;
-    public CarActor(String muid){
+    public String name = "lege naam";
+    public CarActor(String mname, String muid){
         super();
         uid = muid;
+        name = mname;
         setImage(carimage);
+        getImage().drawString(name, 0,  45);
     }
 
     @Override

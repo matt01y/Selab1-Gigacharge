@@ -4,7 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
@@ -13,10 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 @Composable
 fun MainHeaderComposable(onProfileSelectClick: () -> Unit, headerContent: @Composable () -> Unit) {
@@ -28,7 +29,12 @@ fun MainHeaderComposable(onProfileSelectClick: () -> Unit, headerContent: @Compo
             // Title and profile
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Row(Modifier.weight(0.85F), horizontalArrangement = Arrangement.Center) {
-                    Text("GigaCharge", fontSize = 30.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colors.onPrimary)
+                    Text(
+                        "GigaCharge",
+                        fontSize = 30.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colors.onPrimary
+                    )
                 }
                 Row(Modifier.weight(0.15F), horizontalArrangement = Arrangement.Center) {
                     ProfileComposable(onProfileSelectClick)
@@ -42,7 +48,7 @@ fun MainHeaderComposable(onProfileSelectClick: () -> Unit, headerContent: @Compo
 
 @Composable
 fun ProfileComposable(onProfileSelectClick: () -> Unit) {
-    IconButton(onClick=onProfileSelectClick) {
+    IconButton(onClick = onProfileSelectClick) {
         Box(
             Modifier
                 .width(40.dp)
@@ -55,7 +61,7 @@ fun ProfileComposable(onProfileSelectClick: () -> Unit) {
                 Icons.Filled.Person,
                 "Person",
                 Modifier.size(40.dp),
-                tint= Color.White
+                tint = Color.White
             )
         }
     }
