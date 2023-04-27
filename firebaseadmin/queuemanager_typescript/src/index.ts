@@ -183,6 +183,7 @@ async function assignUserToCharger(joinDoc : fs.DocumentSnapshot, chargerDoc : f
     const joindata = joinDoc.data()
     //TODO: zend de FCM melding naar de user
     
+    const now = new Date();
     let expiretime = new Date(new Date().getTime() + 15 * 60_000); //15 minuten om naar de laadpaal te gaan
     //TODO: start een timer die de wachtrij join expiret na de ingestelde tijd, en de beurt aan iemand anders geeft
     console.log(`user ${joindata['user-id']} wordt ge-assigned`)
@@ -193,14 +194,49 @@ async function assignUserToCharger(joinDoc : fs.DocumentSnapshot, chargerDoc : f
         title: "Er is een laadpaal vrij",
         body: `U kan u wagen opladen bij ${chargerdata.description}`
     });
+
+    setTimeout(() => {
+        expireAssignment(chargerDoc.ref, joinDoc.ref)
+    }, Math.abs(expiretime.getMilliseconds() - now.getMilliseconds()));
 }
+
+async function expireAssignment(chargerDoc : fs.DocumentReference, joinDoc : fs.DocumentReference){
+    const charger = (await chargerDoc.get()).data();
+    const join = (await joinDoc.get()).data();
+    const queueEmpty = getTopOfLine(joinDoc.parent) == undefined
+
+    if(join.assigned === chargerDoc.id){
+        const join = (await joinDoc.get()).data()
+        joinDoc.update({status: STATUS_EXPIRED, assigned: deleteField, expires: deleteField});
+        chargerDoc.update({assignedUser: deleteField, assignedJoin: deleteField})
+        if(queueEmpty){
+            //stuur een melding dat die uit de queue is, maar de plaats nu wel 
+            sendNotification(join['user-id'], {
+                title: "Laadbeurt is verlopen",
+                body: `Er is voorlopig niemand in de wachtrij dus u kunt nog altijd opladen bij ${charger.description}.`
+            })
+        }else{
+            sendNotification(join['user-id'], {
+                title: "Laadbeurt is verlopen",
+                body: "U beurt wordt doorgegeven aan de volgende in de wachtrij."
+            })
+            assignFirstinQueueIfPossible(joinDoc.parent.parent);
+        }
+
+    }
+}
+
+async function assignFirstinQueueIfPossible(locationDoc : fs.DocumentReference){
+    const location = (await locationDoc.get()).data();
+}
+
 
 async function getTopOfLine(queueCollection : fs.CollectionReference){
     try{
         const res = await (await queueCollection.where(STATUS_FIELD, "==", STATUS_WAITING).orderBy(JOINEDAT_FIELD).limit(1).get()).docs[0]
         return res;
     }catch(err){
-        return null;
+        return undefined;
     }
     
 }
