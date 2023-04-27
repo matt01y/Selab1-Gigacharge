@@ -1,6 +1,5 @@
 package be.ugent.gigacharge.common.composable
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,14 +12,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import be.ugent.gigacharge.data.local.models.Profile
-import be.ugent.gigacharge.features.main.MainViewModel
 import be.ugent.gigacharge.R
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 import be.ugent.gigacharge.ui.theme.Green
 import be.ugent.gigacharge.ui.theme.Red
 import androidx.compose.ui.res.stringResource;
-import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 fun CardNumberBox(

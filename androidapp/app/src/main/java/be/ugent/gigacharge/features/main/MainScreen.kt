@@ -27,9 +27,6 @@ import be.ugent.gigacharge.common.composable.ProfileFormComposable
 import be.ugent.gigacharge.features.LocationUiState
 import be.ugent.gigacharge.R
 import be.ugent.gigacharge.features.ProfileUiState
-import be.ugent.gigacharge.features.QueueUiState
-import be.ugent.gigacharge.model.location.Location
-import be.ugent.gigacharge.features.LocationUiState
 import be.ugent.gigacharge.model.location.LocationStatus
 import be.ugent.gigacharge.model.location.QueueState
 import be.ugent.gigacharge.model.location.charger.ChargerStatus
@@ -83,7 +80,7 @@ fun MainScreen(
                                     cardNumber = profile.cardNumber,
                                     cancel = { viewModel.toggleProfile() },
                                     saveProfile = { a:String, b:Boolean -> viewModel.saveProfile(a, b) },
-                                    isValidCardNumber = isValidCardNumber
+                                    isValidCardNumber = {s:String -> viewModel.isValidCardNumber(s) }
                                 )
                             }
                         }
@@ -92,7 +89,7 @@ fun MainScreen(
             },
             bottomBar = {
                 // TODO: VERWIJDEREN IN FINAL BUILD (ONLY FOR DEMO)
-                Button(onClick = { viewModel.updateLocation() }) {
+                Button(onClick = {viewModel.updateLocation()}) {
                     Text(text = "refresh")
                 }
                 val l = locationUiState
@@ -105,8 +102,8 @@ fun MainScreen(
                                 l.location.amIJoined
                             )
                         }
-                        if (profileUiState is ProfileUiState.Success && profileUiState.profile.visible) {
-                            Overlay(onProfileSelectClick)
+                        if (profileUiState is ProfileUiState.Success && (profileUiState as ProfileUiState.Success).profile.visible) {
+                            Overlay { viewModel.toggleProfile() }
                         }
                     }
                 }
@@ -134,17 +131,22 @@ fun MainScreen(
                             }
                         }
                     }
-                    if (profileUiState is ProfileUiState.Success && profileUiState.profile.visible) {
-                        Overlay { onProfileSelectClick }
-                    }
                 }
                 val p = profileUiState
                 if (p is ProfileUiState.Success && p.profile.visible) {
-                    Overlay(onProfileSelectClick)
+                    Overlay { viewModel.toggleProfile() }
                 }
+
             }
         }
+        }
+        // Overlay if profile is visible
+        /*if (profileUiState is ProfileUiState.Success && profileUiState.profile.visible) {
+            Overlay()
+        }*/
     }
+
+
 }
 
 @Composable
@@ -153,9 +155,9 @@ fun QueueButtonComposable(onQueueButtonSelectClick: () -> Unit, inQueue: Boolean
         Modifier
             .height(100.dp)
             .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment= Alignment.CenterVertically
     ) {
-        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(Modifier.fillMaxWidth(), horizontalAlignment= Alignment.CenterHorizontally) {
             Button(
                 onQueueButtonSelectClick,
                 Modifier.height(50.dp),

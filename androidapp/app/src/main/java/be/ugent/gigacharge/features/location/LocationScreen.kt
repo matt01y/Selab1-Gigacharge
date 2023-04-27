@@ -83,8 +83,7 @@ fun ItemBreak() {
         Modifier
             .fillMaxWidth()
             .height(2.dp)
-            .background(Color.LightGray)
-    ) {}
+            .background(Color.LightGray)) {}
 }
 
 @Preview
