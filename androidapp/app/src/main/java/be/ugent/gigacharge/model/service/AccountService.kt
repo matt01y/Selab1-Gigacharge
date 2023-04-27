@@ -22,17 +22,17 @@ import kotlinx.coroutines.flow.Flow
 interface AccountService {
 
 
-  suspend fun createAnonymousAccount()
-  suspend fun deleteAccount()
-  suspend fun signOut()
+    suspend fun createAnonymousAccount()
+    suspend fun deleteAccount()
+    suspend fun signOut()
 
-  val currentUserId: String
-  val currentUser: Flow<User>
-  val hasUser: Boolean
-  suspend fun tryEnable(cardNumber: String)
-  suspend fun isEnabled() : Boolean
-  suspend fun init();
-  fun sendToken(token : String)
+    val currentUserId: String
+    val currentUser: Flow<User>
+    val hasUser: Boolean
+    suspend fun tryEnable(cardNumber: String)
+    suspend fun isEnabled(): Boolean
+    suspend fun init()
+  fun sendToken(token: String)
 
-  val isEnabledObservers : MutableList<((Boolean) -> Unit)>
+    val isEnabledObservers: MutableList<((Boolean) -> Unit)>
 }

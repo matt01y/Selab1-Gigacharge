@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.toSize
 
 
 @Composable
-fun TitledDropDownComposable(title : String, listContents : List<String>) {
+fun TitledDropDownComposable(title: String, listContents: List<String>) {
     Box {
         var mExpanded by remember { mutableStateOf(false) }
         var mSelectedText by remember { mutableStateOf(listContents.first()) }

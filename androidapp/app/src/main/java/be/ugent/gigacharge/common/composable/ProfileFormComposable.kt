@@ -11,6 +11,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import be.ugent.gigacharge.data.local.models.Profile
+import be.ugent.gigacharge.features.main.MainViewModel
 import be.ugent.gigacharge.R
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 import be.ugent.gigacharge.ui.theme.Green

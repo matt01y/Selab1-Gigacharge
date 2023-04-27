@@ -12,7 +12,8 @@ class LocationRepository @Inject constructor(
     private val queueService: QueueService
 ) {
     private val locationIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
-    private val locations : Flow<Map<String, Location>> = snapshotFlow { queueService.locationMap.toMap() }
+    private val locations: Flow<Map<String, Location>> =
+        snapshotFlow { queueService.locationMap.toMap() }
 
     fun getLocation(): Flow<Location> = locations.flatMapLatest { map ->
         if (map.isEmpty()) {

@@ -22,37 +22,20 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import be.ugent.gigacharge.R
 import be.ugent.gigacharge.common.composable.*
 import be.ugent.gigacharge.features.ProfileUiState
-import be.ugent.gigacharge.features.QueueUiState
 import be.ugent.gigacharge.features.LocationUiState
-import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.model.location.LocationStatus
 import be.ugent.gigacharge.model.location.QueueState
 import be.ugent.gigacharge.model.location.charger.ChargerStatus
 import be.ugent.gigacharge.model.location.charger.UserField
 import be.ugent.gigacharge.model.location.charger.UserType
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
-import androidx.compose.ui.res.stringResource;
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun MainRoute(onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
-    val profileUiState by viewModel.profileUiState.collectAsState()
-    val queueUiState by viewModel.queueUiState.collectAsState()
-    val locationUiState by viewModel.locationUiState.collectAsState()
-
     MainScreen(
         // Navigation function
         onLocationSelectClick,
-        { viewModel.toggleProfile() },
-        // State
-        queueUiState,
-        profileUiState,
-        locationUiState,
-        // Queue
-        {l:Location -> viewModel.joinLeaveQueue(l) },
-        // Profile
-        {n:String,b:Boolean -> viewModel.saveProfile(n,b)},
-        // Location
-        {l: Location -> viewModel.toggleFavorite(l)},
         viewModel
     )
 }
@@ -61,51 +44,40 @@ fun MainRoute(onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
 fun MainScreen(
     // Navigation function
     onLocationSelectClick: () -> Unit,
-    onProfileSelectClick: () -> Unit,
-    // State
-    queueUiState: QueueUiState,
-    profileUiState: ProfileUiState,
-    locationUiState: LocationUiState,
-    // Queue
-    joinLeaveQueue: (Location) -> Unit,
-    // Profile
-    saveProfile: (String,Boolean) -> Unit,
-    // Location
-    toggleFavorite: (Location) -> Unit,
-    viewModel: MainViewModel // TODO:VERWIJDEREN NA DEMO
+    viewModel: MainViewModel
 ) {
+    val profileUiState by viewModel.profileUiState.collectAsState()
+    val queueUiState by viewModel.queueUiState.collectAsState() // TODO: Wordt dit nog later gebruikt? of is dit overbodig?
+    val locationUiState by viewModel.locationUiState.collectAsState()
     Box {
         Scaffold(
             topBar = {
                 MainHeaderComposable(
-                    onProfileSelectClick
+                    { viewModel.toggleProfile() }
                 ) {
-                    when (profileUiState) {
+                    when (val s = profileUiState) {
                         ProfileUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary, text="Loading profile ...")
                         is ProfileUiState.Success -> {
-                            if (!profileUiState.profile.visible) {
-                                when (locationUiState) {
+                            if (!s.profile.visible) {
+                                when (val l = locationUiState) {
                                     LocationUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary, text="Loading location ...")
                                     is LocationUiState.Success -> {
-                                        val location = locationUiState.location
                                         LocationButtonComposable(
                                             onLocationSelectClick,
-                                            { toggleFavorite(location) },
-                                            location,
+                                            { viewModel.toggleFavorite(l.location) },
+                                            l.location,
                                             true
                                         )
                                     }
                                 }
-                            }
-                            else {
-                                val profile = profileUiState.profile
+                            } else {
+                                val profile = s.profile
                                 ProfileFormComposable(
                                     cardNumber = profile.cardNumber,
-                                    cancel = onProfileSelectClick,
-                                    saveProfile = saveProfile
+                                    cancel = { viewModel.toggleProfile() },
+                                    saveProfile = { a:String, b:Boolean -> viewModel.saveProfile(a, b) }
                                 )
                             }
-
                         }
                     }
                 }
@@ -115,17 +87,18 @@ fun MainScreen(
                 Button(onClick = {viewModel.updateLocation()}) {
                     Text(text = "refresh")
                 }
-                if (!(locationUiState is LocationUiState.Success && locationUiState.location.status == LocationStatus.OPEN)) {
+                val l = locationUiState
+                if (!(l is LocationUiState.Success && l.location.status == LocationStatus.OPEN)) {
                     Box(Modifier.height(IntrinsicSize.Max)) {
                         // Join/Leave button
-                        if (locationUiState is LocationUiState.Success) {
-                            val location = locationUiState.location
+                        if (l is LocationUiState.Success) {
                             QueueButtonComposable(
-                                { joinLeaveQueue(location) },
-                                location.amIJoined
+                                { viewModel.joinLeaveQueue(l.location) },
+                                l.location.amIJoined
                             )
                         }
-                        if (profileUiState is ProfileUiState.Success && profileUiState.profile.visible) {
+                        val p = profileUiState
+                        if (p is ProfileUiState.Success && p.profile.visible) {
                             Overlay()
                         }
                     }
@@ -134,10 +107,10 @@ fun MainScreen(
         ) {
                 paddingValues -> Column(Modifier.padding(paddingValues)) {
             Box {
-                when (locationUiState) {
+                when (val l = locationUiState) {
                     LocationUiState.Loading -> LoadingComposable()
                     is LocationUiState.Success -> {
-                        if (locationUiState.location.status == LocationStatus.OPEN) {
+                        if (l.location.status == LocationStatus.OPEN) {
                             Column(
                                 Modifier
                                     .fillMaxWidth()
@@ -147,16 +120,16 @@ fun MainScreen(
                                 Text(stringResource(R.string.empty_parking), color = MaterialTheme.colors.onBackground, fontSize = 25.sp)
                             }
                         } else {
-                            val location = locationUiState.location
                             LazyColumn {
                                 item {
-                                    QueueInfoComposable(location.amountWaiting, location.queue, locationUiState, profileUiState)
+                                    QueueInfoComposable(l, profileUiState)
                                 }
                             }
                         }
                     }
                 }
-                if (profileUiState is ProfileUiState.Success && profileUiState.profile.visible) {
+                val p = profileUiState
+                if (p is ProfileUiState.Success && p.profile.visible) {
                     Overlay()
                 }
 
@@ -181,9 +154,11 @@ fun QueueInfoAssignedComposable(
 }
 
 @Composable
-fun QueueInfoComposable(queueSize: Long, queueStatus: QueueState,
-                        locationUiState : LocationUiState,
+fun QueueInfoComposable(locationUiState : LocationUiState.Success,
                         profileUiState: ProfileUiState) {
+    val location = locationUiState.location
+    val queueSize = location.amountWaiting
+    val queueStatus = location.queue
     Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
         Text(stringResource(R.string.queue_info), color = MaterialTheme.colors.onBackground, fontSize = 25.sp, fontWeight = FontWeight.Bold)
         Column(
@@ -201,45 +176,36 @@ fun QueueInfoComposable(queueSize: Long, queueStatus: QueueState,
                     Text("${stringResource(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
             }
-
-            when (locationUiState) {
-                is LocationUiState.Success -> {
-                    for (charger in locationUiState.location.chargers) {
-                        if (charger.status == ChargerStatus.ASSIGNED) {
-                            when (charger.usertype) {
-                                UserType.USER -> {
-                                    when (profileUiState) {
-                                        ProfileUiState.Loading -> {}
-                                        is ProfileUiState.Success -> {
-                                            if ((charger.user as UserField.UserID).id.equals(profileUiState.profile)) {
-                                                // status == assigned
-                                                println("status is assigned")
-                                                QueueInfoAssignedComposable(expireTime = "placeholder")
-                                            }
-                                        }
+            for (charger in locationUiState.location.chargers) {
+                if (charger.status == ChargerStatus.ASSIGNED) {
+                    when (charger.usertype) {
+                        UserType.USER -> {
+                            when (profileUiState) {
+                                ProfileUiState.Loading -> {}
+                                is ProfileUiState.Success -> {
+                                    if ((charger.user as UserField.UserID).id.equals(profileUiState.profile)) {
+                                        // status == assigned
+                                        println("status is assigned")
+                                        QueueInfoAssignedComposable(expireTime = "placeholder")
                                     }
-
                                 }
-                                UserType.NONUSER -> {
-                                    when (profileUiState) {
-                                        ProfileUiState.Loading -> {}
-                                        is ProfileUiState.Success -> {
-                                            if ((charger.user as UserField.CardNumber).cardnum.equals(profileUiState.profile.cardNumber)) {
-                                                // status == assigned
-                                                println("status is assigned")
-                                                QueueInfoAssignedComposable(expireTime = "placeholder")
-                                            }
-                                        }
+                            }
+                        }
+                        UserType.NONUSER -> {
+                            when (profileUiState) {
+                                ProfileUiState.Loading -> {}
+                                is ProfileUiState.Success -> {
+                                    if ((charger.user as UserField.CardNumber).cardnum.equals(profileUiState.profile.cardNumber)) {
+                                        // status == assigned
+                                        println("status is assigned")
+                                        QueueInfoAssignedComposable(expireTime = "placeholder")
                                     }
                                 }
                             }
                         }
                     }
                 }
-                else -> {}
             }
-
-
         }
     }
 }
