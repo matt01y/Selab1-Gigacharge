@@ -2,13 +2,14 @@ package be.ugent.quotes.data.remote
 
 class QueueBackend {
 
-    var cardNumber : String? = null
+    var cardNumber: String? = null
 
 
     // Singleton
     companion object {
 
-        @Volatile private var instance: QueueBackend? = null
+        @Volatile
+        private var instance: QueueBackend? = null
 
         fun getInstance() =
             instance ?: synchronized(this) {

@@ -1,6 +1,7 @@
 package be.ugent.gigacharge.features.register
 
 import android.annotation.SuppressLint
+import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -25,10 +26,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.hilt.navigation.compose.hiltViewModel
+import be.ugent.gigacharge.R
 import be.ugent.gigacharge.common.composable.BasicButton
+import be.ugent.gigacharge.common.composable.CardNumberBox
+import be.ugent.gigacharge.common.composable.ProfileFormComposable
 import be.ugent.gigacharge.common.ext.basicButton
 import be.ugent.gigacharge.common.ext.fieldModifier
 import be.ugent.gigacharge.R.string as AppText
+import androidx.compose.ui.res.stringResource;
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
@@ -56,21 +61,10 @@ fun RegisterScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = "Welkom!", color = MaterialTheme.colors.primary)
-            //CardChooserDropDown()
-            TitledDropDownComposable(title = "Kaartdeler", listContents = listOf("MobilityPlus", "Blue Corner"))
-            Text(text = uiState.statusmessage, color = MaterialTheme.colors.primary)
-            OutlinedTextField(
-                value = uiState.cardnumber,
-                label = { Text("Kaartnummer", color = MaterialTheme.colors.primary) },
-                onValueChange = viewModel::onCardNumberChange,
-                colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.primary)
-            )
-//            BasicField(
-//                text = AppText.cardnumber,
-//                value = uiState.cardnumber,
-//                onNewValue = viewModel::onCardNumberChange
-//            )
+            Text(stringResource(R.string.welcome), color = MaterialTheme.colors.primary)
+
+            // CardNumber
+            CardNumberBox(uiState.cardnumber, viewModel::onCardNumberChange)
         }
     }
 }
@@ -85,7 +79,7 @@ fun RegisterTopBar() {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "GigaCharge",
+                    text = stringResource(R.string.app_name),
                     fontSize = 40.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colors.primary

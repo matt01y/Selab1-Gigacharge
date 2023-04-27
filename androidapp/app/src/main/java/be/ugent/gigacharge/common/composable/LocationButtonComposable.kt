@@ -59,9 +59,7 @@ fun LocationButtonComposable(
             .height(50.dp)
             .background(Color.White, shape = RoundedCornerShape(5.dp))
     ) {
-
         VestigingButton(title, location, setLocation)
-
         IconButton(
             toggleFavorite,
             Modifier
@@ -86,6 +84,18 @@ fun LocationButtonComposable(
 @Composable
 fun LocationButtonComposablePreview() {
     GigaChargeTheme {
-        LocationButtonComposable({}, {}, Location("", "Roularta Rouselare", QueueState.NotJoined, LocationStatus.OUT, 0, listOf()), false)
+        LocationButtonComposable(
+            {},
+            {},
+            Location(
+                "",
+                "Roularta Rouselare",
+                QueueState.NotJoined,
+                LocationStatus.OUT,
+                0,
+                listOf()
+            ),
+            false
+        )
     }
 }

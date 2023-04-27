@@ -17,9 +17,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 import be.ugent.gigacharge.common.snackbar.SnackbarManager
 import be.ugent.gigacharge.navigation.Navigation
+import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 import kotlinx.coroutines.CoroutineScope
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
