@@ -57,6 +57,8 @@ const messaging = fcm.getMessaging();
 
 const deleteField = fs.FieldValue.delete();
 
+const EXPIRY_MS = 30 * 1000;
+
 
 
 const observer = queuequery.onSnapshot(snap => {
@@ -177,6 +179,7 @@ async function setProgram(program : any, locationRef : fs.DocumentReference){
 }
 
 async function assignUserToCharger(joinDoc : fs.DocumentSnapshot, chargerDoc : fs.DocumentSnapshot){
+    console.log("assigning...")
     const locationref = chargerDoc.ref.parent.parent;
     const queueCollection = locationref.collection(QUEUE_COLLECTION);
     const chargerdata = chargerDoc.data()
@@ -184,10 +187,11 @@ async function assignUserToCharger(joinDoc : fs.DocumentSnapshot, chargerDoc : f
     //TODO: zend de FCM melding naar de user
     
     const now = new Date();
-    let expiretime = new Date(new Date().getTime() + 15 * 60_000); //15 minuten om naar de laadpaal te gaan
+    let expiretime = new Date(new Date().getTime() + EXPIRY_MS); //15 minuten om naar de laadpaal te gaan
+    const expiretimestamp = fs.Timestamp.fromDate(expiretime);
     //TODO: start een timer die de wachtrij join expiret na de ingestelde tijd, en de beurt aan iemand anders geeft
     console.log(`user ${joindata['user-id']} wordt ge-assigned`)
-    queueCollection.doc(joinDoc!.id).update({status: STATUS_ASSIGNED, assigned: chargerDoc.id, expires:fs.Timestamp.fromDate(expiretime)})
+    queueCollection.doc(joinDoc!.id).update({status: STATUS_ASSIGNED, assigned: chargerDoc.id, expires: expiretimestamp})
     chargerDoc.ref.update({status: STATUS_ASSIGNED, assignedJoin: joinDoc.id, assignedUser: joindata['user-id']})
 
     sendNotification(joindata['user-id'], {
@@ -196,31 +200,46 @@ async function assignUserToCharger(joinDoc : fs.DocumentSnapshot, chargerDoc : f
     });
 
     setTimeout(() => {
-        expireAssignment(chargerDoc.ref, joinDoc.ref)
-    }, Math.abs(expiretime.getMilliseconds() - now.getMilliseconds()));
+        console.log("expiring...")
+        expireAssignment(chargerDoc.ref, joinDoc.ref, expiretimestamp)
+    }, Math.abs(expiretime.getTime() - now.getTime()));
 }
 
-async function expireAssignment(chargerDoc : fs.DocumentReference, joinDoc : fs.DocumentReference){
+async function expireAssignment(chargerDoc : fs.DocumentReference, joinDoc : fs.DocumentReference, expiretimestamp : fs.Timestamp){
     const charger = (await chargerDoc.get()).data();
     const join = (await joinDoc.get()).data();
-    const queueEmpty = getTopOfLine(joinDoc.parent) == undefined
+    const topOfLine = await getTopOfLine(joinDoc.parent)
+    const queueEmpty = topOfLine == undefined
 
-    if(join.assigned === chargerDoc.id){
+    console.log(join);
+    console.log(chargerDoc.id);
+
+    if(join.status === STATUS_ASSIGNED && join.assigned === chargerDoc.id){ //is er nog niks van updates gebeurt in de tijd
+        console.log("check 1 ok");
         const join = (await joinDoc.get()).data()
-        joinDoc.update({status: STATUS_EXPIRED, assigned: deleteField, expires: deleteField});
-        chargerDoc.update({assignedUser: deleteField, assignedJoin: deleteField})
+        await joinDoc.update({status: STATUS_EXPIRED, assigned: deleteField, expires: deleteField});
+        
         if(queueEmpty){
+            if(charger.status === STATUS_ASSIGNED && charger.assignedJoin === joinDoc.id){
+                chargerDoc.update({status: STATUS_FREE, assignedUser: deleteField, assignedJoin: deleteField})
+            }
             //stuur een melding dat die uit de queue is, maar de plaats nu wel 
             sendNotification(join['user-id'], {
                 title: "Laadbeurt is verlopen",
                 body: `Er is voorlopig niemand in de wachtrij dus u kunt nog altijd opladen bij ${charger.description}.`
             })
         }else{
+            
             sendNotification(join['user-id'], {
                 title: "Laadbeurt is verlopen",
                 body: "U beurt wordt doorgegeven aan de volgende in de wachtrij."
             })
-            assignFirstinQueueIfPossible(joinDoc.parent.parent);
+
+            if(charger.status === STATUS_ASSIGNED && charger.assignedJoin === joinDoc.id){
+                chargerDoc.update({assignedUser: deleteField, assignedJoin: deleteField})
+                assignUserToCharger(topOfLine, await chargerDoc.get())
+            }
+            
         }
 
     }

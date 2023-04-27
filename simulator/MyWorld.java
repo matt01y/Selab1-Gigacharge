@@ -9,7 +9,7 @@ public class MyWorld extends World {
 
     List<Charger> chargers;
     public MyWorld() throws IOException, ExecutionException, InterruptedException {
-        super(500, 900, 1);
+        super(500, 600, 1);
         setPaintOrder(CarActor.class, ChargerActor.class);
         System.out.println("start");
         refresh();
