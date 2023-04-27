@@ -58,21 +58,23 @@ fun MyDropdown(
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     var selectionState by remember { mutableStateOf(selection) }
-    
-  Box(modifier) {
-    DropDownButton(selectionState, isExpanded){ isExpanded = true }
 
-    DropdownMenu(
-      isExpanded,
-      { isExpanded = false }
-    ) {
-      options.forEach { o:String ->
-        DropdownMenuItem({
-          selectionState = o
-          isExpanded = false
-          onActionClick(o)
-        }) {
-          Text(o, color = MaterialTheme.colors.onBackground)
+    Box(modifier) {
+        DropDownButton(selectionState, isExpanded) { isExpanded = true }
+
+        DropdownMenu(
+            isExpanded,
+            { isExpanded = false }
+        ) {
+            options.forEach { o: String ->
+                DropdownMenuItem({
+                    selectionState = o
+                    isExpanded = false
+                    onActionClick(o)
+                }) {
+                    Text(o, color = MaterialTheme.colors.onBackground)
+                }
+            }
         }
     }
 }
@@ -101,39 +103,40 @@ fun DropdownContextMenu(
     expanded: Boolean = false
 ) {
     var isExpanded by remember { mutableStateOf(expanded) }
-    
-  ExposedDropdownMenuBox(
-    expanded = isExpanded,
-    modifier = modifier,
-    onExpandedChange = { isExpanded = !isExpanded }
-  ) {
 
-    MoreIcon()
-
-    ExposedDropdownMenu(
-      modifier = Modifier.width(180.dp),
-      expanded = isExpanded,
-      onDismissRequest = { isExpanded = false }
+    ExposedDropdownMenuBox(
+        expanded = isExpanded,
+        modifier = modifier,
+        onExpandedChange = { isExpanded = !isExpanded }
     ) {
-        Icon(
-            modifier = Modifier.padding(8.dp, 0.dp),
-            imageVector = Icons.Default.MoreVert,
-            contentDescription = "More"
-        )
+
+        MoreIcon()
 
         ExposedDropdownMenu(
             modifier = Modifier.width(180.dp),
             expanded = isExpanded,
             onDismissRequest = { isExpanded = false }
         ) {
-            options.forEach { selectionOption ->
-                DropdownMenuItem(
-                    onClick = {
-                        isExpanded = false
-                        onActionClick(selectionOption)
+            Icon(
+                modifier = Modifier.padding(8.dp, 0.dp),
+                imageVector = Icons.Default.MoreVert,
+                contentDescription = "More"
+            )
+
+            ExposedDropdownMenu(
+                modifier = Modifier.width(180.dp),
+                expanded = isExpanded,
+                onDismissRequest = { isExpanded = false }
+            ) {
+                options.forEach { selectionOption ->
+                    DropdownMenuItem(
+                        onClick = {
+                            isExpanded = false
+                            onActionClick(selectionOption)
+                        }
+                    ) {
+                        Text(text = selectionOption)
                     }
-                ) {
-                    Text(text = selectionOption)
                 }
             }
         }
