@@ -31,7 +31,7 @@ fun CardNumberBox(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column() {
-            Text(text = "Kaartnummer",
+            Text(text = stringResource(R.string.card_number),
                 color = MaterialTheme.colors.onBackground,
                 fontSize = 20.sp
             )
