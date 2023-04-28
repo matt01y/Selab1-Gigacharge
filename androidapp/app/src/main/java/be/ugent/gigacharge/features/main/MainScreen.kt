@@ -79,9 +79,11 @@ fun MainScreen(
                                 ProfileFormComposable(
                                     cardNumber = profile.cardNumber,
                                     deleteAccount = {
+                                        viewModel.toggleProfile() // When logging back in, the profile is closed
                                         viewModel.deleteProfile()
                                         onRegisterSelectClick()
-                                    }
+                                    },
+                                    readOnly = true
                                 )
                             }
                         }

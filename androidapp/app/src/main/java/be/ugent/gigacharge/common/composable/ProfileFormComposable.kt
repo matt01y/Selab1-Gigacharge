@@ -74,12 +74,13 @@ fun StandardButtonsField(
 fun ProfileFormComposable(
     cardNumber: String,
     deleteAccount: () -> Unit,
+    readOnly: Boolean = false
 ) {
     var cardNumberState by remember { mutableStateOf(cardNumber) }
 
     Column() {
         // CardNumber
-        CardNumberBox(cardNumberState, { cardNumberState = it }, true)
+        CardNumberBox(cardNumberState, { cardNumberState = it }, readOnly)
         // Buttons
         StandardButtonsField(deleteAccount)
     }
@@ -89,6 +90,6 @@ fun ProfileFormComposable(
 @Composable
 fun ProfileFormComposablePreview() {
     GigaChargeTheme {
-        ProfileFormComposable("test") {}
+        ProfileFormComposable("test", {}, true)
     }
 }

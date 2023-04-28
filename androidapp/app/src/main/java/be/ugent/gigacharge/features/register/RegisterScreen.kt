@@ -76,7 +76,7 @@ fun RegisterScreen(
             Text(stringResource(R.string.welcome), color = MaterialTheme.colors.primary)
 
             // CardNumber (not whole form since we don't need a back button, save button, ...)
-            CardNumberBox(uiState.cardnumber, viewModel::onCardNumberChange, validCardNumberState)
+            CardNumberBox(uiState.cardnumber, viewModel::onCardNumberChange)
         }
     }
 }

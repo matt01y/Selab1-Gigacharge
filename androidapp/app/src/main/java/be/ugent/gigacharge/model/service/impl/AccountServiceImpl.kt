@@ -125,9 +125,13 @@ class AccountServiceImpl @Inject constructor(
         userCollection.document(currentUserId).update("fcmtoken", token)
     }
 
-    override fun deleteProfile() {
-        // Delete user document, authManager will delete user on file deletion detection
-        userCollection.document(currentUserId).delete()
+    override suspend fun deleteProfile() {
+        // Delete user data
+        userCollection.document(currentUserId).delete().await()
+        // Delete user
+        auth.currentUser?.delete()?.await()
+        // Go anonymous because account doesn't exist anymore
+        createAnonymousAccount()
     }
 
     companion object {

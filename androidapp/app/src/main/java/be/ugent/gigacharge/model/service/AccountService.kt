@@ -35,7 +35,7 @@ interface AccountService {
     suspend fun init()
     fun sendToken(token: String)
 
-    fun deleteProfile()
+    suspend fun deleteProfile()
 
     val isEnabledObservers: MutableList<((Boolean) -> Unit)>
 }

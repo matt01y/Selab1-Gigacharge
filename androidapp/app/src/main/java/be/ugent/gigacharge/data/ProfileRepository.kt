@@ -6,6 +6,7 @@ import be.ugent.gigacharge.model.service.AccountService
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -33,6 +34,8 @@ class ProfileRepository @Inject constructor(
     }
 
     fun deleteProfile() {
-        accountService.deleteProfile()
+        GlobalScope.launch {
+            accountService.deleteProfile()
+        }
     }
 }
