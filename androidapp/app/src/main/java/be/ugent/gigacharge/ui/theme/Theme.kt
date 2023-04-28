@@ -1,5 +1,6 @@
 package be.ugent.gigacharge.ui.theme
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
@@ -7,26 +8,35 @@ import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
+@SuppressLint("ConflictingOnColor")
 private val DarkColorPalette = darkColors(
     primary = Blue400,
     primaryVariant = Blue700,
 
-    secondary = Color.White,
-    secondaryVariant = Color.White,
+    secondary = Amber400,
+    secondaryVariant = Amber700,
     onSecondary = Color.White,
 
-    surface = LightGray
+    surface = LightGray,
+
+    background = LightGray,
+
+    onBackground = Color.White
 )
 
 private val LightColorPalette = lightColors(
     primary = Blue700,
     primaryVariant = Blue900,
 
-    secondary = Color.White,/*Amber400,*/
-    secondaryVariant = Color.White,/*Amber700,*/
+    secondary = Amber400,
+    secondaryVariant = Amber700,
     onSecondary = Color.White,
 
-    surface = LightGray
+    surface = LightGray,
+
+    background = Color.White,
+
+    onBackground = Color.Black
 
     /* Other default colors to override
     surface = Color.White,
