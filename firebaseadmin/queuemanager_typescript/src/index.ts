@@ -43,6 +43,8 @@ const STATUS_ASSIGNED = "assigned"  //een melding is gestuurd en een laadpaal is
 const STATUS_EXPIRED = "expired"    //persoon heeft niet op tijd gereageerd en is zijn plaats in de rij kwijt
 const STATUS_COMPLETE = "complete"  //persoon is aan het laden / heeft geladen
 
+const USERID_FIELD = "user-id"
+
 //user types voor chargers
 const USER_TYPE = "USER"
 const NONUSER_TYPE = "NONUSER"
@@ -63,10 +65,8 @@ const EXPIRY_MS = 30 * 1000;
 
 const observer = queuequery.onSnapshot(snap => {
     try{
-        console.log("snapshot");
         snap.docChanges().forEach(async change => {
             if (change.type === 'added' || change.type == 'modified') {
-                console.log(`${change.type} event`)
                 await handleChange(change.doc)
             }
         });
@@ -86,13 +86,12 @@ async function handleChange(change : fs.QueryDocumentSnapshot<fs.DocumentData>){
         const location = await (await locationref!.get()).data()
         const chargersCollection = change.ref.parent;
         const queueCollection = locationref!.collection(QUEUE_COLLECTION)
-        console.log(charger);
 
         //als de locatie momenteel een queue heeft
         if(location!.status === QUEUE_PROGRAM){
             //als de charger vrij is moeten we de volgende in de rij 
             if(charger.status === STATUS_FREE){
-                console.log(`charger ${charger.id} reserveren...`)
+                console.log(`charger ${charger.description} is nu vrij`)
                 //reserveCharger(locationref, chargerref) //nog niet geimplementeerd want doodoo js en ts wil nie
                 
                 const topOfLine = await getTopOfLine(queueCollection);
@@ -110,14 +109,15 @@ async function handleChange(change : fs.QueryDocumentSnapshot<fs.DocumentData>){
                 //wel de persoon was die eraan toegewezen was.
                 //zo niet, probeer een andere toe te wijzen.
                 //en als dat niet lukt, zet hem opnieuw in de wachtrij
-                
-                if(charger.assignedUser !== undefined){ //is er iemand assigned aan deze charger?
-                    if(charger.usertype === USER_TYPE && charger.user === charger.assignedUser){
-                        //de gebruiker is diegene die assigned is
-                        queueCollection.doc(charger.assignedJoin).update({status: STATUS_COMPLETE}) //YIPPIE!
-                        unAssignCharger(chargerref);
-                    }else{
-                        //frick, het is een andere user, is er nog een vrije lader die we kunnen gebruiken om toe te wijzen?
+
+                if(charger.status === STATUS_CHARGING && charger.assignedUser !== undefined && charger.usertype === USER_TYPE && charger.user === charger.assignedUser){
+                    //de ge-assignde gebruiker is nu aan het laden, episch!
+                    console.log(`ge-assignede user ${charger.user} is nu op de correcte plek aan het opladen`)
+                    queueCollection.doc(charger.assignedJoin).update({status: STATUS_COMPLETE}) //YIPPIE!
+                }else{
+                    if(charger.assignedUser !== undefined){
+                        //probeer ongelukkige een nieuwe paal toe te wijzen
+
                         const freeCharger = await getFreeChargerIfExists(chargersCollection);
                         if(freeCharger == undefined){
                             //geen vrije laders meer om toe te wijzen aan de ongelukkige persoon, persoon moet terug in de wacht
@@ -126,10 +126,18 @@ async function handleChange(change : fs.QueryDocumentSnapshot<fs.DocumentData>){
                             //we kunnen de mens nog redden met een nieuwe charger
                             assignUserToCharger(await queueCollection.doc(charger.assignedJoin).get(), freeCharger);
                         }
-                        unAssignCharger(chargerref);
                     }
-                }else{
-                    //geen probleem, we zijn in open modus, er is een wachtrij of maar de paal was niet assigned for some reason
+
+                    if(location!.status === QUEUE_PROGRAM && charger.usertype === USER_TYPE){
+                        //de user van de paal heeft misschien gaan laden bij de foute paal
+                        
+                        //zoek de ge-assignde of waiting joinDocs van de user en complete ze
+                        const joinDocs = (await queueCollection.where(USERID_FIELD, '==', charger.user).where(STATUS_FIELD, 'in', [STATUS_ASSIGNED, STATUS_WAITING]).get()).docs;
+                        joinDocs.forEach(e => {
+                            e.ref.update({status: STATUS_COMPLETE});
+                        })
+
+                    }
                 }
             }
         }else if(location!.status === OPEN_PROGRAM){
@@ -214,7 +222,7 @@ async function expireAssignment(chargerDoc : fs.DocumentReference, joinDoc : fs.
     console.log(join);
     console.log(chargerDoc.id);
 
-    if(join.status === STATUS_ASSIGNED && join.assigned === chargerDoc.id){ //is er nog niks van updates gebeurt in de tijd
+    if(join.status === STATUS_ASSIGNED && join.assigned === chargerDoc.id){ //is er nog niks van updates gebeurt in de tijd voor het expiren?
         console.log("check 1 ok");
         const join = (await joinDoc.get()).data()
         await joinDoc.update({status: STATUS_EXPIRED, assigned: deleteField, expires: deleteField});
@@ -243,10 +251,6 @@ async function expireAssignment(chargerDoc : fs.DocumentReference, joinDoc : fs.
         }
 
     }
-}
-
-async function assignFirstinQueueIfPossible(locationDoc : fs.DocumentReference){
-    const location = (await locationDoc.get()).data();
 }
 
 
