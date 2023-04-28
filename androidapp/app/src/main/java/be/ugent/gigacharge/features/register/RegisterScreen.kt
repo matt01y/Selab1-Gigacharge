@@ -84,7 +84,7 @@ fun RegisterScreen(
 @Composable
 fun RegisterTopBar() {
     TopAppBar(
-        backgroundColor = MaterialTheme.colors.onSecondary,
+        backgroundColor = MaterialTheme.colors.background,
         title = {
             Box(
                 modifier = Modifier.fillMaxWidth(),
@@ -101,7 +101,7 @@ fun RegisterTopBar() {
     )
 }
 
-/*
+
 @Preview
 @Composable
 fun PreviewRegisterScreen() {
@@ -110,4 +110,4 @@ fun PreviewRegisterScreen() {
         modifier = Modifier,
         viewModel = hiltViewModel()
     )
-}*/
+}
