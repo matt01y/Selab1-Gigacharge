@@ -59,7 +59,7 @@ const messaging = fcm.getMessaging();
 
 const deleteField = fs.FieldValue.delete();
 
-const EXPIRY_MS = 30 * 1000;
+const EXPIRY_MS = 5 * 60 * 1000;
 
 
 
@@ -115,30 +115,45 @@ async function handleChange(change : fs.QueryDocumentSnapshot<fs.DocumentData>){
                     console.log(`ge-assignede user ${charger.user} is nu op de correcte plek aan het opladen`)
                     queueCollection.doc(charger.assignedJoin).update({status: STATUS_COMPLETE}) //YIPPIE!
                 }else{
-                    if(charger.assignedUser !== undefined){
-                        //probeer ongelukkige een nieuwe paal toe te wijzen
 
-                        const freeCharger = await getFreeChargerIfExists(chargersCollection);
-                        if(freeCharger == undefined){
-                            //geen vrije laders meer om toe te wijzen aan de ongelukkige persoon, persoon moet terug in de wacht
-                            queueCollection.doc(charger.assignedJoin).update({status: STATUS_WAITING, deleteField})
-                        }else{
-                            //we kunnen de mens nog redden met een nieuwe charger
-                            assignUserToCharger(await queueCollection.doc(charger.assignedJoin).get(), freeCharger);
-                        }
-                    }
+                    let swapcharger : fs.DocumentReference | undefined = undefined;
 
                     if(location!.status === QUEUE_PROGRAM && charger.usertype === USER_TYPE){
+                        
                         //de user van de paal heeft misschien gaan laden bij de foute paal
                         
                         //zoek de ge-assignde of waiting joinDocs van de user en complete ze
                         const joinDocs = (await queueCollection.where(USERID_FIELD, '==', charger.user).where(STATUS_FIELD, 'in', [STATUS_ASSIGNED, STATUS_WAITING]).get()).docs;
                         joinDocs.forEach(e => {
+                            //confirmed dat er bij de foute paal wordt geladen
+                            //de paal waar aan ge-assigned was kan nu gebruikt worden om de (eventuele) persoon waarvan gestolen is te assignen
+                            swapcharger = chargersCollection.doc(e.data().assigned)
+                            console.log("bozo laadt op foute plek op")
                             e.ref.update({status: STATUS_COMPLETE});
                         })
 
                     }
+
+                    if(charger.assignedUser !== undefined){
+                        //probeer ongelukkige een nieuwe paal toe te wijzen
+                        console.log(`${charger.assignedUser} is zijn plek kwijtgeraakt, nieuwe toewijzen...`)
+                        const freeCharger = swapcharger == undefined ? await getFreeChargerIfExists(chargersCollection) : await swapcharger.get();
+                        if(freeCharger == undefined){
+                            console.log("dat is niet gelukt frick")
+                            //geen vrije laders meer om toe te wijzen aan de ongelukkige persoon, persoon moet terug in de wacht
+                            queueCollection.doc(charger.assignedJoin).update({status: STATUS_WAITING, deleteField})
+                        }else{
+                            console.log("en dat lukt, thank god")
+                            //we kunnen de mens nog redden met een nieuwe charger
+                            assignUserToCharger(await queueCollection.doc(charger.assignedJoin).get(), freeCharger);
+                        }
+                    }
+
+                    
                 }
+
+                chargerref.update({assignedJoin: deleteField, assignedUser: deleteField});
+
             }
         }else if(location!.status === OPEN_PROGRAM){
             //check of een queue moet gestartn worden
