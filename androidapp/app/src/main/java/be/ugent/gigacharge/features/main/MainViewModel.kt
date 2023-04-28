@@ -15,6 +15,7 @@ import be.ugent.gigacharge.model.service.LogService
 import be.ugent.gigacharge.model.service.QueueService
 import be.ugent.gigacharge.screens.GigaChargeViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -46,6 +47,15 @@ class MainViewModel @Inject constructor(
     val locationUiState: StateFlow<LocationUiState> =
         getLocationUseCase().map { LocationUiState.Success(it) }
             .stateIn(viewModelScope, SharingStarted.Eagerly, LocationUiState.Loading)
+
+    init {
+        launchCatching {
+            while (true) {
+                delay(10000)
+                updateLocation()
+            }
+        }
+    }
 
     fun toggleProfile() {
         toggleProfileUseCase()

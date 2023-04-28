@@ -16,7 +16,9 @@ limitations under the License.
 
 package be.ugent.gigacharge.model.service.impl
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import be.ugent.gigacharge.model.location.Location
@@ -50,16 +52,26 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
 
     override val locationMap: SnapshotStateMap<String, Location> = mutableStateMapOf()
 
+    @RequiresApi(Build.VERSION_CODES.N)
     override suspend fun updateLocations(): List<Location> {
         Log.println(Log.INFO, "queue", "LOCATION UPDATE")
         val results = mutableListOf<Location>()
         val locationsnap = locationCollection.get().await()
-        locationMap.clear()
+
+        val newmap = HashMap<String, Location>();
+
         locationsnap.forEach { snap ->
             val res = refToLocation(locationCollection.document(snap.id))
             locationMap[res.id] = res
+            newmap.put(res.id, res)
             results.add(res)
         }
+
+        locationMap.replaceAll { id, location ->
+            val loc : Location = newmap.get(id)!!
+            loc
+        }
+
         Log.println(Log.INFO, "queue", locationMap.toMap().toString())
         return results
     }
