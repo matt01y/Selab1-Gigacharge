@@ -32,7 +32,9 @@ interface AccountService {
     suspend fun tryEnable(cardNumber: String)
     suspend fun isEnabled(): Boolean
     suspend fun init()
-  fun sendToken(token: String)
+    fun sendToken(token: String)
+
+    val authError: Flow<String>
 
     val isEnabledObservers: MutableList<((Boolean) -> Unit)>
 }

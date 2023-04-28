@@ -16,7 +16,10 @@ limitations under the License.
 
 package be.ugent.gigacharge.model.service.impl
 
+import android.content.res.Resources
 import android.util.Log
+import androidx.compose.ui.res.stringResource
+import be.ugent.gigacharge.R
 import be.ugent.gigacharge.model.User
 import be.ugent.gigacharge.model.service.AccountService
 import com.google.firebase.auth.FirebaseAuth
@@ -25,8 +28,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import kotlin.properties.Delegates
@@ -35,7 +37,6 @@ class AccountServiceImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val firestore: FirebaseFirestore
 ) : AccountService {
-
     override val currentUserId: String
         get() = auth.currentUser?.uid.orEmpty()
 
@@ -56,6 +57,8 @@ class AccountServiceImpl @Inject constructor(
             awaitClose { auth.removeAuthStateListener(listener) }
         }
 
+    private val authErrorFlow: MutableStateFlow<String> = MutableStateFlow("")
+    override val authError: Flow<String> = flowOf<String>().combine(authErrorFlow) { flow, StateFlow -> if (StateFlow == "") flow else StateFlow }
 
     override suspend fun createAnonymousAccount() {
         auth.signInAnonymously().await()
@@ -85,20 +88,35 @@ class AccountServiceImpl @Inject constructor(
         Log.println(Log.INFO, "user id", currentUserId)
         userCollection.document(currentUserId).set(enablerequest).await()
 
-        var tries = 0
-        while (!isEnabledObservable && tries < 10) {
-            Log.println(Log.INFO, "auth", "CHECKING AGAIN")
+        val startTime: Long = System.currentTimeMillis()
+        var timer: Long
+        var stop = false
+        while (!stop) {
+            // Force reloading user
             auth.currentUser?.reload()?.await()
+            
             val claims = auth.currentUser?.getIdToken(true)?.await()?.claims
-            if (claims?.get("enabled") == true) {
-                Log.println(Log.INFO, "auth", "ENABLING OK")
+            // Enabled
+            if (claims?.get(ENABLE_STATUS) == ENABLED) {
                 isEnabledObservable = true
-                break
-            } else {
-                Log.println(Log.INFO, "auth", "NOT NIET ENABLED")
+                authErrorFlow.value = ""
+                stop = true
+            // CardNumber not in whitelist
+            } else if (claims?.get(ENABLE_STATUS) == NOT_IN_WHITELIST) {
+                authErrorFlow.value = Resources.getSystem().getString(R.string.invalid_cardNumber_error)
+                stop = true
+            // Error occurred
+            } else if (claims?.get(ENABLE_STATUS) == ENABLE_ERROR) {
+                authErrorFlow.value = Resources.getSystem().getString(R.string.enable_error)
+                stop = true
             }
-            delay(750)
-            tries++
+            // Update timer
+            timer = System.currentTimeMillis() - startTime
+            // Timeout error
+            if (!stop && timer >= TIMEOUT_TIME) {
+                authErrorFlow.value = Resources.getSystem().getString(R.string.timeout_error)
+                stop = true
+            }
         }
     }
 
@@ -121,9 +139,15 @@ class AccountServiceImpl @Inject constructor(
     }
 
     companion object {
+        private const val TIMEOUT_TIME = 5000L
         private const val LINK_ACCOUNT_TRACE = "linkAccount"
         private const val USERS_COLLECTION_NAME = "users"
         private const val CARDNUMBER_FIELD = "kaartnummer"
         private const val TIMESTAMP_FIELD = "timestamp"
+        
+        private const val ENABLE_STATUS = "enablestatus"
+        private const val ENABLED = "enabled"
+        private const val NOT_IN_WHITELIST = "not_in_whitelist_error"
+        private const val ENABLE_ERROR = "unknown_error"
     }
 }

@@ -18,6 +18,11 @@
     <!-- ProfileForm -->
     <string name="card_number">Kaartnummer</string>
 
+    <!-- Errors -->
+    <string name="invalid_cardNumber_error">Ongeldig kaartnummer</string>
+    <string name="enable_error">Oeps, er ging iets fout</string>
+    <string name="timeout_error">Oeps, er ging iets fout (time out)</string>
+
     <!-- Common -->
     <string name="email">Email</string>
     <string name="password">Password</string>
