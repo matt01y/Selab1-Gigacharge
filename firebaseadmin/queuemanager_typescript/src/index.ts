@@ -286,28 +286,32 @@ async function getTopOfLine(queueCollection : fs.CollectionReference){
 const updatedUsersQuery = updatedUsers.onSnapshot(snap => {
     try{
         snap.docChanges().forEach(async change => {
-            if (change.type === 'removed') {
-                const user = change.doc.data();
-                console.log("VERWIJDERING")
-                console.log(user)
-                //dit account is verwijderd
-
-                //complete al zijn joinDocs
-                const userJoins = await queuequery.where("user-id", '==', change.doc.id).get()
-                userJoins.docs.forEach(join => {
-                    console.log("join complete")
-                    join.ref.update({status: STATUS_COMPLETE});
-                })
-
-
-                //zet alle chargers waaraan hij assigned is op free
-                const userChargers = await chargersquery.where(STATUS_FIELD, '==', STATUS_ASSIGNED).where("assignedUser", '==', change.doc.id).get();
-                userChargers.docs.forEach(charger =>{
-                    console.log("charger losgelaten")
-                    charger.ref.update({status: STATUS_FREE, assignedUser: deleteField, assignedJoin: deleteField})
-                });
-
-
+            try{
+                if (change.type === 'removed') {
+                    const user = change.doc.data();
+                    console.log("VERWIJDERING")
+                    console.log(user)
+                    //dit account is verwijderd
+    
+                    //complete al zijn joinDocs
+                    const userJoins = await queuequery.where("user-id", '==', change.doc.id).get()
+                    userJoins.docs.forEach(join => {
+                        console.log("join complete")
+                        join.ref.update({status: STATUS_COMPLETE});
+                    })
+    
+    
+                    //zet alle chargers waaraan hij assigned is op free
+                    const userChargers = await chargersquery.where(STATUS_FIELD, '==', STATUS_ASSIGNED).where("assignedUser", '==', change.doc.id).get();
+                    userChargers.docs.forEach(charger =>{
+                        console.log("charger losgelaten")
+                        charger.ref.update({status: STATUS_FREE, assignedUser: deleteField, assignedJoin: deleteField})
+                    });
+    
+    
+                }
+            }catch(err){
+                console.error(err);
             }
         });
     }catch (err) {
