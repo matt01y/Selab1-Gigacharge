@@ -95,10 +95,7 @@ fun MainScreen(
                 }
             },
             bottomBar = {
-                // TODO: VERWIJDEREN IN FINAL BUILD (ONLY FOR DEMO)
-                Button(onClick = {viewModel.updateLocation()}) {
-                    Text(text = "refresh")
-                }
+
                 val l = locationUiState
                 if (!(l is LocationUiState.Success && l.location.status == LocationStatus.OPEN)) {
                     Box(Modifier.height(IntrinsicSize.Max)) {
