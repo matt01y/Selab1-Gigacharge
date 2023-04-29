@@ -34,6 +34,7 @@ import be.ugent.gigacharge.model.location.charger.UserField
 import be.ugent.gigacharge.model.location.charger.UserType
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 import androidx.compose.ui.res.stringResource
+import be.ugent.gigacharge.resources
 
 @Composable
 fun MainRoute(onRegisterSelectClick: () -> Unit, onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
@@ -208,10 +209,13 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
             Text("${stringResource(R.string.in_queue)}: $queueSize", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             when (queueStatus) {
                 QueueState.NotJoined -> {
-                    Text("${stringResource(R.string.queue_position)}: ${stringResource(R.string.queue_not_joined)}", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.queue_not_joined), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
                 is QueueState.Joined -> {
-                    Text("${stringResource(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(resources().getQuantityString(R.plurals.queue_position_plural,
+                        queueStatus.myPosition.toInt(), queueStatus.myPosition.toInt()
+                    ), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    //Text("${stringResource(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
             }
             for (charger in locationUiState.location.chargers) {

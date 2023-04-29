@@ -128,9 +128,10 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
                 val time = myJoinEvent.first().getTimestamp(TIMESTAMP_FIELD)
                     ?: Timestamp.now() //TODO: deze null case beter maken
                 val myPosition =
-                    queuecollection.whereLessThanOrEqualTo(TIMESTAMP_FIELD, time).whereEqualTo(
-                        STATUS_FIELD, STATUS_WAITING
-                    ).count().get(AggregateSource.SERVER).await().count
+                    queuecollection.whereLessThanOrEqualTo(JOINEDAT_FIELD, time).whereIn(
+                        STATUS_FIELD, listOf(STATUS_WAITING, STATUS_ASSIGNED)
+                    ).count().get(AggregateSource.SERVER).await().count - 1
+                Log.println(Log.INFO, "queue", "POSITION $myPosition")
                 state = QueueState.Joined(myPosition = myPosition)
             } else {
                 state = QueueState.NotJoined
@@ -175,6 +176,7 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
         private const val STATUS_FIELD = "status"
         private const val NAME_FIELD = "name"
         private const val STATUS_WAITING = "waiting"
+        private const val STATUS_ASSIGNED = "assigned"
         private const val STATUS_LEFT = "left"
         private const val TIMESTAMP_FIELD = "timestamp"
     }
