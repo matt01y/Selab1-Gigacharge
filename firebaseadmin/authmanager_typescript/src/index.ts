@@ -1,22 +1,32 @@
-require('dotenv').config({ path: __dirname + '/.env' })
+import * as firebase from 'firebase-admin'
+import * as fs from 'firebase-admin/firestore'
+import * as fbauth from 'firebase-admin/auth'
+import * as fcm from 'firebase-admin/messaging'
+import * as serviceAccount from './env/key.json'
 
-const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
-const { getFirestore, Timestamp, FieldValue } = require('firebase-admin/firestore');
-const { getAuth } = require('firebase-admin/auth');
+const params = {
+  type: serviceAccount.type,
+  projectId: serviceAccount.project_id,
+  privateKeyId: serviceAccount.private_key_id,
+  privateKey: serviceAccount.private_key,
+  clientEmail: serviceAccount.client_email,
+  clientId: serviceAccount.client_id,
+  authUri: serviceAccount.auth_uri,
+  tokenUri: serviceAccount.token_uri,
+  authProviderX509CertUrl: serviceAccount.auth_provider_x509_cert_url,
+  clientC509CertUrl: serviceAccount.client_x509_cert_url
+}
+   
+firebase.initializeApp({
+  credential: firebase.credential.cert(params),
+})
 
-var serviceAccount = require(process.env.SERVICE_ACCOUNT);
+const db = fs.getFirestore();
 
-
-initializeApp({
-   credential: cert(serviceAccount)
-});
-
-const db = getFirestore();
-const auth = getAuth();
-
-const starttime = Timestamp.fromDate(new Date()); //tijd waar script is opgestart
+const starttime = fs.Timestamp.fromDate(new Date()); //tijd waar script is opgestart
 const users = db.collection('users');
 const query = users.where('timestamp', '>=', starttime);
+const auth = fbauth.getAuth();
 
 
 const observer = query.onSnapshot(snap => {
@@ -24,8 +34,8 @@ const observer = query.onSnapshot(snap => {
       console.log("snapshot")
       snap.docChanges().forEach(async change => {
          console.log("add event")
-         try {
-            if (change.type === 'added') {
+         if (change.type === 'added') {
+            try{
                const data = (await users.doc(change.doc.id).get()).data()
                if (!data.kaartnummer) { return; }
                const existsquery = db.collection('whitelist').where("kaartnummer", "==", data.kaartnummer).count();
@@ -39,15 +49,19 @@ const observer = query.onSnapshot(snap => {
                   }
                   currentclaims['enabled'] = true; //account is nu enabled, kan interageren met user database van app
                   await auth.setCustomUserClaims(change.doc.id, currentclaims);
+
+                  //zet status message
+                  change.doc.ref.update({enablestatus: "enabled"})
                } else {
                   console.log(`nieuwe user ${change.doc.id} is niet in de whitelist`);
+                  change.doc.ref.update({enablestatus: "not_in_whitelist_error"})
                }
+            }catch(err){
+               change.doc.ref.update({enablestatus: "unknown_error"})
+               console.error("FOUT: bij nieuwe user enabling")
+               console.error(err);
             }
-         } catch (err) {
-            console.error("FOUT: bij nieuwe user enabling")
-            console.error(err);
          }
-         
       })
    } catch (err) {
       console.error("FOUT: bij zetten van docchanges iterator");
