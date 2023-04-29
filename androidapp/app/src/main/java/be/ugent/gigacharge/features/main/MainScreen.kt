@@ -1,7 +1,8 @@
 package be.ugent.gigacharge.features.main
 
-import android.content.res.Resources
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,10 +20,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import be.ugent.gigacharge.R
-import be.ugent.gigacharge.common.composable.*
-import be.ugent.gigacharge.features.ProfileUiState
+import be.ugent.gigacharge.common.composable.LoadingComposable
+import be.ugent.gigacharge.common.composable.LocationButtonComposable
+import be.ugent.gigacharge.common.composable.MainHeaderComposable
+import be.ugent.gigacharge.common.composable.ProfileFormComposable
 import be.ugent.gigacharge.features.LocationUiState
+import be.ugent.gigacharge.R
+import be.ugent.gigacharge.features.ProfileUiState
 import be.ugent.gigacharge.model.location.LocationStatus
 import be.ugent.gigacharge.model.location.QueueState
 import be.ugent.gigacharge.model.location.charger.ChargerStatus
@@ -32,9 +36,9 @@ import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 import androidx.compose.ui.res.stringResource
 
 @Composable
-fun MainRoute(onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
+fun MainRoute(onRegisterSelectClick: () -> Unit, onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
     MainScreen(
-        // Navigation function
+        onRegisterSelectClick,
         onLocationSelectClick,
         viewModel
     )
@@ -42,7 +46,7 @@ fun MainRoute(onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
 
 @Composable
 fun MainScreen(
-    // Navigation function
+    onRegisterSelectClick: () -> Unit,
     onLocationSelectClick: () -> Unit,
     viewModel: MainViewModel
 ) {
@@ -74,8 +78,12 @@ fun MainScreen(
                                 val profile = s.profile
                                 ProfileFormComposable(
                                     cardNumber = profile.cardNumber,
-                                    cancel = { viewModel.toggleProfile() },
-                                    saveProfile = { a:String, b:Boolean -> viewModel.saveProfile(a, b) }
+                                    deleteAccount = {
+                                        viewModel.toggleProfile() // When logging back in, the profile is closed
+                                        viewModel.deleteProfile()
+                                        onRegisterSelectClick()
+                                    },
+                                    readOnly = true
                                 )
                             }
                         }
@@ -97,9 +105,8 @@ fun MainScreen(
                                 l.location.amIJoined
                             )
                         }
-                        val p = profileUiState
-                        if (p is ProfileUiState.Success && p.profile.visible) {
-                            Overlay()
+                        if (profileUiState is ProfileUiState.Success && (profileUiState as ProfileUiState.Success).profile.visible) {
+                            Overlay { viewModel.toggleProfile() }
                         }
                     }
                 }
@@ -130,7 +137,7 @@ fun MainScreen(
                 }
                 val p = profileUiState
                 if (p is ProfileUiState.Success && p.profile.visible) {
-                    Overlay()
+                    Overlay { viewModel.toggleProfile() }
                 }
 
             }
@@ -146,8 +153,39 @@ fun MainScreen(
 }
 
 @Composable
+fun QueueButtonComposable(onQueueButtonSelectClick: () -> Unit, inQueue: Boolean) {
+    Row(
+        Modifier
+            .height(100.dp)
+            .fillMaxWidth(),
+        verticalAlignment= Alignment.CenterVertically
+    ) {
+        Column(Modifier.fillMaxWidth(), horizontalAlignment= Alignment.CenterHorizontally) {
+            Button(
+                onQueueButtonSelectClick,
+                Modifier.height(50.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)
+            ) {
+                Text(if (inQueue) stringResource(R.string.leave_queue) else stringResource(R.string.join_queue), fontSize= 20.sp, fontWeight= FontWeight.Bold)
+            }
+        }
+    }
+}
+
+@Composable
+fun Overlay(cancel: () -> Unit) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .clip(RectangleShape)
+            .background(Color(0.0F, 0.0F, 0.0F, 0.5F))
+            .clickable(MutableInteractionSource(), null, onClick = cancel)
+    ) {}
+}
+
+@Composable
 fun QueueInfoAssignedComposable(
-    expireTime : String
+    expireTime: String
 ) {
     Text(stringResource(R.string.assigned))
     Text("${stringResource(R.string.reservation_expires)}: $expireTime")
@@ -189,6 +227,7 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
                                         QueueInfoAssignedComposable(expireTime = "placeholder")
                                     }
                                 }
+
                             }
                         }
                         UserType.NONUSER -> {
@@ -210,40 +249,10 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
     }
 }
 
-@Composable
-fun QueueButtonComposable(onQueueButtonSelectClick: () -> Unit, inQueue: Boolean) {
-    Row(
-        Modifier
-            .height(100.dp)
-            .fillMaxWidth(),
-        verticalAlignment= Alignment.CenterVertically
-    ) {
-        Column(Modifier.fillMaxWidth(), horizontalAlignment= Alignment.CenterHorizontally) {
-            Button(
-                onQueueButtonSelectClick,
-                Modifier.height(50.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary)
-            ) {
-                Text(if (inQueue) stringResource(R.string.leave_queue) else stringResource(R.string.join_queue), fontSize= 20.sp, fontWeight= FontWeight.Bold)
-            }
-        }
-    }
-}
-
-@Composable
-fun Overlay() {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .clip(RectangleShape)
-            .background(Color(0.0F, 0.0F, 0.0F, 0.5F))
-    ) {}
-}
-
 @Preview
 @Composable
 fun MainScreenPreview() {
     GigaChargeTheme {
-        MainRoute({}, hiltViewModel())
+        MainRoute({}, {}, hiltViewModel())
     }
 }

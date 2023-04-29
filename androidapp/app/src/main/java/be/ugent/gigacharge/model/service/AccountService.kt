@@ -18,6 +18,7 @@ package be.ugent.gigacharge.model.service
 
 import be.ugent.gigacharge.model.User
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 interface AccountService {
 
@@ -32,7 +33,9 @@ interface AccountService {
     suspend fun tryEnable(cardNumber: String)
     suspend fun isEnabled(): Boolean
     suspend fun init()
-  fun sendToken(token: String)
+    fun sendToken(token: String)
+
+    suspend fun deleteProfile()
 
     val isEnabledObservers: MutableList<((Boolean) -> Unit)>
 }

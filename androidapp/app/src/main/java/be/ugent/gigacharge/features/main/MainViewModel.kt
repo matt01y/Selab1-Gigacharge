@@ -27,7 +27,7 @@ class MainViewModel @Inject constructor(
     // Profile
     getProfileUseCase: GetProfileUseCase,
     private val toggleProfileUseCase: ToggleProfileUseCase,
-    private val saveProfileUseCase: SaveProfileUseCase,
+    private val deleteProfileUseCase: DeleteProfileUseCase,
     // Queue
     getQueueUseCase: GetQueueUseCase,
     private val joinLeaveQueueUseCase: JoinLeaveQueueUseCase,
@@ -49,8 +49,8 @@ class MainViewModel @Inject constructor(
         toggleProfileUseCase()
     }
 
-    fun saveProfile(card: String, visible: Boolean) {
-        saveProfileUseCase(Profile(card, visible))
+    fun deleteProfile() {
+        deleteProfileUseCase()
     }
 
     fun joinLeaveQueue(location: Location) = viewModelScope.launch {

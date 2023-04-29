@@ -2,12 +2,19 @@ package be.ugent.gigacharge.data
 
 import be.ugent.gigacharge.data.local.models.Profile
 import be.ugent.gigacharge.model.service.QueueService
+import be.ugent.gigacharge.model.service.AccountService
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ProfileRepository @Inject constructor(queueService: QueueService) {
+class ProfileRepository @Inject constructor(
+    queueService: QueueService,
+    private val accountService: AccountService
+) {
     private var isVisibleFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private var profileFlow: MutableStateFlow<Profile?> = MutableStateFlow(Profile("1234 - 5678", false))
 
@@ -26,7 +33,9 @@ class ProfileRepository @Inject constructor(queueService: QueueService) {
         isVisibleFlow.value = !isVisibleFlow.value
     }
 
-    fun saveProfile(profile: Profile) {
-        profileFlow.value = profile
+    fun deleteProfile() {
+        GlobalScope.launch {
+            accountService.deleteProfile()
+        }
     }
 }
