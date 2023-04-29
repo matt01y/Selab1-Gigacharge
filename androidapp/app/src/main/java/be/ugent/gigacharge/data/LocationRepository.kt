@@ -4,6 +4,7 @@ import androidx.compose.runtime.snapshotFlow
 import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.model.service.QueueService
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -35,6 +36,10 @@ class LocationRepository @Inject constructor(
 
     fun setLocation(location: Location) {
         locationIdFlow.value = location.id
+    }
+
+    suspend fun updateLocations() {
+        queueService.updateLocations()
     }
 
     fun toggleFavorite(location: Location) {
