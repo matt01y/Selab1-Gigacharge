@@ -1,17 +1,33 @@
 <resources>
     <string name="app_name">GigaCharge</string>
 
+    <!-- RegisterScreen -->
+    <string name="welcome">Welkom!</string>
+
+    <!-- MainScreen -->
+    <string name="empty_parking">Vrije parkeerplaats</string>
+    <string name="assigned">Je bent aangewezen</string>
+    <string name="reservation_expires">Je reservatie verloopt binnen</string>
+    <string name="queue_info">Wachtrij informatie</string>
+    <string name="in_queue">In de wachtrij</string>
+    <string name="queue_position">Wachtrij positie</string>
+    <string name="queue_not_joined">Niet in de wachtrij</string>
+    <string name="join_queue">Sluit je aan</string>
+    <string name="leave_queue">Verlaat de wachtrij</string>
+
+    <!-- ProfileForm -->
+    <string name="card_number">Kaartnummer</string>
+    <string name="delete_account">Verwijder account</string>
+
     <!-- Common -->
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="repeat_password">Repeat password</string>
     <string name="generic_error">Something wrong happened. Please try again.</string>
     <string name="email_error">Please insert a valid email.</string>
-    <string name="cancel">Cancel</string>
+    <string name="cancel">Annuleer</string>
+    <string name="save">Opslaan</string>
     <string name="try_again">Try again</string>
-
-    <!-- Register -->
-    <string name="cardnumber">kaartnummer</string>
 
     <!-- LoginScreen -->
     <string name="sign_in">Sign in</string>
@@ -46,8 +62,5 @@
     <!-- Dialogs -->
     <string name="sign_out_title">Sign out?</string>
     <string name="sign_out_description">You will have to sign in again to see your tasks.</string>
-    <string name="delete_account_title">Delete account?</string>
-    <string name="delete_account_description">You will lose all your tasks and your account will be deleted. This action is irreversible.</string>
-
     <string name="default_notification_channel_id">default</string>
 </resources>

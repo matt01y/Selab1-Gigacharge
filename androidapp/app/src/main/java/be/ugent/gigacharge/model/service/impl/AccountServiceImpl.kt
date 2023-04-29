@@ -17,15 +17,20 @@ limitations under the License.
 package be.ugent.gigacharge.model.service.impl
 
 import android.util.Log
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import be.ugent.gigacharge.model.User
 import be.ugent.gigacharge.model.service.AccountService
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -120,9 +125,19 @@ class AccountServiceImpl @Inject constructor(
         userCollection.document(currentUserId).update("fcmtoken", token)
     }
 
+    override suspend fun deleteProfile() {
+        // Delete user data
+        userCollection.document(currentUserId).delete().await()
+        // Delete user
+        auth.currentUser?.delete()?.await()
+        // Go anonymous because account doesn't exist anymore
+        createAnonymousAccount()
+    }
+
     companion object {
         private const val LINK_ACCOUNT_TRACE = "linkAccount"
         private const val USERS_COLLECTION_NAME = "users"
+        private const val WHITELIST_COLLECTION = "whitelist"
         private const val CARDNUMBER_FIELD = "kaartnummer"
         private const val TIMESTAMP_FIELD = "timestamp"
     }

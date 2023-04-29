@@ -10,124 +10,78 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import be.ugent.gigacharge.R
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
-import be.ugent.gigacharge.ui.theme.Green
 import be.ugent.gigacharge.ui.theme.Red
+import androidx.compose.ui.res.stringResource;
 
 @Composable
-fun ProfileFormComposable(
-    provider: String,
-    providers: List<String>,
-    cardNumber: String,
-    company: String,
-    companies: List<String>,
-    cancel: () -> Unit,
-    saveProfile: (String, String, String, Boolean) -> Unit
+fun CardNumberBox(
+    cardNumberState : String,
+    onCardNumberStateChange : (String) -> Unit,
+    readOnly: Boolean = false
 ) {
-    var providerState by remember { mutableStateOf(provider) }
-    var companyState by remember { mutableStateOf(company) }
-    var cardNumberState by remember { mutableStateOf(cardNumber) }
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column() {
+            Text(text = stringResource(R.string.card_number),
+                color = MaterialTheme.colors.onBackground,
+                fontSize = 20.sp
+            )
 
-    Column {
-        // Provider
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                "Kaartdeler",
-                Modifier.weight(0.4F),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            MyDropdown(
-                providerState,
-                providers,
-                { s: String -> providerState = s },
-                Modifier.weight(0.6F)
-            )
-        }
-
-        // CardNumber
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                "Kaartnummer",
-                Modifier.weight(0.4F),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            TextField(
-                cardNumberState,
-                { s: String -> cardNumberState = s },
-                Modifier
-                    .weight(0.6F)
-                    .height(50.dp),
-                singleLine = true,
-                colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = MaterialTheme.colors.background,
-                    focusedIndicatorColor = MaterialTheme.colors.secondaryVariant,
-                    cursorColor = MaterialTheme.colors.secondaryVariant
+            OutlinedTextField(
+                value = cardNumberState,
+                onValueChange = onCardNumberStateChange,
+                //label = {Text("Kaartnummer")},
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = MaterialTheme.colors.onBackground,
+                    unfocusedBorderColor = MaterialTheme.colors.onBackground,
+                    cursorColor = MaterialTheme.colors.onBackground,
+                    textColor = MaterialTheme.colors.onBackground
                 ),
                 textStyle = androidx.compose.ui.text.TextStyle(color = MaterialTheme.colors.onBackground)
             )
         }
+    }
+}
 
-        // Company
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically
+@Composable
+fun StandardButtonsField(
+    deleteAccount: () -> Unit
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(10.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Button(
+            onClick = deleteAccount,
+            colors = ButtonDefaults.buttonColors(backgroundColor = Red)
         ) {
-            Text(
-                "Bedrijf",
-                Modifier.weight(0.4F),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            MyDropdown(
-                companyState,
-                companies,
-                { s: String -> companyState = s },
-                Modifier.weight(0.6F)
-            )
+            Text(stringResource(R.string.delete_account), fontWeight = FontWeight.Bold , color = Color.White)
         }
+    }
+}
 
+@Composable
+fun ProfileFormComposable(
+    cardNumber: String,
+    deleteAccount: () -> Unit,
+    readOnly: Boolean = false
+) {
+    var cardNumberState by remember { mutableStateOf(cardNumber) }
+
+    Column() {
+        // CardNumber
+        CardNumberBox(cardNumberState, { cardNumberState = it }, readOnly)
         // Buttons
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = cancel,
-                colors = ButtonDefaults.buttonColors(backgroundColor = Red)
-            ) {
-                Text("Annuleer", fontWeight = FontWeight.Bold, color = Color.White)
-            }
-            Spacer(Modifier.width(20.dp))
-            Button(
-                onClick = {
-                    saveProfile(providerState, cardNumberState, companyState, false)
-                    //cancel()
-                },
-                colors = ButtonDefaults.buttonColors(backgroundColor = Green)
-            ) {
-                Text("Opslaan", fontWeight = FontWeight.Bold, color = Color.White)
-            }
-        }
+        StandardButtonsField(deleteAccount)
     }
 }
 
@@ -135,13 +89,6 @@ fun ProfileFormComposable(
 @Composable
 fun ProfileFormComposablePreview() {
     GigaChargeTheme {
-        ProfileFormComposable(
-            "test",
-            listOf("test", "test"),
-            "",
-            "comp",
-            listOf("comp"),
-            {},
-            { _: String, _: String, _: String, _: Boolean -> })
+        ProfileFormComposable("test", {}, true)
     }
 }

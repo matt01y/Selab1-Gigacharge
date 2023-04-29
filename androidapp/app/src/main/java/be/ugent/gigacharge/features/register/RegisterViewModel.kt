@@ -14,7 +14,7 @@ import javax.inject.Inject
 class RegisterViewModel @Inject constructor(
     private val accountService: AccountService,
     private val queueService: QueueService,
-    logService: LogService
+    logService: LogService,
 ) : GigaChargeViewModel(logService) {
     var uiState = mutableStateOf(RegisterUiState())
         private set
