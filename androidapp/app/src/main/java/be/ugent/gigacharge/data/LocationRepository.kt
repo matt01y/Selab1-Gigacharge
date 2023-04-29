@@ -52,6 +52,10 @@ class LocationRepository @Inject constructor(
         runBlocking { context.dataStore.edit {it[START_ID] = location.id } }
     }
 
+    suspend fun updateLocations() {
+        queueService.updateLocations()
+    }
+
     fun toggleFavorite(location: Location) {
         // Suggestion: at most 1
     }

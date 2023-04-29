@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import be.ugent.gigacharge.common.composable.LoadingComposable
 import be.ugent.gigacharge.common.composable.LocationButtonComposable
 import be.ugent.gigacharge.common.composable.MainHeaderComposable
@@ -33,7 +34,10 @@ import be.ugent.gigacharge.model.location.charger.ChargerStatus
 import be.ugent.gigacharge.model.location.charger.UserField
 import be.ugent.gigacharge.model.location.charger.UserType
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
+import be.ugent.gigacharge.resources
 
 @Composable
 fun MainRoute(onRegisterSelectClick: () -> Unit, onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
@@ -91,10 +95,7 @@ fun MainScreen(
                 }
             },
             bottomBar = {
-                // TODO: VERWIJDEREN IN FINAL BUILD (ONLY FOR DEMO)
-                Button(onClick = {viewModel.updateLocation()}) {
-                    Text(text = "refresh")
-                }
+
                 val l = locationUiState
                 if (!(l is LocationUiState.Success && l.location.status == LocationStatus.OPEN)) {
                     Box(Modifier.height(IntrinsicSize.Max)) {
@@ -202,16 +203,19 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
         Column(
             Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colors.surface, shape = RoundedCornerShape(5.dp))
+                .background(MaterialTheme.colors.onSurface, shape = RoundedCornerShape(5.dp))
                 .padding(10.dp)
         ) {
-            Text("${stringResource(R.string.in_queue)}: $queueSize", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text("${stringResource(R.string.in_queue)}: $queueSize", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             when (queueStatus) {
                 QueueState.NotJoined -> {
-                    Text("${stringResource(R.string.queue_position)}: ${stringResource(R.string.queue_not_joined)}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.queue_not_joined), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
                 is QueueState.Joined -> {
-                    Text("${stringResource(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(resources().getQuantityString(R.plurals.queue_position_plural,
+                        queueStatus.myPosition.toInt(), queueStatus.myPosition.toInt()
+                    ), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    //Text("${stringResource(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
             }
             for (charger in locationUiState.location.chargers) {
