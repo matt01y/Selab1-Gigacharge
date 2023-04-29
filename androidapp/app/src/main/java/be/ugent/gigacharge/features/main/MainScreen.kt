@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import be.ugent.gigacharge.common.composable.LoadingComposable
 import be.ugent.gigacharge.common.composable.LocationButtonComposable
 import be.ugent.gigacharge.common.composable.MainHeaderComposable
@@ -33,6 +34,8 @@ import be.ugent.gigacharge.model.location.charger.ChargerStatus
 import be.ugent.gigacharge.model.location.charger.UserField
 import be.ugent.gigacharge.model.location.charger.UserType
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 
 @Composable

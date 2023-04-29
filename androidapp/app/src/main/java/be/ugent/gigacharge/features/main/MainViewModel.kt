@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import be.ugent.gigacharge.data.local.models.Profile
 import be.ugent.gigacharge.domain.location.GetLocationUseCase
 import be.ugent.gigacharge.domain.location.ToggleFavoriteLocationUseCase
+import be.ugent.gigacharge.domain.location.UpdateLocationsUseCase
 import be.ugent.gigacharge.domain.profile.*
 import be.ugent.gigacharge.domain.queue.GetQueueUseCase
 import be.ugent.gigacharge.domain.queue.JoinLeaveQueueUseCase
@@ -15,6 +16,7 @@ import be.ugent.gigacharge.model.service.LogService
 import be.ugent.gigacharge.model.service.QueueService
 import be.ugent.gigacharge.screens.GigaChargeViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -33,8 +35,9 @@ class MainViewModel @Inject constructor(
     private val joinLeaveQueueUseCase: JoinLeaveQueueUseCase,
     // Location
     getLocationUseCase: GetLocationUseCase,
+    updateLocationsUseCase: UpdateLocationsUseCase,
     private val toggleFavoriteLocationUseCase: ToggleFavoriteLocationUseCase,
-    private val queueService: QueueService, logService: LogService
+    private val logService: LogService
 ) : GigaChargeViewModel(logService) {
     val profileUiState: StateFlow<ProfileUiState> =
         getProfileUseCase().map { ProfileUiState.Success(it) }
@@ -44,6 +47,18 @@ class MainViewModel @Inject constructor(
     val locationUiState: StateFlow<LocationUiState> =
         getLocationUseCase().map { LocationUiState.Success(it) }
             .stateIn(viewModelScope, SharingStarted.Eagerly, LocationUiState.Loading)
+
+    init {
+        launchCatching {
+            while (true) {
+                delay(5000)
+                launchCatching {
+                    updateLocationsUseCase.invoke()
+                }
+
+            }
+        }
+    }
 
     fun toggleProfile() {
         toggleProfileUseCase()
@@ -61,9 +76,4 @@ class MainViewModel @Inject constructor(
         toggleFavoriteLocationUseCase(location)
     }
 
-    fun updateLocation() {
-        launchCatching {
-            queueService.updateLocations()
-        }
-    }
 }
