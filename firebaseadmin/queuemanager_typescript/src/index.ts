@@ -54,7 +54,10 @@ const auth = fbauth.getAuth();
 
 const starttime = fs.Timestamp.fromDate(new Date()); //tijd waar script is opgestart
 const users = db.collection('users');
-const queuequery = db.collectionGroup(CHARGERS_COLLECTION);
+//const updatedUsers = users.where('timestamp', '>=', starttime);
+const updatedUsers = users;
+const chargersquery = db.collectionGroup(CHARGERS_COLLECTION);
+const queuequery = db.collectionGroup(QUEUE_COLLECTION);
 const messaging = fcm.getMessaging();
 
 const deleteField = fs.FieldValue.delete();
@@ -63,7 +66,7 @@ const EXPIRY_MS = 5 * 60 * 1000;
 
 
 
-const observer = queuequery.onSnapshot(snap => {
+const chargerObserver = chargersquery.onSnapshot(snap => {
     try{
         snap.docChanges().forEach(async change => {
             if (change.type === 'added' || change.type == 'modified') {
@@ -278,3 +281,39 @@ async function getTopOfLine(queueCollection : fs.CollectionReference){
     }
     
 }
+
+
+const updatedUsersQuery = updatedUsers.onSnapshot(snap => {
+    try{
+        snap.docChanges().forEach(async change => {
+            if (change.type === 'removed') {
+                const user = change.doc.data();
+                console.log("VERWIJDERING")
+                console.log(user)
+                //dit account is verwijderd
+
+                //complete al zijn joinDocs
+                const userJoins = await queuequery.where("user-id", '==', change.doc.id).get()
+                userJoins.docs.forEach(join => {
+                    console.log("join complete")
+                    join.ref.update({status: STATUS_COMPLETE});
+                })
+
+
+                //zet alle chargers waaraan hij assigned is op free
+                const userChargers = await chargersquery.where(STATUS_FIELD, '==', STATUS_ASSIGNED).where("assignedUser", '==', change.doc.id).get();
+                userChargers.docs.forEach(charger =>{
+                    console.log("charger losgelaten")
+                    charger.ref.update({status: STATUS_FREE, assignedUser: deleteField, assignedJoin: deleteField})
+                });
+
+
+            }
+        });
+    }catch (err) {
+        console.error("FOUT: bij zetten van docchanges iterator");
+        console.error(err)
+    }
+}, err => {
+    console.log(`error: ${err}`)
+})
