@@ -128,16 +128,6 @@ fun MainScreen(
                 }
             },
             bottomBar = {
-                // TODO: VERWIJDEREN IN FINAL BUILD (ONLY FOR DEMO)
-                /*Button(onClick = { viewModel.updateLocation() }) {
-                    Text(text = "refresh")
-                }*/
-                /*viewModel.launchCatching {
-                    while (true) {
-                        delay(10000)
-                        viewModel.updateLocation()
-                    }
-                }*/
                 if (!(locationUiState is LocationUiState.Success && locationUiState.location.status == LocationStatus.OPEN)) {
                     Box(Modifier.height(IntrinsicSize.Max)) {
                         // Join/Leave button
