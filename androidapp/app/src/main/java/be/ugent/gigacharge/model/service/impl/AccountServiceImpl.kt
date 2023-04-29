@@ -20,6 +20,7 @@ import android.content.res.Resources
 import android.util.Log
 import androidx.compose.ui.res.stringResource
 import be.ugent.gigacharge.R
+import be.ugent.gigacharge.model.AuthenticationError
 import be.ugent.gigacharge.model.User
 import be.ugent.gigacharge.model.service.AccountService
 import com.google.firebase.auth.FirebaseAuth
@@ -57,8 +58,8 @@ class AccountServiceImpl @Inject constructor(
             awaitClose { auth.removeAuthStateListener(listener) }
         }
 
-    private val authErrorFlow: MutableStateFlow<String> = MutableStateFlow("")
-    override val authError: Flow<String> = flowOf<String>().combine(authErrorFlow) { flow, StateFlow -> if (StateFlow == "") flow else StateFlow }
+    private val authErrorFlow: MutableStateFlow<AuthenticationError> = MutableStateFlow(AuthenticationError.NO_ERROR)
+    override val authError: StateFlow<AuthenticationError> = authErrorFlow.asStateFlow()
 
     override suspend fun createAnonymousAccount() {
         auth.signInAnonymously().await()
@@ -99,22 +100,22 @@ class AccountServiceImpl @Inject constructor(
             // Enabled
             if (claims?.get(ENABLE_STATUS) == ENABLED) {
                 isEnabledObservable = true
-                authErrorFlow.value = ""
+                authErrorFlow.value = AuthenticationError.NO_ERROR
                 stop = true
             // CardNumber not in whitelist
             } else if (claims?.get(ENABLE_STATUS) == NOT_IN_WHITELIST) {
-                authErrorFlow.value = Resources.getSystem().getString(R.string.invalid_cardNumber_error)
+                authErrorFlow.value = AuthenticationError.INVALID_CARD_NUMBER
                 stop = true
             // Error occurred
             } else if (claims?.get(ENABLE_STATUS) == ENABLE_ERROR) {
-                authErrorFlow.value = Resources.getSystem().getString(R.string.enable_error)
+                authErrorFlow.value = AuthenticationError.ERROR
                 stop = true
             }
             // Update timer
             timer = System.currentTimeMillis() - startTime
             // Timeout error
             if (!stop && timer >= TIMEOUT_TIME) {
-                authErrorFlow.value = Resources.getSystem().getString(R.string.timeout_error)
+                authErrorFlow.value = AuthenticationError.TIMEOUT
                 stop = true
             }
         }

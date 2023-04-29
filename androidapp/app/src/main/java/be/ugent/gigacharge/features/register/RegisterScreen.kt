@@ -34,6 +34,7 @@ import be.ugent.gigacharge.common.ext.basicButton
 import be.ugent.gigacharge.common.ext.fieldModifier
 import be.ugent.gigacharge.R.string as AppText
 import androidx.compose.ui.res.stringResource;
+import be.ugent.gigacharge.model.AuthenticationError
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
@@ -42,6 +43,7 @@ fun RegisterScreen(
     modifier: Modifier = Modifier,
     viewModel: RegisterViewModel = hiltViewModel()
 ) {
+    val authenticationError by viewModel.authenticationErrors.collectAsState()
     val uiState by viewModel.uiState
     val fieldModifier = Modifier.fieldModifier()
 
@@ -65,8 +67,19 @@ fun RegisterScreen(
 
             // CardNumber
             CardNumberBox(uiState.cardnumber, viewModel::onCardNumberChange)
+            when (authenticationError) {
+                AuthenticationError.INVALID_CARD_NUMBER -> ErrorMessage(stringResource(AppText.invalid_cardNumber_error))
+                AuthenticationError.TIMEOUT -> ErrorMessage(stringResource(AppText.timeout_error))
+                AuthenticationError.ERROR -> ErrorMessage(stringResource(AppText.enable_error))
+                else -> {}
+            }
         }
     }
+}
+
+@Composable
+fun ErrorMessage(message: String) {
+    Text(message, color = Color.Red)
 }
 
 @Composable
