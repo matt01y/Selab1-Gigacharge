@@ -202,16 +202,16 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
         Column(
             Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colors.surface, shape = RoundedCornerShape(5.dp))
+                .background(MaterialTheme.colors.onSurface, shape = RoundedCornerShape(5.dp))
                 .padding(10.dp)
         ) {
-            Text("${stringResource(R.string.in_queue)}: $queueSize", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text("${stringResource(R.string.in_queue)}: $queueSize", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             when (queueStatus) {
                 QueueState.NotJoined -> {
-                    Text("${stringResource(R.string.queue_position)}: ${stringResource(R.string.queue_not_joined)}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text("${stringResource(R.string.queue_position)}: ${stringResource(R.string.queue_not_joined)}", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
                 is QueueState.Joined -> {
-                    Text("${stringResource(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text("${stringResource(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
             }
             for (charger in locationUiState.location.chargers) {
