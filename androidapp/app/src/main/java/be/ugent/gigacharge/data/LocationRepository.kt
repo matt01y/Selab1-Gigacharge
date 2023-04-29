@@ -1,18 +1,31 @@
 package be.ugent.gigacharge.data
 
+import android.content.Context
 import androidx.compose.runtime.snapshotFlow
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.model.service.QueueService
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
 
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "location")
+
 @Singleton
 class LocationRepository @Inject constructor(
-    private val queueService: QueueService
+    private val queueService: QueueService,
+    @ApplicationContext private val context: Context
 ) {
-    private val locationIdFlow: MutableStateFlow<String?> = MutableStateFlow(null)
+    private var START_ID = stringPreferencesKey("startID")
+    var startID = runBlocking {context.dataStore.data.map { it[START_ID] }.first()}
+
+    private val locationIdFlow: MutableStateFlow<String?> = MutableStateFlow(startID)
     private val locations: Flow<Map<String, Location>> =
         snapshotFlow { queueService.locationMap.toMap() }
 
@@ -36,6 +49,7 @@ class LocationRepository @Inject constructor(
 
     fun setLocation(location: Location) {
         locationIdFlow.value = location.id
+        runBlocking { context.dataStore.edit {it[START_ID] = location.id } }
     }
 
     suspend fun updateLocations() {
