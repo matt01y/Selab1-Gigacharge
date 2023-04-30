@@ -211,6 +211,9 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
                 QueueState.NotJoined -> {
                     Text(stringResource(R.string.queue_not_joined), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
+                QueueState.Charging -> {
+                    Text("i'm charging bro")
+                }
                 is QueueState.Joined -> {
                     Text(resources().getQuantityString(R.plurals.queue_position_plural,
                         queueStatus.myPosition.toInt(), queueStatus.myPosition.toInt()

@@ -155,12 +155,16 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
 
         val chargerdocuments = snap.get("chargers") as List<DocumentSnapshot>?
         val chargers: List<Charger> = (chargerdocuments ?: listOf()).map {
+            val ut : UserType = UserType.valueOf(it.get("usertype") as String)
             Charger(
+                it.get("description") as String,
+                it.get("id") as String,
                 ChargerStatus.valueOf(it.get("status") as String),
-                "",
-                UserField.Null,
-                UserType.NONUSER,
-                ""
+                when(ut) {
+                    UserType.USER -> UserField.UserID(it.get("user") as String)
+                    UserType.NONUSER -> UserField.CardNumber(it.get("user") as String)
+                },
+                ut
             )
         }
 
