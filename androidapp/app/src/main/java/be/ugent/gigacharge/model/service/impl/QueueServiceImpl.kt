@@ -129,7 +129,7 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
         val amountwaiting = queuecollection.whereEqualTo(STATUS_FIELD, STATUS_WAITING).count()
             .get(AggregateSource.SERVER).await().count
 
-        val state: QueueState
+        var state: QueueState
         if (amountwaiting > 0) {
             val myJoinEvent =
                 queuecollection.whereEqualTo(USERID_FIELD, accountService.currentUserId)
@@ -168,8 +168,30 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
             )
         }
 
+        val result_id = snap.id
+
+        // check of er een charger id die een user charget met jouw id
+        // als dat het geval is, betekent dat dat jij bent aan het opladen
+        for (charger in chargers) {
+            when(charger.user) {
+                is UserField.UserID -> {
+                    if (charger.user.id == result_id) {
+                        state = QueueState.Charging
+                        break
+                    }
+                }
+                is UserField.CardNumber -> {
+                    if (charger.user.cardnum == result_id) {
+                        state = QueueState.Charging
+                        break
+                    }
+                }
+                else -> {}
+            }
+        }
+
         val result = Location(
-            id = snap.id,
+            id = result_id,
             name = snap.getString(NAME_FIELD) ?: "ERROR GEEN NAAM",
             amountWaiting = amountwaiting,
             status = LocationStatus.valueOf(snap.get("status") as String),

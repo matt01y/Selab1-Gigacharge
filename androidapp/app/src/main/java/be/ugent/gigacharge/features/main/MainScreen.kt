@@ -21,10 +21,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
-import be.ugent.gigacharge.common.composable.LoadingComposable
-import be.ugent.gigacharge.common.composable.LocationButtonComposable
-import be.ugent.gigacharge.common.composable.MainHeaderComposable
-import be.ugent.gigacharge.common.composable.ProfileFormComposable
 import be.ugent.gigacharge.features.LocationUiState
 import be.ugent.gigacharge.R
 import be.ugent.gigacharge.features.ProfileUiState
@@ -37,6 +33,7 @@ import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
+import be.ugent.gigacharge.common.composable.*
 import be.ugent.gigacharge.resources
 
 @Composable
@@ -212,7 +209,7 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
                     Text(stringResource(R.string.queue_not_joined), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
                 QueueState.Charging -> {
-                    Text("i'm charging bro")
+                    MainScreenNotificationComposable(notificationText = "Het is jouw beurt om op te laden")
                 }
                 is QueueState.Joined -> {
                     Text(resources().getQuantityString(R.plurals.queue_position_plural,
