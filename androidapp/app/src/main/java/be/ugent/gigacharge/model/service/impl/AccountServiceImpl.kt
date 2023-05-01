@@ -95,24 +95,33 @@ class AccountServiceImpl @Inject constructor(
         while (!stop) {
             // Force reloading user
             auth.currentUser?.reload()?.await()
-            
-            val claims = auth.currentUser?.getIdToken(true)?.await()?.claims
-            // Enabled
-            if (claims?.get(ENABLE_STATUS) == ENABLED) {
-                isEnabledObservable = true
-                authErrorFlow.value = AuthenticationError.NO_ERROR
-                stop = true
-            // CardNumber not in whitelist
-            } else if (claims?.get(ENABLE_STATUS) == NOT_IN_WHITELIST) {
-                authErrorFlow.value = AuthenticationError.INVALID_CARD_NUMBER
-                stop = true
-            // Error occurred
-            } else if (claims?.get(ENABLE_STATUS) == ENABLE_ERROR) {
-                authErrorFlow.value = AuthenticationError.ERROR
-                stop = true
+
+            // Check if a user is logged in
+            if (hasUser) {
+                // Get the status
+                val userDoc = userCollection.document(auth.currentUser!!.uid).get().await()
+
+                // Check if enabled
+                when (userDoc.get(ENABLE_STATUS).toString()) {
+                    ENABLED -> {
+                        isEnabledObservable = true
+                        authErrorFlow.value = AuthenticationError.NO_ERROR
+                        stop = true
+                    }
+                    NOT_IN_WHITELIST -> {
+                        authErrorFlow.value = AuthenticationError.INVALID_CARD_NUMBER
+                        stop = true
+                    }
+                    ENABLE_ERROR -> {
+                        authErrorFlow.value = AuthenticationError.ERROR
+                        stop = true
+                    }
+                }
             }
+
             // Update timer
             timer = System.currentTimeMillis() - startTime
+
             // Timeout error
             if (!stop && timer >= TIMEOUT_TIME) {
                 authErrorFlow.value = AuthenticationError.TIMEOUT
