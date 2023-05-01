@@ -21,10 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import be.ugent.gigacharge.common.composable.BasicButton
 import be.ugent.gigacharge.common.ext.basicButton
-import kotlinx.coroutines.delay
 import be.ugent.gigacharge.R.string as AppText
-
-private const val SPLASH_TIMEOUT = 1000L
 
 @Composable
 fun SplashScreen(
@@ -52,7 +49,7 @@ fun SplashScreen(
             }
         } else {
             Text(
-                text = "GigaCharge",
+                text = stringResource(AppText.app_name),
                 fontSize = 42.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colors.primary
@@ -62,7 +59,6 @@ fun SplashScreen(
     }
 
     LaunchedEffect(true) {
-        delay(SPLASH_TIMEOUT)
         viewModel.onAppStart(openAndPopUp)
     }
 }

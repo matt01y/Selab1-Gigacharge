@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import be.ugent.gigacharge.data.local.models.Profile
 import be.ugent.gigacharge.domain.location.GetLocationUseCase
 import be.ugent.gigacharge.domain.location.ToggleFavoriteLocationUseCase
+import be.ugent.gigacharge.domain.location.UpdateLocationsUseCase
 import be.ugent.gigacharge.domain.profile.*
 import be.ugent.gigacharge.domain.queue.GetQueueUseCase
 import be.ugent.gigacharge.domain.queue.JoinLeaveQueueUseCase
@@ -15,6 +16,7 @@ import be.ugent.gigacharge.model.service.LogService
 import be.ugent.gigacharge.model.service.QueueService
 import be.ugent.gigacharge.screens.GigaChargeViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -27,14 +29,15 @@ class MainViewModel @Inject constructor(
     // Profile
     getProfileUseCase: GetProfileUseCase,
     private val toggleProfileUseCase: ToggleProfileUseCase,
-    private val saveProfileUseCase: SaveProfileUseCase,
+    private val deleteProfileUseCase: DeleteProfileUseCase,
     // Queue
     getQueueUseCase: GetQueueUseCase,
     private val joinLeaveQueueUseCase: JoinLeaveQueueUseCase,
     // Location
     getLocationUseCase: GetLocationUseCase,
+    updateLocationsUseCase: UpdateLocationsUseCase,
     private val toggleFavoriteLocationUseCase: ToggleFavoriteLocationUseCase,
-    private val queueService: QueueService, logService: LogService
+    private val logService: LogService
 ) : GigaChargeViewModel(logService) {
     val profileUiState: StateFlow<ProfileUiState> =
         getProfileUseCase().map { ProfileUiState.Success(it) }
@@ -45,12 +48,24 @@ class MainViewModel @Inject constructor(
         getLocationUseCase().map { LocationUiState.Success(it) }
             .stateIn(viewModelScope, SharingStarted.Eagerly, LocationUiState.Loading)
 
+    init {
+        launchCatching {
+            while (true) {
+                delay(5000)
+                launchCatching {
+                    updateLocationsUseCase.invoke()
+                }
+
+            }
+        }
+    }
+
     fun toggleProfile() {
         toggleProfileUseCase()
     }
 
-    fun saveProfile(card: String, visible: Boolean) {
-        saveProfileUseCase(Profile(card, visible))
+    fun deleteProfile() {
+        deleteProfileUseCase()
     }
 
     fun joinLeaveQueue(location: Location) = viewModelScope.launch {
@@ -61,9 +76,4 @@ class MainViewModel @Inject constructor(
         toggleFavoriteLocationUseCase(location)
     }
 
-    fun updateLocation() {
-        launchCatching {
-            queueService.updateLocations()
-        }
-    }
 }

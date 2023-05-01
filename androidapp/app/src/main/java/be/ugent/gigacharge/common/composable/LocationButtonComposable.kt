@@ -30,7 +30,7 @@ fun VestigingButton(
         Modifier
             .fillMaxHeight(),
             //.weight(0.85F),
-        colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+        colors = ButtonDefaults.buttonColors(MaterialTheme.colors.background),
         elevation = ButtonDefaults.elevation(0.dp,0.dp)
     ) {
         Column(Modifier.fillMaxWidth()) {
@@ -38,7 +38,7 @@ fun VestigingButton(
                 Text("Vestiging", color = Color.Gray, fontSize = 10.sp)
             }
             Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
-                Text(location.name, color = MaterialTheme.colors.onSurface, fontSize = 18.sp)
+                Text(location.name, color = MaterialTheme.colors.onBackground, fontSize = 18.sp)
             }
         }
     }
@@ -57,7 +57,7 @@ fun LocationButtonComposable(
         modifier
             .fillMaxWidth()
             .height(50.dp)
-            .background(Color.White, shape = RoundedCornerShape(5.dp))
+            .background(MaterialTheme.colors.background, shape = RoundedCornerShape(5.dp))
     ) {
         VestigingButton(title, location, setLocation)
         IconButton(

@@ -15,8 +15,22 @@
     <string name="join_queue">Sluit je aan</string>
     <string name="leave_queue">Verlaat de wachtrij</string>
 
+    <plurals name="queue_position_plural">
+        <!--
+             As a developer, you should always supply "one" and "other"
+             strings. Your translators will know which strings are actually
+             needed for their language. Always include %d in "one" because
+             translators will need to use %d for languages where "one"
+             doesn't mean 1 (as explained above).
+          -->
+        <item quantity="zero">U staat op de eerste plaats in de wachtrij.</item>
+        <item quantity="one">Er is nog 1 gebruiker voor u aan de beurt.</item>
+        <item quantity="other">Er zijn nog %d gebruikers voor u aan de beurt.</item>
+    </plurals>
+
     <!-- ProfileForm -->
     <string name="card_number">Kaartnummer</string>
+    <string name="delete_account">Verwijder account</string>
 
     <!-- Errors -->
     <string name="invalid_cardNumber_error">Ongeldig kaartnummer</string>
@@ -66,8 +80,5 @@
     <!-- Dialogs -->
     <string name="sign_out_title">Sign out?</string>
     <string name="sign_out_description">You will have to sign in again to see your tasks.</string>
-    <string name="delete_account_title">Delete account?</string>
-    <string name="delete_account_description">You will lose all your tasks and your account will be deleted. This action is irreversible.</string>
-
     <string name="default_notification_channel_id">default</string>
 </resources>

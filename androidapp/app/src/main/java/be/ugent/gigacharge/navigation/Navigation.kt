@@ -24,6 +24,7 @@ fun Navigation() {
 
         composable(Destinations.MAIN) {
             MainRoute(
+                onRegisterSelectClick = { navController.navigate(Destinations.REGISTER_SCREEN) },
                 onLocationSelectClick = { navController.navigate(Destinations.LOCATION_SELECTION) },
                 hiltViewModel()
             )

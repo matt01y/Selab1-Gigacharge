@@ -1,7 +1,8 @@
 package be.ugent.gigacharge.features.main
 
-import android.content.res.Resources
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,22 +20,29 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import be.ugent.gigacharge.R
-import be.ugent.gigacharge.common.composable.*
-import be.ugent.gigacharge.features.ProfileUiState
+import androidx.lifecycle.viewModelScope
+import be.ugent.gigacharge.common.composable.LoadingComposable
+import be.ugent.gigacharge.common.composable.LocationButtonComposable
+import be.ugent.gigacharge.common.composable.MainHeaderComposable
+import be.ugent.gigacharge.common.composable.ProfileFormComposable
 import be.ugent.gigacharge.features.LocationUiState
+import be.ugent.gigacharge.R
+import be.ugent.gigacharge.features.ProfileUiState
 import be.ugent.gigacharge.model.location.LocationStatus
 import be.ugent.gigacharge.model.location.QueueState
 import be.ugent.gigacharge.model.location.charger.ChargerStatus
 import be.ugent.gigacharge.model.location.charger.UserField
 import be.ugent.gigacharge.model.location.charger.UserType
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
+import be.ugent.gigacharge.resources
 
 @Composable
-fun MainRoute(onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
+fun MainRoute(onRegisterSelectClick: () -> Unit, onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
     MainScreen(
-        // Navigation function
+        onRegisterSelectClick,
         onLocationSelectClick,
         viewModel
     )
@@ -42,7 +50,7 @@ fun MainRoute(onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
 
 @Composable
 fun MainScreen(
-    // Navigation function
+    onRegisterSelectClick: () -> Unit,
     onLocationSelectClick: () -> Unit,
     viewModel: MainViewModel
 ) {
@@ -74,8 +82,12 @@ fun MainScreen(
                                 val profile = s.profile
                                 ProfileFormComposable(
                                     cardNumber = profile.cardNumber,
-                                    cancel = { viewModel.toggleProfile() },
-                                    saveProfile = { a:String, b:Boolean -> viewModel.saveProfile(a, b) }
+                                    deleteAccount = {
+                                        viewModel.toggleProfile() // When logging back in, the profile is closed
+                                        viewModel.deleteProfile()
+                                        onRegisterSelectClick()
+                                    },
+                                    readOnly = true
                                 )
                             }
                         }
@@ -83,10 +95,7 @@ fun MainScreen(
                 }
             },
             bottomBar = {
-                // TODO: VERWIJDEREN IN FINAL BUILD (ONLY FOR DEMO)
-                Button(onClick = {viewModel.updateLocation()}) {
-                    Text(text = "refresh")
-                }
+
                 val l = locationUiState
                 if (!(l is LocationUiState.Success && l.location.status == LocationStatus.OPEN)) {
                     Box(Modifier.height(IntrinsicSize.Max)) {
@@ -97,9 +106,8 @@ fun MainScreen(
                                 l.location.amIJoined
                             )
                         }
-                        val p = profileUiState
-                        if (p is ProfileUiState.Success && p.profile.visible) {
-                            Overlay()
+                        if (profileUiState is ProfileUiState.Success && (profileUiState as ProfileUiState.Success).profile.visible) {
+                            Overlay { viewModel.toggleProfile() }
                         }
                     }
                 }
@@ -130,7 +138,7 @@ fun MainScreen(
                 }
                 val p = profileUiState
                 if (p is ProfileUiState.Success && p.profile.visible) {
-                    Overlay()
+                    Overlay { viewModel.toggleProfile() }
                 }
 
             }
@@ -143,71 +151,6 @@ fun MainScreen(
     }
 
 
-}
-
-@Composable
-fun QueueInfoAssignedComposable(
-    expireTime : String
-) {
-    Text(stringResource(R.string.assigned))
-    Text("${stringResource(R.string.reservation_expires)}: $expireTime")
-}
-
-@Composable
-fun QueueInfoComposable(locationUiState : LocationUiState.Success,
-                        profileUiState: ProfileUiState) {
-    val location = locationUiState.location
-    val queueSize = location.amountWaiting
-    val queueStatus = location.queue
-    Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-        Text(stringResource(R.string.queue_info), color = MaterialTheme.colors.onBackground, fontSize = 25.sp, fontWeight = FontWeight.Bold)
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colors.surface, shape = RoundedCornerShape(5.dp))
-                .padding(10.dp)
-        ) {
-            Text("${stringResource(R.string.in_queue)}: $queueSize", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            when (queueStatus) {
-                QueueState.NotJoined -> {
-                    Text("${stringResource(R.string.queue_position)}: ${stringResource(R.string.queue_not_joined)}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                }
-                is QueueState.Joined -> {
-                    Text("${stringResource(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                }
-            }
-            for (charger in locationUiState.location.chargers) {
-                if (charger.status == ChargerStatus.ASSIGNED) {
-                    when (charger.usertype) {
-                        UserType.USER -> {
-                            when (profileUiState) {
-                                ProfileUiState.Loading -> {}
-                                is ProfileUiState.Success -> {
-                                    if ((charger.user as UserField.UserID).id.equals(profileUiState.profile)) {
-                                        // status == assigned
-                                        println("status is assigned")
-                                        QueueInfoAssignedComposable(expireTime = "placeholder")
-                                    }
-                                }
-                            }
-                        }
-                        UserType.NONUSER -> {
-                            when (profileUiState) {
-                                ProfileUiState.Loading -> {}
-                                is ProfileUiState.Success -> {
-                                    if ((charger.user as UserField.CardNumber).cardnum.equals(profileUiState.profile.cardNumber)) {
-                                        // status == assigned
-                                        println("status is assigned")
-                                        QueueInfoAssignedComposable(expireTime = "placeholder")
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 @Composable
@@ -231,19 +174,89 @@ fun QueueButtonComposable(onQueueButtonSelectClick: () -> Unit, inQueue: Boolean
 }
 
 @Composable
-fun Overlay() {
+fun Overlay(cancel: () -> Unit) {
     Column(
         Modifier
             .fillMaxSize()
             .clip(RectangleShape)
             .background(Color(0.0F, 0.0F, 0.0F, 0.5F))
+            .clickable(MutableInteractionSource(), null, onClick = cancel)
     ) {}
+}
+
+@Composable
+fun QueueInfoAssignedComposable(
+    expireTime: String
+) {
+    Text(stringResource(R.string.assigned))
+    Text("${stringResource(R.string.reservation_expires)}: $expireTime")
+}
+
+@Composable
+fun QueueInfoComposable(locationUiState : LocationUiState.Success,
+                        profileUiState: ProfileUiState) {
+    val location = locationUiState.location
+    val queueSize = location.amountWaiting
+    val queueStatus = location.queue
+    Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+        Text(stringResource(R.string.queue_info), color = MaterialTheme.colors.onBackground, fontSize = 25.sp, fontWeight = FontWeight.Bold)
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colors.onSurface, shape = RoundedCornerShape(5.dp))
+                .padding(10.dp)
+        ) {
+            Text("${stringResource(R.string.in_queue)}: $queueSize", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            when (queueStatus) {
+                QueueState.NotJoined -> {
+                    Text(stringResource(R.string.queue_not_joined), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
+                is QueueState.Joined -> {
+                    Text(resources().getQuantityString(R.plurals.queue_position_plural,
+                        queueStatus.myPosition.toInt(), queueStatus.myPosition.toInt()
+                    ), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    //Text("${stringResource(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+            for (charger in locationUiState.location.chargers) {
+                if (charger.status == ChargerStatus.ASSIGNED) {
+                    when (charger.usertype) {
+                        UserType.USER -> {
+                            when (profileUiState) {
+                                ProfileUiState.Loading -> {}
+                                is ProfileUiState.Success -> {
+                                    if ((charger.user as UserField.UserID).id.equals(profileUiState.profile)) {
+                                        // status == assigned
+                                        println("status is assigned")
+                                        QueueInfoAssignedComposable(expireTime = "placeholder")
+                                    }
+                                }
+
+                            }
+                        }
+                        UserType.NONUSER -> {
+                            when (profileUiState) {
+                                ProfileUiState.Loading -> {}
+                                is ProfileUiState.Success -> {
+                                    if ((charger.user as UserField.CardNumber).cardnum.equals(profileUiState.profile.cardNumber)) {
+                                        // status == assigned
+                                        println("status is assigned")
+                                        QueueInfoAssignedComposable(expireTime = "placeholder")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Preview
 @Composable
 fun MainScreenPreview() {
     GigaChargeTheme {
-        MainRoute({}, hiltViewModel())
+        MainRoute({}, {}, hiltViewModel())
     }
 }

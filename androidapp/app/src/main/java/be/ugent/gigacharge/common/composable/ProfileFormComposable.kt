@@ -1,6 +1,5 @@
 package be.ugent.gigacharge.common.composable
 
-import android.content.res.Resources
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -11,18 +10,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import be.ugent.gigacharge.data.local.models.Profile
-import be.ugent.gigacharge.features.main.MainViewModel
 import be.ugent.gigacharge.R
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
-import be.ugent.gigacharge.ui.theme.Green
 import be.ugent.gigacharge.ui.theme.Red
 import androidx.compose.ui.res.stringResource;
 
 @Composable
 fun CardNumberBox(
     cardNumberState : String,
-    onCardNumberStateChange : (String) -> Unit
+    onCardNumberStateChange : (String) -> Unit,
+    readOnly: Boolean = false
 ) {
     Row(
         Modifier
@@ -30,35 +27,31 @@ fun CardNumberBox(
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            stringResource(R.string.card_number),
-            Modifier.weight(0.4F),
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
-        )
-        TextField(
-            cardNumberState,
-            onCardNumberStateChange,
-            Modifier
-                .weight(0.6F)
-                .height(50.dp),
-            singleLine = true,
-            colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = MaterialTheme.colors.background,
-                focusedIndicatorColor = MaterialTheme.colors.secondaryVariant,
-                cursorColor = MaterialTheme.colors.secondaryVariant
-            ),
-            textStyle = androidx.compose.ui.text.TextStyle(color = MaterialTheme.colors.onBackground)
-        )
+        Column() {
+            Text(text = stringResource(R.string.card_number),
+                color = MaterialTheme.colors.onBackground,
+                fontSize = 20.sp
+            )
+
+            OutlinedTextField(
+                value = cardNumberState,
+                onValueChange = onCardNumberStateChange,
+                //label = {Text("Kaartnummer")},
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = MaterialTheme.colors.onBackground,
+                    unfocusedBorderColor = MaterialTheme.colors.onBackground,
+                    cursorColor = MaterialTheme.colors.onBackground,
+                    textColor = MaterialTheme.colors.onBackground
+                ),
+                textStyle = androidx.compose.ui.text.TextStyle(color = MaterialTheme.colors.onBackground)
+            )
+        }
     }
 }
 
 @Composable
 fun StandardButtonsField(
-    cancel: () -> Unit,
-    saveProfile: (String, Boolean) -> Unit,
-    cardNumberState: String,
+    deleteAccount: () -> Unit
 ) {
     Row(
         Modifier
@@ -68,20 +61,10 @@ fun StandardButtonsField(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Button(
-            onClick = cancel,
+            onClick = deleteAccount,
             colors = ButtonDefaults.buttonColors(backgroundColor = Red)
         ) {
-            Text(stringResource(R.string.cancel), fontWeight = FontWeight.Bold , color = Color.White)
-        }
-        Spacer(Modifier.width(20.dp))
-        Button(
-            onClick = {
-                saveProfile(cardNumberState, false)
-                //cancel()
-            },
-            colors = ButtonDefaults.buttonColors(backgroundColor = Green)
-        ) {
-            Text(stringResource(R.string.save), fontWeight = FontWeight.Bold, color = Color.White)
+            Text(stringResource(R.string.delete_account), fontWeight = FontWeight.Bold , color = Color.White)
         }
     }
 }
@@ -89,16 +72,16 @@ fun StandardButtonsField(
 @Composable
 fun ProfileFormComposable(
     cardNumber: String,
-    cancel: () -> Unit,
-    saveProfile: (String, Boolean) -> Unit
+    deleteAccount: () -> Unit,
+    readOnly: Boolean = false
 ) {
     var cardNumberState by remember { mutableStateOf(cardNumber) }
 
     Column() {
         // CardNumber
-        CardNumberBox(cardNumberState) { cardNumberState = it }
+        CardNumberBox(cardNumberState, { cardNumberState = it }, readOnly)
         // Buttons
-        StandardButtonsField(cancel, saveProfile, cardNumberState)
+        StandardButtonsField(deleteAccount)
     }
 }
 
@@ -106,6 +89,6 @@ fun ProfileFormComposable(
 @Composable
 fun ProfileFormComposablePreview() {
     GigaChargeTheme {
-        ProfileFormComposable("test", {}, { _: String, _:Boolean -> })
+        ProfileFormComposable("test", {}, true)
     }
 }
