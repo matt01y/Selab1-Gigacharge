@@ -44,7 +44,7 @@ class RegisterViewModel @Inject constructor(
             accountService.isEnabledObservers.add {
                 if (it) {
                     launchCatching {
-                        queueService.updateLocations()
+                        // queueService.updateLocations()
 
                         FirebaseMessaging.getInstance().token.addOnSuccessListener { result ->
                             if (result != null) {

@@ -52,10 +52,7 @@ class MainViewModel @Inject constructor(
         launchCatching {
             while (true) {
                 delay(5000)
-                launchCatching {
-                    updateLocationsUseCase.invoke()
-                }
-
+                updateLocationsUseCase()
             }
         }
     }

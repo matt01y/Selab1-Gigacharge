@@ -20,6 +20,7 @@ import android.content.res.Resources
 import android.util.Log
 import androidx.compose.ui.res.stringResource
 import be.ugent.gigacharge.R
+import be.ugent.gigacharge.data.local.models.Profile
 import be.ugent.gigacharge.model.AuthenticationError
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -37,6 +38,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import kotlin.properties.Delegates
@@ -54,16 +61,30 @@ class AccountServiceImpl @Inject constructor(
     val userCollection: CollectionReference
         get() = firestore.collection(USERS_COLLECTION_NAME)
 
-    override val currentUser: Flow<User>
-        get() = callbackFlow {
-            Log.println(Log.INFO, "frick", "current user flow")
-            val listener =
-                FirebaseAuth.AuthStateListener { auth ->
-                    this.trySend(auth.currentUser?.let { User(it.uid, it.isAnonymous) } ?: User())
+//    override val currentUser: Flow<User>
+//        get() = callbackFlow {
+//            Log.println(Log.INFO, "frick", "current user flow")
+//            val listener =
+//                FirebaseAuth.AuthStateListener { auth ->
+//                    this.trySend(auth.currentUser?.let { User(it.uid, it.isAnonymous) } ?: User())
+//                }
+//            auth.addAuthStateListener(listener)
+//            awaitClose { auth.removeAuthStateListener(listener) }
+//        }
+
+    override val currentUser: Flow<Profile> = callbackFlow {
+        val listener = FirebaseAuth.AuthStateListener { auth ->
+            if (auth.currentUser != null) {
+                GlobalScope.launch {
+                    val userDoc = userCollection.document(auth.currentUser!!.uid).get().await()
+                    val userCardNumber = userDoc.get(CARDNUMBER_FIELD).toString()
+                    trySend(Profile(userCardNumber, false))
                 }
-            auth.addAuthStateListener(listener)
-            awaitClose { auth.removeAuthStateListener(listener) }
+            }
         }
+        auth.addAuthStateListener(listener)
+        awaitClose { auth.removeAuthStateListener(listener) }
+    }
 
     private val authErrorFlow: MutableStateFlow<AuthenticationError> = MutableStateFlow(AuthenticationError.NO_ERROR)
     override val authError: StateFlow<AuthenticationError> = authErrorFlow.asStateFlow()

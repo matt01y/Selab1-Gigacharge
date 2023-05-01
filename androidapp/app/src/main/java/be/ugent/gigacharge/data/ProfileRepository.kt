@@ -14,18 +14,9 @@ class ProfileRepository @Inject constructor(
     private val accountService: AccountService
 ) {
     private var isVisibleFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private var profileFlow: MutableStateFlow<Profile?> = MutableStateFlow(Profile("1234 - 5678", false))
     val authenticationErrors: Flow<AuthenticationError> = accountService.authError
-    
-    fun getProfile(): Flow<Profile> = profileFlow.flatMapLatest { profile ->
-        if (profile == null) {
-            emptyFlow()
-        } else {
-            isVisibleFlow.transform { isVisible ->
-                val profile2 = Profile(profile.cardNumber, isVisible)
-                emit(profile2)
-            }
-        }
+    val profile: Flow<Profile> = accountService.currentUser.flatMapLatest { profile ->
+        isVisibleFlow.transform { isVisible -> emit(Profile(profile.cardNumber, isVisible)) }
     }
 
     fun toggleProfile() {
