@@ -2,6 +2,7 @@ package be.ugent.gigacharge.common.composable
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,29 +13,54 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
-fun MainScreenNotificationComposable(notificationText : String) {
+fun MainScreenNotificationComposable(
+    notificationText : String,
+    description: String,
+    id: String
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
-                color = Color.Red,
+                color = Color.Green,
                 shape = RoundedCornerShape(16.dp)
             )
             .padding(16.dp)
     ) {
-        Text(
-            text = notificationText,
-            textAlign = TextAlign.Center,
-            color = Color.White
-        )
+        Column() {
+            Text(
+                text = notificationText,
+                textAlign = TextAlign.Center,
+                color = Color.White,
+                fontSize = 30.sp
+            )
+            Text(
+                text = "description: " + description,
+                textAlign = TextAlign.Center,
+                color = Color.White,
+                fontSize = 20.sp
+            )
+            Text(
+                text = "id: " + id,
+                textAlign = TextAlign.Center,
+                color = Color.White,
+                fontSize = 20.sp
+            )
+        }
+
     }
 }
 
 @Preview
 @Composable
 fun MainScreenNotificationComposablePreview() {
-    MainScreenNotificationComposable("hey, dit is mijn notification")
+    MainScreenNotificationComposable(
+        "hey, dit is mijn notification",
+        "paal 1 description",
+        "paal 1 id"
+    )
 }
 
