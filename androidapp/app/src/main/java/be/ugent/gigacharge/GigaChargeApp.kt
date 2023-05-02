@@ -25,7 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 @ExperimentalMaterialApi
-fun GigaChargeApp() {
+fun GigaChargeApp(finishApp : () -> Unit) {
     GigaChargeTheme {
         // A surface container using the 'background' color from the theme
         Surface(
@@ -47,7 +47,7 @@ fun GigaChargeApp() {
                 },
                 scaffoldState = appState.scaffoldState
             ) {
-                Navigation()
+                Navigation(finishApp = finishApp);
             }
         }
     }
@@ -57,7 +57,7 @@ fun GigaChargeApp() {
 @Preview
 @Composable
 fun aa() {
-    GigaChargeApp()
+    GigaChargeApp(finishApp = {})
 }
 
 @Composable
