@@ -63,15 +63,12 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
 
         locationsnap.forEach { snap ->
             val res = refToLocation(locationCollection.document(snap.id))
-            locationMap[res.id] = res
             newmap.put(res.id, res)
             results.add(res)
         }
 
-        locationMap.replaceAll { id, location ->
-            val loc : Location = newmap.get(id)!!
-            loc
-        }
+        locationMap.clear();
+        locationMap.putAll(newmap)
 
         Log.println(Log.INFO, "queue", locationMap.toMap().toString())
         return results
@@ -94,7 +91,7 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
             )
         ).await()
 
-        updateLocation(loc)
+        updateLocation(locid)
 
         //TODO("Not yet implemented")
     }
@@ -111,17 +108,19 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
             )
         }
         batch.commit().await()
-        updateLocation(loc)
-        //TODO("Not yet implemented")
+        updateLocation(loc.id)
     }
 
     //TODO: testen
-    override suspend fun updateLocation(loc: Location): Location {
-        val newloc = refToLocation(locationCollection.document(loc.id))
-        locationMap[loc.id] = newloc
-        Log.println(Log.INFO, "queueupdate", locationMap.toMap().toString())
-        return newloc
-        //TODO("Not yet implemented")
+    override suspend fun updateLocation(locid : String): Location? {
+        if(locationMap.keys.contains(locid)){
+            val newloc = refToLocation(locationCollection.document(locid))
+            locationMap[locid] = newloc
+            Log.println(Log.INFO, "queueupdate", locationMap.toMap().toString())
+            return newloc
+        }else{
+            return null
+        }
     }
 
     private suspend fun refToLocation(ref: DocumentReference): Location {
@@ -175,7 +174,7 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
                     STATUS_WAITING -> {
 
                         val myPosition =
-                            queuecollection.whereLessThanOrEqualTo(JOINEDAT_FIELD, time).whereIn(
+                            queuecollection.whereLessThan(JOINEDAT_FIELD, time).whereIn(
                                 STATUS_FIELD, listOf(STATUS_WAITING, STATUS_ASSIGNED)
                             ).count().get(AggregateSource.SERVER).await().count - 1
                         Log.println(Log.INFO, "queue", "POSITION $myPosition")

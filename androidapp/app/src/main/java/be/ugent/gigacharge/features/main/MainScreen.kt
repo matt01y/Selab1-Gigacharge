@@ -199,9 +199,8 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
         is QueueState.Assigned -> {
             //println("status assigned")
             MainScreenNotificationComposable(
-                notificationText = "Het is jouw beurt om op te laden",
-                description = "mydescription blablabla",
-                id = "myid blablabla"
+                notificationText = "U bent aan de beurt!",
+                description = "U kan gaan laden bij ${queueStatus.charger.description}" ,
             )
         }
         else -> {
@@ -210,7 +209,10 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colors.onSurface, shape = RoundedCornerShape(5.dp))
+                        .background(
+                            MaterialTheme.colors.onSurface,
+                            shape = RoundedCornerShape(5.dp)
+                        )
                         .padding(10.dp)
                 ) {
                     Text("${stringResource(R.string.in_queue)}: $queueSize", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
@@ -227,41 +229,13 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
                             //MainScreenNotificationComposable(notificationText = "Het is jouw beurt om op te laden")
                         }
                         is QueueState.Joined -> {
-                            Text(resources().getQuantityString(R.plurals.queue_position_plural,
-                                queueStatus.myPosition.toInt(), queueStatus.myPosition.toInt()
-                            ), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                            //Text("${stringResource(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                        }
-                    }
-                    for (charger in locationUiState.location.chargers) {
-                        if (charger.status == ChargerStatus.ASSIGNED) {
-                            when (charger.usertype) {
-                                UserType.USER -> {
-                                    when (profileUiState) {
-                                        ProfileUiState.Loading -> {}
-                                        is ProfileUiState.Success -> {
-                                            if ((charger.user as UserField.UserID).id.equals(profileUiState.profile)) {
-                                                // status == assigned
-                                                println("status is assigned")
-                                                QueueInfoAssignedComposable(expireTime = "placeholder")
-                                            }
-                                        }
-
-                                    }
-                                }
-                                UserType.NONUSER -> {
-                                    when (profileUiState) {
-                                        ProfileUiState.Loading -> {}
-                                        is ProfileUiState.Success -> {
-                                            if ((charger.user as UserField.CardNumber).cardnum.equals(profileUiState.profile.cardNumber)) {
-                                                // status == assigned
-                                                println("status is assigned")
-                                                QueueInfoAssignedComposable(expireTime = "placeholder")
-                                            }
-                                        }
-                                    }
-                                }
+                            val position = queueStatus.myPosition.toInt()
+                            if(position == 0){
+                                Text(resources().getQuantityString(R.plurals.queue_position_plural,queueStatus.myPosition.toInt(), queueStatus.myPosition.toInt()), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            }else{
+                                Text(stringResource(id = R.string.queue_position_zero), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                             }
+                            //Text("${stringResource(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }

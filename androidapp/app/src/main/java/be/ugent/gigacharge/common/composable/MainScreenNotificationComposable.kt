@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.sp
 fun MainScreenNotificationComposable(
     notificationText : String,
     description: String,
-    id: String
 ) {
     Box(
         modifier = Modifier
@@ -38,13 +37,7 @@ fun MainScreenNotificationComposable(
                 fontSize = 30.sp
             )
             Text(
-                text = "description: " + description,
-                textAlign = TextAlign.Center,
-                color = Color.White,
-                fontSize = 20.sp
-            )
-            Text(
-                text = "id: " + id,
+                text = description,
                 textAlign = TextAlign.Center,
                 color = Color.White,
                 fontSize = 20.sp
@@ -60,7 +53,6 @@ fun MainScreenNotificationComposablePreview() {
     MainScreenNotificationComposable(
         "hey, dit is mijn notification",
         "paal 1 description",
-        "paal 1 id"
     )
 }
 
