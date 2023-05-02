@@ -51,7 +51,7 @@ class MainViewModel @Inject constructor(
     init {
         launchCatching {
             while (true) {
-                delay(5000)
+                delay(50000)
                 launchCatching {
                     updateLocationsUseCase.invoke()
                 }

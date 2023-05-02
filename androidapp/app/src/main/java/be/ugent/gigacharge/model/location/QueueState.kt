@@ -7,9 +7,9 @@ sealed interface QueueState {
 
     object Charging : QueueState
 
-    //object Assigned : QueueState
+    object Assigned : QueueState
 
-    data class Assigned(val charger: Charger) : QueueState
+    //data class Assigned(val charger: Charger) : QueueState
 
     data class Joined(val myPosition: Long) : QueueState
 }

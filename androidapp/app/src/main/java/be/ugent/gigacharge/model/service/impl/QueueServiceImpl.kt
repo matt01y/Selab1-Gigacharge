@@ -195,16 +195,16 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
             .whereEqualTo(STATUS_FIELD, STATUS_ASSIGNED)
             .get().await().documents;
         if (queuedocuments.isNotEmpty()) {
-            val queueEntry = queuedocuments.first()
-            val chargerID = queueEntry.get("charger") as String
-            var assignedCharger : Charger = chargers.first()
-            for (charger in chargers) {
+            //val queueEntry = queuedocuments.first()
+            //val chargerID = queueEntry.get("charger") as String
+            //var assignedCharger : Charger = chargers.first()
+            /*for (charger in chargers) {
                 if (charger.id == chargerID) {
                     assignedCharger = charger
                     break;
                 }
-            }
-            state = QueueState.Assigned(assignedCharger)
+            }*/
+            state = QueueState.Assigned
         }
 
         val result = Location(
