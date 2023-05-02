@@ -168,20 +168,20 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
             )
         }
 
-        val result_id = snap.id
+        val user_id = snap.id
 
         // check of er een charger id die een user charget met jouw id
         // als dat het geval is, betekent dat dat jij bent aan het opladen
         for (charger in chargers) {
             when(charger.user) {
                 is UserField.UserID -> {
-                    if (charger.user.id == result_id) {
+                    if (charger.user.id == user_id) {
                         state = QueueState.Charging
                         break
                     }
                 }
                 is UserField.CardNumber -> {
-                    if (charger.user.cardnum == result_id) {
+                    if (charger.user.cardnum == user_id) {
                         state = QueueState.Charging
                         break
                     }
@@ -190,8 +190,16 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
             }
         }
 
+        val queuedocuments = snap.reference.collection(QUEUE_COLLECTION)
+            .whereEqualTo(USERID_FIELD, accountService.currentUserId)
+            .whereEqualTo(STATUS_FIELD, STATUS_ASSIGNED)
+            .get().await().documents;
+        if (queuedocuments.isNotEmpty()) {
+            state = QueueState.Assigned
+        }
+
         val result = Location(
-            id = result_id,
+            id = user_id,
             name = snap.getString(NAME_FIELD) ?: "ERROR GEEN NAAM",
             amountWaiting = amountwaiting,
             status = LocationStatus.valueOf(snap.get("status") as String),
