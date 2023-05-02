@@ -11,7 +11,7 @@ import be.ugent.gigacharge.features.register.RegisterScreen
 import be.ugent.gigacharge.features.splash.SplashScreen
 
 @Composable
-fun Navigation(finishApp : () -> Unit) {
+fun Navigation() {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = Destinations.SPLASH_SCREEN) {
         composable(Destinations.SPLASH_SCREEN) {
@@ -19,14 +19,13 @@ fun Navigation(finishApp : () -> Unit) {
         }
 
         composable(Destinations.REGISTER_SCREEN) {
-            RegisterScreen(openAndPopUp = { navController.navigate(Destinations.MAIN) }, finishApp = finishApp)
+            RegisterScreen(openAndPopUp = { navController.navigate(Destinations.MAIN) })
         }
 
         composable(Destinations.MAIN) {
             MainRoute(
                 onRegisterSelectClick = { navController.navigate(Destinations.REGISTER_SCREEN) },
                 onLocationSelectClick = { navController.navigate(Destinations.LOCATION_SELECTION) },
-                finishApp = finishApp,
                 hiltViewModel()
             )
         }
