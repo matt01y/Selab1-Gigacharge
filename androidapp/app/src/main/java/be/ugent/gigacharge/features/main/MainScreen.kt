@@ -196,7 +196,7 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
     val queueSize = location.amountWaiting
     val queueStatus = location.queue
     when (queueStatus) {
-        QueueState.Assigned -> {
+        is QueueState.Assigned -> {
             //println("status assigned")
             MainScreenNotificationComposable(
                 notificationText = "Het is jouw beurt om op te laden",
@@ -221,7 +221,7 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
                         QueueState.Charging -> {
                             Text("U bent aan het opladen")
                         }
-                        QueueState.Assigned -> {
+                        is QueueState.Assigned -> {
                             // dit gaat niet kunnen gebeuren
                             //println("status assigned")
                             //MainScreenNotificationComposable(notificationText = "Het is jouw beurt om op te laden")
