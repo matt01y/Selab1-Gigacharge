@@ -212,6 +212,7 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
                     Text("U bent aan het opladen")
                 }
                 QueueState.Assigned -> {
+                    //println("status assigned")
                     MainScreenNotificationComposable(notificationText = "Het is jouw beurt om op te laden")
                 }
                 is QueueState.Joined -> {

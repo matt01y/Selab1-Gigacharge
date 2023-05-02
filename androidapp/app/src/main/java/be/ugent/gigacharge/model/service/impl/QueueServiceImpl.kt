@@ -190,6 +190,8 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
             }
         }
 
+        Log.i("userid", user_id)
+
         val queuedocuments = snap.reference.collection(QUEUE_COLLECTION)
             .whereEqualTo(USERID_FIELD, accountService.currentUserId)
             .whereEqualTo(STATUS_FIELD, STATUS_ASSIGNED)
