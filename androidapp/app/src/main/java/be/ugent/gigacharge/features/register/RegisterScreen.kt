@@ -2,7 +2,6 @@ package be.ugent.gigacharge.features.register
 
 import android.annotation.SuppressLint
 import android.content.res.Resources
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -41,10 +40,8 @@ import androidx.compose.ui.res.stringResource;
 fun RegisterScreen(
     openAndPopUp: () -> Unit,
     modifier: Modifier = Modifier,
-    finishApp : () -> Unit,
     viewModel: RegisterViewModel = hiltViewModel()
 ) {
-    BackHandler(true, finishApp)
     val uiState by viewModel.uiState
     val fieldModifier = Modifier.fieldModifier()
 
@@ -111,7 +108,6 @@ fun PreviewRegisterScreen() {
     RegisterScreen(
         openAndPopUp = { },
         modifier = Modifier,
-        finishApp = {},
         viewModel = hiltViewModel()
     )
 }

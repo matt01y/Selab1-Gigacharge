@@ -1,6 +1,5 @@
 package be.ugent.gigacharge.features.main
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -41,11 +40,10 @@ import androidx.compose.ui.res.stringResource
 import be.ugent.gigacharge.resources
 
 @Composable
-fun MainRoute(onRegisterSelectClick: () -> Unit, onLocationSelectClick : () -> Unit, finishApp: () -> Unit, viewModel: MainViewModel) {
+fun MainRoute(onRegisterSelectClick: () -> Unit, onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
     MainScreen(
         onRegisterSelectClick,
         onLocationSelectClick,
-        finishApp,
         viewModel
     )
 }
@@ -54,10 +52,8 @@ fun MainRoute(onRegisterSelectClick: () -> Unit, onLocationSelectClick : () -> U
 fun MainScreen(
     onRegisterSelectClick: () -> Unit,
     onLocationSelectClick: () -> Unit,
-    finishApp : () -> Unit,
     viewModel: MainViewModel
 ) {
-    BackHandler(onBack = finishApp, enabled = true)
     val profileUiState by viewModel.profileUiState.collectAsState()
     val queueUiState by viewModel.queueUiState.collectAsState() // TODO: Wordt dit nog later gebruikt? of is dit overbodig?
     val locationUiState by viewModel.locationUiState.collectAsState()
@@ -261,6 +257,6 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
 @Composable
 fun MainScreenPreview() {
     GigaChargeTheme {
-        MainRoute({}, {}, finishApp = {}, hiltViewModel())
+        MainRoute({}, {}, hiltViewModel())
     }
 }
