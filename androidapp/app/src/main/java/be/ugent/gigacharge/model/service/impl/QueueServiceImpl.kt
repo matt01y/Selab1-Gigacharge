@@ -158,7 +158,7 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
             val ut : UserType = UserType.valueOf(it.get("usertype") as String)
             Charger(
                 it.get("description") as String,
-                it.get("id") as String,
+                it.id, //.get("id") as String,
                 ChargerStatus.valueOf(it.get("status") as String),
                 when(ut) {
                     UserType.USER -> UserField.UserID(it.get("user") as String)
@@ -197,15 +197,17 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
             .whereEqualTo(STATUS_FIELD, STATUS_ASSIGNED)
             .get().await().documents;
         if (queuedocuments.isNotEmpty()) {
-            //val queueEntry = queuedocuments.first()
-            //val chargerID = queueEntry.get("charger") as String
-            //var assignedCharger : Charger = chargers.first()
-            /*for (charger in chargers) {
+            val queueEntry = queuedocuments.first()
+            println(queueEntry != null)
+            val chargerID = queueEntry.get("assigned") as String
+            println("charger id: " + chargerID)
+            var assignedCharger : Charger = chargers.first()
+            for (charger in chargers) {
                 if (charger.id == chargerID) {
                     assignedCharger = charger
                     break;
                 }
-            }*/
+            }
             state = QueueState.Assigned
         }
 
