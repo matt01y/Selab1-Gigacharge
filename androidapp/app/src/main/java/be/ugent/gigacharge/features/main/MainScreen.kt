@@ -209,13 +209,31 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
                     Text(stringResource(R.string.queue_not_joined), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
                 QueueState.Charging -> {
-                    MainScreenNotificationComposable(notificationText = "Het is jouw beurt om op te laden")
+                    Text("U bent aan het opladen")
                 }
                 is QueueState.Joined -> {
-                    Text(resources().getQuantityString(R.plurals.queue_position_plural,
-                        queueStatus.myPosition.toInt(), queueStatus.myPosition.toInt()
-                    ), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    //Text("${stringResource(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    if (queueStatus.myPosition == 1L) {
+                        var isChargerFree = false
+                        for (charger in locationUiState.location.chargers) {
+                            if (charger.status == ChargerStatus.FREE) {
+                                isChargerFree = true
+                                break
+                            }
+                        }
+
+                        if (isChargerFree) {
+                            MainScreenNotificationComposable(notificationText = "Het is jouw beurt om op te laden")
+                        }
+                        else {
+                            Text(resources().getQuantityString(R.plurals.queue_position_plural,
+                                queueStatus.myPosition.toInt(), queueStatus.myPosition.toInt()
+                            ), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                    else {
+                        Text("${stringResource(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    }
+
                 }
             }
             for (charger in locationUiState.location.chargers) {
