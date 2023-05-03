@@ -29,7 +29,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import be.ugent.gigacharge.R
 import be.ugent.gigacharge.common.composable.BasicButton
 import be.ugent.gigacharge.common.composable.CardNumberBox
-import be.ugent.gigacharge.common.composable.ProfileFormComposable
 import be.ugent.gigacharge.common.ext.basicButton
 import be.ugent.gigacharge.common.ext.fieldModifier
 import be.ugent.gigacharge.R.string as AppText

@@ -15,6 +15,7 @@
     <string name="join_queue">Sluit je aan</string>
     <string name="leave_queue">Verlaat de wachtrij</string>
 
+    <string name="queue_position_zero">U staat op de eerste plaats in de wachtrij.</string>
     <plurals name="queue_position_plural">
         <!--
              As a developer, you should always supply "one" and "other"

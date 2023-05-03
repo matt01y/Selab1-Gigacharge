@@ -27,5 +27,5 @@ interface QueueService {
 
     suspend fun joinQueue(loc: Location)
     suspend fun leaveQueue(loc: Location)
-    suspend fun updateLocation(loc: Location): Location?
+    suspend fun updateLocation(locId: String): Location?
 }
