@@ -14,17 +14,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import be.ugent.gigacharge.ui.theme.DarkGreen
 
 @Composable
 fun MainScreenNotificationComposable(
     notificationText : String,
     description: String,
+    subline: String
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
-                color = Color.Green,
+                color = DarkGreen,
                 shape = RoundedCornerShape(16.dp)
             )
             .padding(16.dp)
@@ -42,6 +44,12 @@ fun MainScreenNotificationComposable(
                 color = Color.White,
                 fontSize = 20.sp
             )
+            Text(
+                text = subline,
+                textAlign = TextAlign.Center,
+                color = Color.White,
+                fontSize = 20.sp
+            )
         }
 
     }
@@ -53,6 +61,7 @@ fun MainScreenNotificationComposablePreview() {
     MainScreenNotificationComposable(
         "hey, dit is mijn notification",
         "paal 1 description",
+        "subline"
     )
 }
 

@@ -20,21 +20,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewModelScope
 import be.ugent.gigacharge.features.LocationUiState
 import be.ugent.gigacharge.R
 import be.ugent.gigacharge.features.ProfileUiState
 import be.ugent.gigacharge.model.location.LocationStatus
 import be.ugent.gigacharge.model.location.QueueState
-import be.ugent.gigacharge.model.location.charger.ChargerStatus
-import be.ugent.gigacharge.model.location.charger.UserField
-import be.ugent.gigacharge.model.location.charger.UserType
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import be.ugent.gigacharge.common.composable.*
 import be.ugent.gigacharge.resources
+import java.text.SimpleDateFormat
 
 @Composable
 fun MainRoute(onRegisterSelectClick: () -> Unit, onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
@@ -195,17 +190,20 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
     val location = locationUiState.location
     val queueSize = location.amountWaiting
     val queueStatus = location.queue
-    when (queueStatus) {
-        is QueueState.Assigned -> {
-            //println("status assigned")
-            MainScreenNotificationComposable(
-                notificationText = "U bent aan de beurt!",
-                description = "U kan gaan laden bij ${queueStatus.charger.description}" ,
-            )
-        }
-        else -> {
-            Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                Text(stringResource(R.string.queue_info), color = MaterialTheme.colors.onBackground, fontSize = 25.sp, fontWeight = FontWeight.Bold)
+
+    Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+        Text(stringResource(R.string.queue_info), color = MaterialTheme.colors.onBackground, fontSize = 25.sp, fontWeight = FontWeight.Bold)
+
+        when(queueStatus){
+            is QueueState.Assigned -> {
+                val sdf = SimpleDateFormat("hh:mm")
+                MainScreenNotificationComposable(
+                    notificationText = "U bent aan de beurt!",
+                    description = "U kan gaan laden bij ${queueStatus.charger.description}",
+                    subline = "De beurt verloopt om ${sdf.format(queueStatus.expiretime)}"
+                )
+            }
+            else -> {
                 Column(
                     Modifier
                         .fillMaxWidth()
@@ -223,11 +221,6 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
                         QueueState.Charging -> {
                             Text("U bent aan het opladen")
                         }
-                        is QueueState.Assigned -> {
-                            // dit gaat niet kunnen gebeuren
-                            //println("status assigned")
-                            //MainScreenNotificationComposable(notificationText = "Het is jouw beurt om op te laden")
-                        }
                         is QueueState.Joined -> {
                             val position = queueStatus.myPosition.toInt()
                             if(position == 0){
@@ -237,10 +230,12 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
                             }
                             //Text("${stringResource(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         }
+                        else -> {}
                     }
                 }
             }
         }
+
     }
 
 }
