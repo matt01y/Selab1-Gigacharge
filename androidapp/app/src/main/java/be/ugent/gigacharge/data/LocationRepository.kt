@@ -61,7 +61,9 @@ class LocationRepository @Inject constructor(
     }
 
     suspend fun updateLocation(locid : String){
-        queueService.updateLocation(locid)
+        if (accountService.isEnabled()) {
+            queueService.updateLocation(locid)
+        }
     }
 
     fun toggleFavorite(location: Location) {

@@ -50,25 +50,27 @@ fun RegisterScreen(
         },
         modifier = Modifier.padding(20.dp)
     ) {
-        paddingValues -> Column(
-        Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .verticalScroll(rememberScrollState())
-            .padding(paddingValues)
-            .background(MaterialTheme.colors.background),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(stringResource(R.string.welcome), color = MaterialTheme.colors.primary)
+        paddingValues -> Column(Modifier.padding(paddingValues)) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .verticalScroll(rememberScrollState())
+                    .padding(30.dp)
+                    .background(MaterialTheme.colors.background),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(stringResource(R.string.welcome), color = MaterialTheme.colors.primary)
 
-            // CardNumber (not whole form since we don't need a back button, save button, ...)
-            CardNumberBox(cardNumber, { viewModel.setCardNumber(it) })
-            when (authenticationError) {
-                AuthenticationError.INVALID_CARD_NUMBER -> ErrorMessage(stringResource(AppText.invalid_cardNumber_error))
-                AuthenticationError.TIMEOUT -> ErrorMessage(stringResource(AppText.timeout_error))
-                AuthenticationError.ERROR -> ErrorMessage(stringResource(AppText.enable_error))
-                else -> {}
+                // CardNumber (not whole form since we don't need a back button, save button, ...)
+                CardNumberBox(cardNumber, { viewModel.setCardNumber(it) })
+                when (authenticationError) {
+                    AuthenticationError.INVALID_CARD_NUMBER -> ErrorMessage(stringResource(AppText.invalid_cardNumber_error))
+                    AuthenticationError.TIMEOUT -> ErrorMessage(stringResource(AppText.timeout_error))
+                    AuthenticationError.ERROR -> ErrorMessage(stringResource(AppText.enable_error))
+                    else -> {}
+                }
             }
         }
     }
