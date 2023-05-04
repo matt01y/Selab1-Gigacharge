@@ -39,7 +39,7 @@ class MainViewModel @Inject constructor(
     getLocationUseCase: GetLocationUseCase,
     updateCurrentLocationUseCase: UpdateCurrentLocationUseCase,
     private val toggleFavoriteLocationUseCase: ToggleFavoriteLocationUseCase,
-    private val logService: LogService
+    logService: LogService
 ) : GigaChargeViewModel(logService) {
     val profileUiState: StateFlow<ProfileUiState> =
         getProfileUseCase().map { ProfileUiState.Success(it) }
@@ -56,9 +56,8 @@ class MainViewModel @Inject constructor(
                 delay(20000)
                 launchCatching {
                     Log.i("main", "YIPPIE!")
-                    updateCurrentLocationUseCase.invoke()
+                    updateCurrentLocationUseCase()
                 }
-
             }
         }
     }

@@ -16,6 +16,8 @@ limitations under the License.
 
 package be.ugent.gigacharge.model.service
 
+import be.ugent.gigacharge.data.local.models.Profile
+import be.ugent.gigacharge.model.AuthenticationError
 import be.ugent.gigacharge.model.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,14 +30,17 @@ interface AccountService {
     suspend fun signOut()
 
     val currentUserId: String
-    val currentUser: Flow<User>
+    val currentUser: Flow<Profile>
+    fun syncProfile()
     val hasUser: Boolean
     suspend fun tryEnable(cardNumber: String)
     suspend fun isEnabled(): Boolean
     suspend fun init()
     fun sendToken(token: String)
 
+    val authError: Flow<AuthenticationError>
     suspend fun deleteProfile()
+
 
     val isEnabledObservers: MutableList<((Boolean) -> Unit)>
 }
