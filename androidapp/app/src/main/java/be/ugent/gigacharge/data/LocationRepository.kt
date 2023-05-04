@@ -22,8 +22,8 @@ class LocationRepository @Inject constructor(
     private val queueService: QueueService,
     @ApplicationContext private val context: Context
 ) {
-    private var START_ID = stringPreferencesKey("startID")
-    var startID = runBlocking {context.dataStore.data.map { it[START_ID] }.first()}
+    private val START_ID = stringPreferencesKey("startID")
+    private val startID = runBlocking {context.dataStore.data.map { it[START_ID] }.first()}
 
     private val locationIdFlow: MutableStateFlow<String?> = MutableStateFlow(startID)
     private val locations: Flow<Map<String, Location>> =

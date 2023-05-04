@@ -1,10 +1,16 @@
 package be.ugent.gigacharge
 
+import android.content.Context
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
+import androidx.test.platform.app.InstrumentationRegistry
 import be.ugent.gigacharge.data.LocationRepository
 import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.model.location.QueueState
 import be.ugent.gigacharge.model.service.QueueService
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -12,6 +18,10 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import kotlin.coroutines.coroutineContext
+
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "location")
+
 
 class LocationRepositoryTest {
     private lateinit var queueService: QueueService
@@ -19,7 +29,7 @@ class LocationRepositoryTest {
     @Before
     fun setup() {
         queueService = mock()
-        repo = LocationRepository(queueService)
+        repo = LocationRepository(queueService,InstrumentationRegistry.getInstrumentation().targetContext)
     }
 
     @Test(expected = Throwable::class)
