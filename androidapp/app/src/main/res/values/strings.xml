@@ -6,6 +6,11 @@
 
     <!-- MainScreen -->
     <string name="empty_parking">Vrije parkeerplaats</string>
+    <string name="charging_car">U bent aan het opladen</string>
+    <string name="front_of_queue">U bent op de eerste plaats in de wachtrij</string>
+    <string name="your_turn">U bent aan de beurt</string>
+    <string name="your_turn_expires_at">De beurt verloopt om</string>
+    <string name="your_assigned_charger">U kan gaan laden bij</string>
     <string name="assigned">Je bent aangewezen</string>
     <string name="reservation_expires">Je reservatie verloopt binnen</string>
     <string name="queue_info">Wachtrij informatie</string>
@@ -49,6 +54,9 @@
     <string name="forgot_password">Forgot password? Click to get recovery email</string>
     <string name="recovery_email_sent">Check your inbox for the recovery email.</string>
     <string name="empty_password_error">Password cannot be empty.</string>
+
+    <!-- LocationScreen -->
+    <string name="choose_a_location">Kies een vestiging</string>
 
     <!-- SignUpScreen -->
     <string name="create_account">Create account</string>

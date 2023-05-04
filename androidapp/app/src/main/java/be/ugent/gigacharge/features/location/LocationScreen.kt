@@ -14,6 +14,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import be.ugent.gigacharge.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -21,7 +23,6 @@ import be.ugent.gigacharge.common.composable.LoadingComposable
 import be.ugent.gigacharge.common.composable.LocationButtonComposable
 import be.ugent.gigacharge.features.LocationsUiState
 import be.ugent.gigacharge.model.location.Location
-//import be.ugent.gigacharge.data.local.models.Location
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 @Composable
@@ -41,7 +42,7 @@ fun LocationScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Kies een vestiging") },
+                title = { Text(stringResource(R.string.choose_a_location)) },
                 navigationIcon = {
                     IconButton(onClick = onBackArrowClick) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
