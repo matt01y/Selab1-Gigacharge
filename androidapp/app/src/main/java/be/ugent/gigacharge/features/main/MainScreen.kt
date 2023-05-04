@@ -1,5 +1,6 @@
 package be.ugent.gigacharge.features.main
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -20,30 +21,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewModelScope
-import be.ugent.gigacharge.common.composable.LoadingComposable
-import be.ugent.gigacharge.common.composable.LocationButtonComposable
-import be.ugent.gigacharge.common.composable.MainHeaderComposable
-import be.ugent.gigacharge.common.composable.ProfileFormComposable
 import be.ugent.gigacharge.features.LocationUiState
 import be.ugent.gigacharge.R
 import be.ugent.gigacharge.features.ProfileUiState
 import be.ugent.gigacharge.model.location.LocationStatus
 import be.ugent.gigacharge.model.location.QueueState
-import be.ugent.gigacharge.model.location.charger.ChargerStatus
-import be.ugent.gigacharge.model.location.charger.UserField
-import be.ugent.gigacharge.model.location.charger.UserType
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
+import be.ugent.gigacharge.common.composable.*
 import be.ugent.gigacharge.resources
+import java.text.SimpleDateFormat
 
 @Composable
-fun MainRoute(onRegisterSelectClick: () -> Unit, onLocationSelectClick : () -> Unit, viewModel: MainViewModel) {
+fun MainRoute(onRegisterSelectClick: () -> Unit, onLocationSelectClick : () -> Unit, finishApp: () -> Unit, viewModel: MainViewModel) {
     MainScreen(
         onRegisterSelectClick,
         onLocationSelectClick,
+        finishApp,
         viewModel
     )
 }
@@ -52,8 +46,10 @@ fun MainRoute(onRegisterSelectClick: () -> Unit, onLocationSelectClick : () -> U
 fun MainScreen(
     onRegisterSelectClick: () -> Unit,
     onLocationSelectClick: () -> Unit,
+    finishApp : () -> Unit,
     viewModel: MainViewModel
 ) {
+    BackHandler(onBack = finishApp, enabled = true)
     val profileUiState by viewModel.profileUiState.collectAsState()
     val queueUiState by viewModel.queueUiState.collectAsState() // TODO: Wordt dit nog later gebruikt? of is dit overbodig?
     val locationUiState by viewModel.locationUiState.collectAsState()
@@ -198,65 +194,60 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
     val location = locationUiState.location
     val queueSize = location.amountWaiting
     val queueStatus = location.queue
+
     Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
         Text(stringResource(R.string.queue_info), color = MaterialTheme.colors.onBackground, fontSize = 25.sp, fontWeight = FontWeight.Bold)
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colors.onSurface, shape = RoundedCornerShape(5.dp))
-                .padding(10.dp)
-        ) {
-            Text("${stringResource(R.string.in_queue)}: $queueSize", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            when (queueStatus) {
-                QueueState.NotJoined -> {
-                    Text(stringResource(R.string.queue_not_joined), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                }
-                is QueueState.Joined -> {
-                    Text(resources().getQuantityString(R.plurals.queue_position_plural,
-                        queueStatus.myPosition.toInt(), queueStatus.myPosition.toInt()
-                    ), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    //Text("${stringResource(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                }
-            }
-            for (charger in locationUiState.location.chargers) {
-                if (charger.status == ChargerStatus.ASSIGNED) {
-                    when (charger.usertype) {
-                        UserType.USER -> {
-                            when (profileUiState) {
-                                ProfileUiState.Loading -> {}
-                                is ProfileUiState.Success -> {
-                                    if ((charger.user as UserField.UserID).id.equals(profileUiState.profile)) {
-                                        // status == assigned
-                                        println("status is assigned")
-                                        QueueInfoAssignedComposable(expireTime = "placeholder")
-                                    }
-                                }
 
-                            }
+        when(queueStatus){
+            is QueueState.Assigned -> {
+                val sdf = SimpleDateFormat("hh:mm")
+                MainScreenNotificationComposable(
+                    notificationText = stringResource(R.string.your_turn),
+                    description = "${stringResource(R.string.your_assigned_charger)} ${queueStatus.charger.description}",
+                    subline = "${stringResource(R.string.your_turn_expires_at)} ${sdf.format(queueStatus.expiretime)}"
+                )
+            }
+            else -> {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .background(
+                            MaterialTheme.colors.onSurface,
+                            shape = RoundedCornerShape(5.dp)
+                        )
+                        .padding(10.dp)
+                ) {
+                    Text("${stringResource(R.string.in_queue)}: $queueSize", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    when (queueStatus) {
+                        QueueState.NotJoined -> {
+                            Text(stringResource(R.string.queue_not_joined), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         }
-                        UserType.NONUSER -> {
-                            when (profileUiState) {
-                                ProfileUiState.Loading -> {}
-                                is ProfileUiState.Success -> {
-                                    if ((charger.user as UserField.CardNumber).cardnum.equals(profileUiState.profile.cardNumber)) {
-                                        // status == assigned
-                                        println("status is assigned")
-                                        QueueInfoAssignedComposable(expireTime = "placeholder")
-                                    }
-                                }
-                            }
+                        QueueState.Charging -> {
+                            Text(stringResource(R.string.charging_car))
                         }
+                        is QueueState.Joined -> {
+                            val position = queueStatus.myPosition.toInt()
+                            if(position == 0){
+                                Text(stringResource(R.string.front_of_queue), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            }else{
+                                Text(stringResource(id = R.string.queue_position_zero), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            }
+                            //Text("${stringResource(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        }
+                        else -> {}
                     }
                 }
             }
         }
+
     }
+
 }
 
 @Preview
 @Composable
 fun MainScreenPreview() {
     GigaChargeTheme {
-        MainRoute({}, {}, hiltViewModel())
+        MainRoute({}, {}, finishApp = {}, hiltViewModel())
     }
 }

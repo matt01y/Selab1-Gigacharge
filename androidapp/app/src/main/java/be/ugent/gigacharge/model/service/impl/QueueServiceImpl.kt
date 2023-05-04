@@ -58,19 +58,16 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
         val results = mutableListOf<Location>()
         val locationsnap = locationCollection.get().await()
 
-        val newmap = HashMap<String, Location>();
+        val newmap = HashMap<String, Location>()
 
         locationsnap.forEach { snap ->
             val res = refToLocation(locationCollection.document(snap.id))
-            locationMap[res.id] = res
             newmap.put(res.id, res)
             results.add(res)
         }
 
-        locationMap.replaceAll { id, location ->
-            val loc : Location = newmap.get(id)!!
-            loc
-        }
+        locationMap.clear()
+        locationMap.putAll(newmap)
 
         Log.println(Log.INFO, "queue", locationMap.toMap().toString())
         return results
@@ -93,7 +90,7 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
             )
         ).await()
 
-        updateLocation(loc)
+        updateLocation(locid)
 
         //TODO("Not yet implemented")
     }
@@ -110,62 +107,98 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
             )
         }
         batch.commit().await()
-        updateLocation(loc)
-        //TODO("Not yet implemented")
+        updateLocation(loc.id)
     }
 
     //TODO: testen
-    override suspend fun updateLocation(loc: Location): Location {
-        val newloc = refToLocation(locationCollection.document(loc.id))
-        locationMap[loc.id] = newloc
-        Log.println(Log.INFO, "queueupdate", locationMap.toMap().toString())
-        return newloc
-        //TODO("Not yet implemented")
+    override suspend fun updateLocation(locidstr : String): Location? {
+        if(locationMap.keys.contains(locidstr)){
+            val newloc = refToLocation(locationCollection.document(locidstr))
+            locationMap[locidstr] = newloc
+            Log.println(Log.INFO, "queueupdate", locationMap.toMap().toString())
+            return newloc
+        }else{
+            return null
+        }
     }
 
     private suspend fun refToLocation(ref: DocumentReference): Location {
         val snap = ref.get().await()
         val queuecollection = ref.collection(QUEUE_COLLECTION)
-        val amountwaiting = queuecollection.whereEqualTo(STATUS_FIELD, STATUS_WAITING).count()
-            .get(AggregateSource.SERVER).await().count
+        val chargerscollection = ref.collection(CHARGER_COLLECTION)
 
-        val state: QueueState
-        if (amountwaiting > 0) {
-            val myJoinEvent =
-                queuecollection.whereEqualTo(USERID_FIELD, accountService.currentUserId)
-                    .whereEqualTo(
-                        STATUS_FIELD, STATUS_WAITING
-                    ).limit(1).get().await()
-            if (myJoinEvent.size() >= 1) {
-                val time = myJoinEvent.first().getTimestamp(TIMESTAMP_FIELD)
-                    ?: Timestamp.now() //TODO: deze null case beter maken
-                val myPosition =
-                    queuecollection.whereLessThanOrEqualTo(JOINEDAT_FIELD, time).whereIn(
-                        STATUS_FIELD, listOf(STATUS_WAITING, STATUS_ASSIGNED)
-                    ).count().get(AggregateSource.SERVER).await().count - 1
-                Log.println(Log.INFO, "queue", "POSITION $myPosition")
-                state = QueueState.Joined(myPosition = myPosition)
-            } else {
-                state = QueueState.NotJoined
+        //chargers inlezen
+        val chargerdocuments = chargerscollection.get().await().documents
+        val chargers: List<Charger> = chargerdocuments.map {
+            var ut : UserType = UserType.NONUSER
+            try{
+                ut = UserType.valueOf(it.getString("usertype")?:"NONUSER")
+            }catch(err : Exception){
+                println("GEEN USERTYPE")
             }
-        } else {
-            state = QueueState.NotJoined
-        }
-
-
-        val chargerdocuments = snap.get("chargers") as List<DocumentSnapshot>?
-        val chargers: List<Charger> = (chargerdocuments ?: listOf()).map {
             Charger(
-                ChargerStatus.valueOf(it.get("status") as String),
-                "",
-                UserField.Null,
-                UserType.NONUSER,
-                ""
+                it.getString("description")?:"Geen beschrijving",
+                it.id, //.get("id") as String,
+                ChargerStatus.valueOf(it.getString("status")?.uppercase()?:"FOUT"),
+                when(ut) {
+                    UserType.USER -> UserField.UserID(it.getString("user")?:"FOUT")
+                    UserType.NONUSER -> UserField.CardNumber(it.getString("user")?:"FOUT")
+                },
+                ut
             )
         }
 
+        //status van user in de queue bepalen
+        val amountwaiting = queuecollection.whereIn(
+                STATUS_FIELD,
+                listOf( STATUS_WAITING, STATUS_ASSIGNED )
+            ).count().get(AggregateSource.SERVER).await().count
+        var state: QueueState = QueueState.NotJoined
+        if (amountwaiting > 0) {
+            Log.i("queue", "amount groter dan 0")
+            val myJoinEvents =
+                queuecollection.whereEqualTo(USERID_FIELD, accountService.currentUserId)
+                    .whereIn(
+                        STATUS_FIELD,
+                        listOf( STATUS_WAITING, STATUS_ASSIGNED )
+                    ).limit(1).get().await()
+            if (myJoinEvents.size() >= 1) {
+                Log.i("queue", "JOINDOC GEVONDEN")
+                val myJoinEvent = myJoinEvents.first()
+                val statusString = myJoinEvent.getString(STATUS_FIELD)
+                Log.i("queue", statusString?:"geen statusstring")
+                val time = myJoinEvent.getTimestamp(JOINEDAT_FIELD)
+                    ?: Timestamp.now() //TODO: deze null case beter maken
+                when(statusString){
+                    STATUS_WAITING -> {
+
+                        val myPosition =
+                            queuecollection.whereLessThan(JOINEDAT_FIELD, time).whereIn(
+                                STATUS_FIELD, listOf(STATUS_WAITING, STATUS_ASSIGNED)
+                            ).count().get(AggregateSource.SERVER).await().count
+                        Log.println(Log.INFO, "queue", "POSITION $myPosition")
+                        state = QueueState.Joined(myPosition = myPosition)
+                    }
+
+                    STATUS_ASSIGNED -> {
+                        Log.i("queue", "assigned gevonden")
+                        val mycharger = chargers.filter { it.id == myJoinEvent.getString("assigned") }.firstOrNull()
+                        Log.i("queue", chargers.toString())
+                        val expiretime = myJoinEvent.getTimestamp(EXPIRES_FIELD)
+                            ?: Timestamp.now() //TODO: deze null case beter maken
+                        mycharger?.apply {
+                            Log.i("queue", "state gezet")
+                            state = QueueState.Assigned(expiretime.toDate(), mycharger)
+                        }
+                    }
+                }
+
+            }
+        }
+
+
         val result = Location(
-            id = snap.id,
+            id = ref.id,
             name = snap.getString(NAME_FIELD) ?: "ERROR GEEN NAAM",
             amountWaiting = amountwaiting,
             status = LocationStatus.valueOf(snap.get("status") as String),
@@ -175,7 +208,6 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
 
         println(result.status.toString())
 
-
         return result
     }
 
@@ -183,6 +215,7 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
     companion object {
         private const val LOCATION_COLLECTION = "locations"
         private const val QUEUE_COLLECTION = "queue"
+        private const val CHARGER_COLLECTION = "chargers"
         private const val USERID_FIELD = "user-id"
         private const val JOINEDAT_FIELD = "joined-at"
         private const val STATUS_FIELD = "status"
@@ -190,6 +223,7 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
         private const val STATUS_WAITING = "waiting"
         private const val STATUS_ASSIGNED = "assigned"
         private const val STATUS_LEFT = "left"
+        private const val EXPIRES_FIELD = "expires"
         private const val TIMESTAMP_FIELD = "timestamp"
     }
 }

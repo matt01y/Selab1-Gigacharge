@@ -1,17 +1,17 @@
 package be.ugent.gigacharge.model.location.charger
 
 data class Charger(
-    val status: ChargerStatus,
     val description: String,
+    val id: String,
+    val status: ChargerStatus,
     val user: UserField,
-    val usertype: UserType,
-    val assignedJoin: String
+    val usertype: UserType
 ) {
     constructor() : this(
-        ChargerStatus.OUT,
         "",
+        "",
+        ChargerStatus.OUT,
         UserField.Null,
         UserType.NONUSER,
-        ""
     )
 }

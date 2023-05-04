@@ -56,7 +56,7 @@ fun LocationButtonComposable(
     Row(
         modifier
             .fillMaxWidth()
-            .height(50.dp)
+            .height(IntrinsicSize.Max)
             .background(MaterialTheme.colors.background, shape = RoundedCornerShape(5.dp))
     ) {
         VestigingButton(title, location, setLocation)

@@ -51,11 +51,9 @@ class GigaChargeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        askNotificationPermission()
+        askNotificationPermission();
 
-
-
-        setContent { GigaChargeApp() }
+        setContent { GigaChargeApp() {finish()} }
     }
 
 
