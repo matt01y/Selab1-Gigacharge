@@ -228,11 +228,12 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
                         is QueueState.Joined -> {
                             val position = queueStatus.myPosition.toInt()
                             if(position == 0){
-                                Text(stringResource(R.string.front_of_queue), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                            }else{
                                 Text(stringResource(id = R.string.queue_position_zero), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            }else{
+                                Text(resources().getQuantityString(R.plurals.queue_position_plural,
+                                    queueStatus.myPosition.toInt(), queueStatus.myPosition.toInt()
+                                ), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                             }
-                            //Text("${stringResource(R.string.queue_position)}: ${queueStatus.myPosition}", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         }
                         else -> {}
                     }
