@@ -31,19 +31,15 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import kotlin.properties.Delegates
@@ -72,19 +68,23 @@ class AccountServiceImpl @Inject constructor(
 //            awaitClose { auth.removeAuthStateListener(listener) }
 //        }
 
-    override val currentUser: Flow<Profile> = callbackFlow {
-        val listener = FirebaseAuth.AuthStateListener { auth ->
-            if (auth.currentUser != null) {
-                GlobalScope.launch {
-                    val userDoc = userCollection.document(auth.currentUser!!.uid).get().await()
-                    val userCardNumber = userDoc.get(CARDNUMBER_FIELD).toString()
-                    trySend(Profile(userCardNumber, false))
-                }
-            }
-        }
-        auth.addAuthStateListener(listener)
-        awaitClose { auth.removeAuthStateListener(listener) }
-    }
+    override val currentUser: Flow<Profile> = flowOf(Profile("test", false))
+//    override val currentUser: Flow<Profile> = callbackFlow {
+//        val listener = FirebaseAuth.AuthStateListener { auth ->
+//            if (auth.currentUser != null) {
+//                GlobalScope.launch {
+//                    Log.i("USER", auth.currentUser!!.uid)
+//                    val userDoc = userCollection.document(auth.currentUser!!.uid).get().await()
+//                    val userCardNumber = userDoc.get(CARDNUMBER_FIELD)
+//                    if (userCardNumber != null) {
+//                        send(Profile(userCardNumber.toString(), false))
+//                    }
+//                }
+//            }
+//        }
+//        auth.addAuthStateListener(listener)
+//        awaitClose { auth.removeAuthStateListener(listener) }
+//    }
 
     private val authErrorFlow: MutableStateFlow<AuthenticationError> = MutableStateFlow(AuthenticationError.NO_ERROR)
     override val authError: StateFlow<AuthenticationError> = authErrorFlow.asStateFlow()
