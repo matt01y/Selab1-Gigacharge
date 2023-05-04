@@ -34,9 +34,11 @@ const observer = query.onSnapshot(snap => {
       console.log("snapshot")
       snap.docChanges().forEach(async change => {
          console.log("add event")
-         if (change.type === 'added') {
+         if (change.type === 'added' || change.type === 'modified') {
             try{
                const data = (await users.doc(change.doc.id).get()).data()
+               if(data.enablestatus === "enabled") return
+               
                if (!data.kaartnummer) { return; }
                const existsquery = db.collection('whitelist').where("kaartnummer", "==", data.kaartnummer).count();
                const count = await (await existsquery.get()).data().count;
