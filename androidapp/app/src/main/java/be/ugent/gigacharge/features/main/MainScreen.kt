@@ -219,12 +219,12 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
                             Text(stringResource(R.string.queue_not_joined), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         }
                         QueueState.Charging -> {
-                            Text("U bent aan het opladen")
+                            Text(stringResource(R.string.charging_car))
                         }
                         is QueueState.Joined -> {
                             val position = queueStatus.myPosition.toInt()
                             if(position == 0){
-                                Text(resources().getQuantityString(R.plurals.queue_position_plural,queueStatus.myPosition.toInt(), queueStatus.myPosition.toInt()), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.front_of_queue), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                             }else{
                                 Text(stringResource(id = R.string.queue_position_zero), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                             }

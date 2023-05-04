@@ -6,6 +6,8 @@
 
     <!-- MainScreen -->
     <string name="empty_parking">Vrije parkeerplaats</string>
+    <string name="charging_car">U bent aan het opladen</string>
+    <string name="front_of_queue">U bent op de eerste plaats in de wachtrij</string>
     <string name="assigned">Je bent aangewezen</string>
     <string name="reservation_expires">Je reservatie verloopt binnen</string>
     <string name="queue_info">Wachtrij informatie</string>
