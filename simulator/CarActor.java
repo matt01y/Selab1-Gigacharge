@@ -1,16 +1,29 @@
 import greenfoot.GreenfootImage;
+import greenfoot.Color;
+import greenfoot.Font;
 
 public class CarActor extends Draggable{
-    public final GreenfootImage carimage = new GreenfootImage("4.png");
+    public static final GreenfootImage[] carimages = {
+        new GreenfootImage("new/transparent_4.png"),
+        new GreenfootImage("new/transparent_5.png"),
+        new GreenfootImage("new/transparent_6.png"),
+        new GreenfootImage("new/transparent_7.png"),
+        new GreenfootImage("new/transparent_8.png"),
+        new GreenfootImage("new/transparent_9.png"),
+    };
+    
     public String uid;
     public ChargerActor chargingOn = null;
     public String name = "lege naam";
-    public CarActor(String mname, String muid){
+    public CarActor(String mname, String muid, int imageindex){
         super();
         uid = muid;
         name = mname;
-        setImage(carimage);
-        getImage().drawString(name, 0,  45);
+        setImage(new GreenfootImage(carimages[imageindex % carimages.length]));
+        getImage().setColor(Color.WHITE);
+        getImage().setFont(new Font("Arial", 16));
+        getImage().drawString(name, 18,  65);
+        
     }
 
     @Override

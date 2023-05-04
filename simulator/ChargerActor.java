@@ -7,9 +7,9 @@ import java.util.List;
 
 public class ChargerActor extends Draggable
 {
-    public final GreenfootImage image_notcharging = new GreenfootImage("3.png");
-    public final GreenfootImage image_charging = new GreenfootImage("2.png");
-    public final GreenfootImage image_assigned = new GreenfootImage("1.png");
+    public final GreenfootImage image_notcharging = new GreenfootImage("new/transparent_3.png");
+    public final GreenfootImage image_charging = new GreenfootImage("new/transparent_2.png");
+    public final GreenfootImage image_assigned = new GreenfootImage("new/transparent_1.png");
     
     public static int width = 100;
     public static int height = 200;
@@ -86,7 +86,7 @@ public class ChargerActor extends Draggable
         charger.userType = Charger.UserType.USER;
         charger.userId = car.uid;
         refresh();
-        car.setLocation(getX() + 0, getY() + 30);
+        car.setLocation(getX() + 0, getY() + 0);
         
         Api.updateCharger(this.charger);
     }

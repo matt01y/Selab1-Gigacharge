@@ -28,9 +28,9 @@ public class MyWorld extends World {
         State.cars.clear();
 
         for(int i = 0; i < Config.userids.size(); i+=2){
-            CarActor car = new CarActor(Config.userids.get(i), Config.userids.get(i + 1));
+            CarActor car = new CarActor(Config.userids.get(i), Config.userids.get(i + 1), i / 2);
             System.out.println(car);
-            addObject(car, i * 38 + 100, getHeight() - car.carimage.getHeight());
+            addObject(car, i * 45 + 100, getHeight() - car.getImage().getHeight());
         }
         
         for(int i = 0; i < chargers.size(); i++){
