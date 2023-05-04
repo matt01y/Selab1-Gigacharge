@@ -198,9 +198,9 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
             is QueueState.Assigned -> {
                 val sdf = SimpleDateFormat("hh:mm")
                 MainScreenNotificationComposable(
-                    notificationText = "U bent aan de beurt!",
-                    description = "U kan gaan laden bij ${queueStatus.charger.description}",
-                    subline = "De beurt verloopt om ${sdf.format(queueStatus.expiretime)}"
+                    notificationText = stringResource(R.string.your_turn),
+                    description = "${stringResource(R.string.your_assigned_charger)} ${queueStatus.charger.description}",
+                    subline = "${stringResource(R.string.your_turn_expires_at)} ${sdf.format(queueStatus.expiretime)}"
                 )
             }
             else -> {
