@@ -17,6 +17,10 @@ import javax.inject.Singleton
 class ProfileRepository @Inject constructor(
     private val accountService: AccountService
 ) {
+    init {
+        accountService.syncProfile()
+    }
+
     private var isVisibleFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val authenticationErrors: Flow<AuthenticationError> = accountService.authError
     val profile: Flow<Profile> = accountService.currentUser.flatMapLatest { profile ->

@@ -31,6 +31,7 @@ interface AccountService {
 
     val currentUserId: String
     val currentUser: Flow<Profile>
+    fun syncProfile()
     val hasUser: Boolean
     suspend fun tryEnable(cardNumber: String)
     suspend fun isEnabled(): Boolean

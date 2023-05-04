@@ -27,6 +27,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import be.ugent.gigacharge.model.User
 import be.ugent.gigacharge.model.service.AccountService
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -57,34 +58,24 @@ class AccountServiceImpl @Inject constructor(
     val userCollection: CollectionReference
         get() = firestore.collection(USERS_COLLECTION_NAME)
 
-//    override val currentUser: Flow<User>
-//        get() = callbackFlow {
-//            Log.println(Log.INFO, "frick", "current user flow")
-//            val listener =
-//                FirebaseAuth.AuthStateListener { auth ->
-//                    this.trySend(auth.currentUser?.let { User(it.uid, it.isAnonymous) } ?: User())
-//                }
-//            auth.addAuthStateListener(listener)
-//            awaitClose { auth.removeAuthStateListener(listener) }
-//        }
+    private val currentUserState: MutableStateFlow<FirebaseUser?> = MutableStateFlow(null);
+    override val currentUser: Flow<Profile> = currentUserState.asStateFlow().transform { user ->
+        if (user != null) {
+            val userDoc = userCollection.document(user.uid).get().await()
+            val userCardNumber = userDoc.get(CARDNUMBER_FIELD)
+            if (userCardNumber != null) {
+                emit(Profile(userCardNumber.toString(), false))
+            } else {
+                emptyFlow<Profile>()
+            }
+        } else {
+            emptyFlow<Profile>()
+        }
+    }
 
-    override val currentUser: Flow<Profile> = flowOf(Profile("test", false))
-//    override val currentUser: Flow<Profile> = callbackFlow {
-//        val listener = FirebaseAuth.AuthStateListener { auth ->
-//            if (auth.currentUser != null) {
-//                GlobalScope.launch {
-//                    Log.i("USER", auth.currentUser!!.uid)
-//                    val userDoc = userCollection.document(auth.currentUser!!.uid).get().await()
-//                    val userCardNumber = userDoc.get(CARDNUMBER_FIELD)
-//                    if (userCardNumber != null) {
-//                        send(Profile(userCardNumber.toString(), false))
-//                    }
-//                }
-//            }
-//        }
-//        auth.addAuthStateListener(listener)
-//        awaitClose { auth.removeAuthStateListener(listener) }
-//    }
+    override fun syncProfile() {
+        auth.addAuthStateListener { auth -> currentUserState.value = auth.currentUser }
+    }
 
     private val authErrorFlow: MutableStateFlow<AuthenticationError> = MutableStateFlow(AuthenticationError.NO_ERROR)
     override val authError: StateFlow<AuthenticationError> = authErrorFlow.asStateFlow()
