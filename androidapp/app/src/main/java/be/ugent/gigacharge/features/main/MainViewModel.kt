@@ -1,9 +1,11 @@
 package be.ugent.gigacharge.features.main
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import be.ugent.gigacharge.data.local.models.Profile
 import be.ugent.gigacharge.domain.location.GetLocationUseCase
 import be.ugent.gigacharge.domain.location.ToggleFavoriteLocationUseCase
+import be.ugent.gigacharge.domain.location.UpdateCurrentLocationUseCase
 import be.ugent.gigacharge.domain.location.UpdateLocationsUseCase
 import be.ugent.gigacharge.domain.profile.*
 import be.ugent.gigacharge.domain.queue.GetQueueUseCase
@@ -35,7 +37,7 @@ class MainViewModel @Inject constructor(
     private val joinLeaveQueueUseCase: JoinLeaveQueueUseCase,
     // Location
     getLocationUseCase: GetLocationUseCase,
-    updateLocationsUseCase: UpdateLocationsUseCase,
+    updateCurrentLocationUseCase: UpdateCurrentLocationUseCase,
     private val toggleFavoriteLocationUseCase: ToggleFavoriteLocationUseCase,
     logService: LogService
 ) : GigaChargeViewModel(logService) {
@@ -51,8 +53,11 @@ class MainViewModel @Inject constructor(
     init {
         launchCatching {
             while (true) {
-                delay(5000)
-                updateLocationsUseCase()
+                delay(20000)
+                launchCatching {
+                    Log.i("main", "YIPPIE!")
+                    updateCurrentLocationUseCase()
+                }
             }
         }
     }

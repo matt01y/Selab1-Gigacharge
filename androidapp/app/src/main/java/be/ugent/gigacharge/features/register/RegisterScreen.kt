@@ -1,5 +1,6 @@
 package be.ugent.gigacharge.features.register
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -21,20 +22,21 @@ import be.ugent.gigacharge.common.ext.basicButton
 import be.ugent.gigacharge.R.string as AppText
 import androidx.compose.ui.res.stringResource;
 import be.ugent.gigacharge.model.AuthenticationError
-import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
-fun RegisterRoute(openAndPopUp: () -> Unit, registerViewModel: RegisterViewModel) {
-    RegisterScreen(openAndPopUp, registerViewModel)
+fun RegisterRoute(openAndPopUp: () -> Unit, finishApp: () -> Unit, registerViewModel: RegisterViewModel) {
+    RegisterScreen(openAndPopUp, finishApp, registerViewModel)
 }
 
 @Composable
 fun RegisterScreen(
     openAndPopUp: () -> Unit,
+    finishApp: () -> Unit,
     viewModel: RegisterViewModel
 ) {
     val authenticationError by viewModel.authenticationErrors.collectAsState()
     val cardNumber by viewModel.cardNumber.collectAsState()
+    BackHandler(true, finishApp)
 
     Scaffold(
         topBar = { RegisterTopBar() },
@@ -101,7 +103,8 @@ fun RegisterTopBar() {
 @Composable
 fun PreviewRegisterScreen() {
     RegisterRoute(
-        openAndPopUp = { },
+        openAndPopUp = {},
+        finishApp = {},
         hiltViewModel()
     )
 }
