@@ -42,9 +42,6 @@
     <string name="timeout_error">Oeps, er ging iets fout (time out)</string>
 
     <!-- Common -->
-    <string name="email">Email</string>
-    <string name="password">Password</string>
-    <string name="repeat_password">Repeat password</string>
     <string name="generic_error">Something wrong happened. Please try again.</string>
     <string name="try_again">Try again</string>
 

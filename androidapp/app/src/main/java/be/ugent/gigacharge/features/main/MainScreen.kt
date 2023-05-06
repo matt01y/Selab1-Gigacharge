@@ -179,14 +179,6 @@ fun Overlay(cancel: () -> Unit) {
 }
 
 @Composable
-fun QueueInfoAssignedComposable(
-    expireTime: String
-) {
-    Text(stringResource(R.string.assigned))
-    Text("${stringResource(R.string.reservation_expires)}: $expireTime")
-}
-
-@Composable
 fun QueueInfoComposable(locationUiState : LocationUiState.Success) {
     val location = locationUiState.location
     val queueSize = location.amountWaiting

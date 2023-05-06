@@ -56,7 +56,7 @@ fun GigaChargeApp(finishApp : () -> Unit) {
 @OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
-fun aa() {
+fun Aa() {
     GigaChargeApp(finishApp = {})
 }
 
