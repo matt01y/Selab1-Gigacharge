@@ -1,12 +1,10 @@
 package be.ugent.gigacharge.common.composable
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -34,10 +32,11 @@ fun ChargerListComposable(chargers : List<Charger>) {
             "Laadpalen:",
             Modifier.align(Alignment.TopStart).padding(start = 10.dp, top = 10.dp),
             color = MaterialTheme.colors.onBackground,
-            fontSize = 18.sp,
+            fontSize = 25.sp,
             fontWeight = FontWeight.Bold
         )
-        LazyColumn(Modifier.padding(top = 40.dp)) {
+        LazyColumn(Modifier.padding(top = 40.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)) {
             items(chargers.size) { index ->
                 ChargerListElementComposable(chargers[index])
             }
@@ -55,15 +54,18 @@ fun ChargerListElementComposable(charger: Charger) {
         modifier = Modifier
             .fillMaxSize()
             .background(
-                color = Color.Gray,
-                shape = RoundedCornerShape(16.dp)
+                MaterialTheme.colors.onSurface,
+                shape = RoundedCornerShape(5.dp)
             )
             .padding(16.dp)
     ) {
         Column() {
-            Text("status: " + charger.status)
-            Text("description: " + charger.description)
-            //Text("user")
+            Text("status: " + charger.status,
+                color = MaterialTheme.colors.onBackground,
+                fontWeight = FontWeight.Bold)
+            Text("description: " + charger.description,
+                color = MaterialTheme.colors.onBackground,
+                fontWeight = FontWeight.Bold)
         }
     }
 }
