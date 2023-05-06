@@ -43,7 +43,7 @@ class AccountServiceImpl @Inject constructor(
     override val hasUser: Boolean
         get() = auth.currentUser != null
 
-    val userCollection: CollectionReference
+    private val userCollection: CollectionReference
         get() = firestore.collection(USERS_COLLECTION_NAME)
 
     private val currentUserState: MutableStateFlow<FirebaseUser?> = MutableStateFlow(null)
@@ -166,9 +166,7 @@ class AccountServiceImpl @Inject constructor(
 
     companion object {
         private const val TIMEOUT_TIME = 5000L
-        private const val LINK_ACCOUNT_TRACE = "linkAccount"
         private const val USERS_COLLECTION_NAME = "users"
-        private const val WHITELIST_COLLECTION = "whitelist"
         private const val CARDNUMBER_FIELD = "kaartnummer"
         private const val TIMESTAMP_FIELD = "timestamp"
         

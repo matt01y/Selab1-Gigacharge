@@ -62,7 +62,7 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
 
         locationsnap.forEach { snap ->
             val res = refToLocation(locationCollection.document(snap.id))
-            newmap.put(res.id, res)
+            newmap[res.id] = res
             results.add(res)
         }
 
@@ -182,7 +182,8 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
 
                     STATUS_ASSIGNED -> {
                         Log.i("queue", "assigned gevonden")
-                        val mycharger = chargers.filter { it.id == myJoinEvent.getString("assigned") }.firstOrNull()
+                        val mycharger =
+                            chargers.firstOrNull { it.id == myJoinEvent.getString("assigned") }
                         Log.i("queue", chargers.toString())
                         val expiretime = myJoinEvent.getTimestamp(EXPIRES_FIELD)
                             ?: Timestamp.now() //TODO: deze null case beter maken
@@ -224,6 +225,5 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
         private const val STATUS_ASSIGNED = "assigned"
         private const val STATUS_LEFT = "left"
         private const val EXPIRES_FIELD = "expires"
-        private const val TIMESTAMP_FIELD = "timestamp"
     }
 }

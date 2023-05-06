@@ -42,7 +42,5 @@ class ConfigurationServiceImpl @Inject constructor() : ConfigurationService {
         get() = true
 
     companion object {
-        private const val SHOW_TASK_EDIT_BUTTON_KEY = "show_task_edit_button"
-        private const val FETCH_CONFIG_TRACE = "fetchConfig"
     }
 }

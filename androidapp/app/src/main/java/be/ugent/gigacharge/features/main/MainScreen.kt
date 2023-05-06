@@ -67,7 +67,6 @@ fun MainScreen(
                                     is LocationUiState.Success -> {
                                         LocationButtonComposable(
                                             onLocationSelectClick,
-                                            { viewModel.toggleFavorite(l.location) },
                                             l.location,
                                             title = true
                                         )

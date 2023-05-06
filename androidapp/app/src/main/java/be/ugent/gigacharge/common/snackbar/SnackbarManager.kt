@@ -26,10 +26,6 @@ object SnackbarManager {
     val snackbarMessages: StateFlow<SnackbarMessage?>
         get() = messages.asStateFlow()
 
-    fun showMessage(@StringRes message: Int) {
-        messages.value = SnackbarMessage.ResourceSnackbar(message)
-    }
-
     fun showMessage(message: SnackbarMessage) {
         messages.value = message
     }
