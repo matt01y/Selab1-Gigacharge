@@ -33,7 +33,6 @@ interface AccountService {
     val hasUser: Boolean
     suspend fun tryEnable(cardNumber: String)
     suspend fun isEnabled(): Boolean
-    suspend fun init()
     fun sendToken(token: String)
 
     val authError: Flow<AuthenticationError>

@@ -6,5 +6,4 @@ data class Charger(
     val status: ChargerStatus,
     val user: UserField,
     val usertype: UserType
-) {
-}
+)

@@ -38,9 +38,7 @@ class ConfigurationServiceImpl @Inject constructor() : ConfigurationService {
 
     override suspend fun fetchConfiguration(): Boolean = true
 
-    override val isShowTaskEditButtonConfig: Boolean
-        get() = true
+    override val isShowTaskEditButtonConfig: Boolean = true
 
-    companion object {
-    }
+    companion object
 }

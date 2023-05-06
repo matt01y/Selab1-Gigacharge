@@ -16,9 +16,3 @@ limitations under the License.
 
 package be.ugent.gigacharge.common.ext
 
-import android.util.Patterns
-import java.util.regex.Pattern
-
-private const val MIN_PASS_LENGTH = 6
-private const val PASS_PATTERN = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=\\S+$).{4,}$"
-

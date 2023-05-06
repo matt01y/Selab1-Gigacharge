@@ -147,10 +147,6 @@ class AccountServiceImpl @Inject constructor(
         isEnabledObservers.forEach { (it(new)) }
     }
 
-    override suspend fun init() {
-
-    }
-
     override fun sendToken(token: String) {
         userCollection.document(currentUserId).update("fcmtoken", token)
     }

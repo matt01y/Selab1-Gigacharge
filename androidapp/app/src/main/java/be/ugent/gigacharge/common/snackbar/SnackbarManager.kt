@@ -16,7 +16,6 @@ limitations under the License.
 
 package be.ugent.gigacharge.common.snackbar
 
-import androidx.annotation.StringRes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

@@ -69,7 +69,7 @@ fun rememberAppState(
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) =
     remember(scaffoldState, navController, snackbarManager, resources, coroutineScope) {
-        GigaChargeAppState(scaffoldState, navController, snackbarManager, resources, coroutineScope)
+        GigaChargeAppState(scaffoldState, snackbarManager, resources, coroutineScope)
     }
 
 @Composable

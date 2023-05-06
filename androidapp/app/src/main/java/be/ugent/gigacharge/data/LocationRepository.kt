@@ -25,8 +25,8 @@ class LocationRepository @Inject constructor(
     private val accountService: AccountService,
     @ApplicationContext private val context: Context
 ) {
-    private var STARTID = stringPreferencesKey("startID")
-    private var startID = runBlocking {context.dataStore.data.map { it[STARTID] }.first()}
+    private val sTARTID = stringPreferencesKey("startID")
+    private var startID = runBlocking {context.dataStore.data.map { it[sTARTID] }.first()}
 
     val locationIdFlow: MutableStateFlow<String?> = MutableStateFlow(startID)
     private val locations: Flow<Map<String, Location>> =
@@ -53,7 +53,7 @@ class LocationRepository @Inject constructor(
 
     fun setLocation(location: Location) {
         locationIdFlow.value = location.id
-        runBlocking { context.dataStore.edit {it[STARTID] = location.id } }
+        runBlocking { context.dataStore.edit {it[sTARTID] = location.id } }
     }
 
     suspend fun updateLocations() {

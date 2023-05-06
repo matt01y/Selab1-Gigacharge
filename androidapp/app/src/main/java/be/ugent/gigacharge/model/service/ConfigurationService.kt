@@ -17,6 +17,7 @@ limitations under the License.
 package be.ugent.gigacharge.model.service
 
 interface ConfigurationService {
+    @Suppress("SameReturnValue", "SameReturnValue")
     suspend fun fetchConfiguration(): Boolean
     val isShowTaskEditButtonConfig: Boolean
 }
