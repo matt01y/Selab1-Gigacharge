@@ -7,12 +7,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import be.ugent.gigacharge.model.location.charger.Charger
 import be.ugent.gigacharge.model.location.charger.ChargerStatus
 import be.ugent.gigacharge.model.location.charger.UserField
@@ -20,9 +24,23 @@ import be.ugent.gigacharge.model.location.charger.UserType
 
 @Composable
 fun ChargerListComposable(chargers : List<Charger>) {
-    LazyColumn {
-        items(chargers.size) { index ->
-            ChargerListElementComposable(chargers[index])
+    Box(
+        Modifier
+            .fillMaxSize()
+            .padding(10.dp)
+            .background(MaterialTheme.colors.background)
+    ) {
+        Text(
+            "Laadpalen:",
+            Modifier.align(Alignment.TopStart).padding(start = 10.dp, top = 10.dp),
+            color = MaterialTheme.colors.onBackground,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
+        LazyColumn(Modifier.padding(top = 40.dp)) {
+            items(chargers.size) { index ->
+                ChargerListElementComposable(chargers[index])
+            }
         }
     }
 }

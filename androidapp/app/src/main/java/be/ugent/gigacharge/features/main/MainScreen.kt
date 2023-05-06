@@ -194,14 +194,15 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
     val location = locationUiState.location
     val queueSize = location.amountWaiting
     val queueStatus = location.queue
-    Box(
+    Column(
         Modifier
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
+            //.padding(10.dp)
     ) {
         
         // De onderstaande box zorgt dat er geen probleem is met de maximumheight voor de Column
-        Box(Modifier.height(500.dp).fillMaxWidth()) {
+        Box(Modifier.height(200.dp).fillMaxWidth()) {
             Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                 Text(
                     stringResource(R.string.queue_info),
@@ -284,7 +285,7 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
         Box(Modifier.height(500.dp)) {
             ChargerListComposable(chargers = location.chargers)
         }
-        //ChargerListComposable(chargers = location.chargers)
+
     }
 
 }
