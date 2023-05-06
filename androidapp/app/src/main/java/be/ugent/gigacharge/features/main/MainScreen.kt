@@ -194,53 +194,97 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
     val location = locationUiState.location
     val queueSize = location.amountWaiting
     val queueStatus = location.queue
-
-    Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-        Text(stringResource(R.string.queue_info), color = MaterialTheme.colors.onBackground, fontSize = 25.sp, fontWeight = FontWeight.Bold)
-
-        when(queueStatus){
-            is QueueState.Assigned -> {
-                val sdf = SimpleDateFormat("hh:mm")
-                MainScreenNotificationComposable(
-                    notificationText = stringResource(R.string.your_turn),
-                    description = "${stringResource(R.string.your_assigned_charger)} ${queueStatus.charger.description}",
-                    subline = "${stringResource(R.string.your_turn_expires_at)} ${sdf.format(queueStatus.expiretime)}"
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colors.background)
+    ) {
+        
+        // De onderstaande box zorgt dat er geen probleem is met de maximumheight voor de Column
+        Box(Modifier.height(500.dp).fillMaxWidth()) {
+            Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Text(
+                    stringResource(R.string.queue_info),
+                    color = MaterialTheme.colors.onBackground,
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.Bold
                 )
-            }
-            else -> {
-                Column(
-                    Modifier
-                        .fillMaxWidth()
-                        .background(
-                            MaterialTheme.colors.onSurface,
-                            shape = RoundedCornerShape(5.dp)
+
+                when (queueStatus) {
+                    is QueueState.Assigned -> {
+                        val sdf = SimpleDateFormat("hh:mm")
+                        MainScreenNotificationComposable(
+                            notificationText = stringResource(R.string.your_turn),
+                            description = "${stringResource(R.string.your_assigned_charger)} ${queueStatus.charger.description}",
+                            subline = "${stringResource(R.string.your_turn_expires_at)} ${
+                                sdf.format(
+                                    queueStatus.expiretime
+                                )
+                            }"
                         )
-                        .padding(10.dp)
-                ) {
-                    Text("${stringResource(R.string.in_queue)}: $queueSize", color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    when (queueStatus) {
-                        QueueState.NotJoined -> {
-                            Text(stringResource(R.string.queue_not_joined), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                        }
-                        QueueState.Charging -> {
-                            Text(stringResource(R.string.charging_car))
-                        }
-                        is QueueState.Joined -> {
-                            val position = queueStatus.myPosition.toInt()
-                            if(position == 0){
-                                Text(stringResource(id = R.string.queue_position_zero), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                            }else{
-                                Text(resources().getQuantityString(R.plurals.queue_position_plural,
-                                    queueStatus.myPosition.toInt(), queueStatus.myPosition.toInt()
-                                ), color = MaterialTheme.colors.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    }
+                    else -> {
+                        Column(
+                            Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    MaterialTheme.colors.onSurface,
+                                    shape = RoundedCornerShape(5.dp)
+                                )
+                                .padding(10.dp)
+                        ) {
+                            Text(
+                                "${stringResource(R.string.in_queue)}: $queueSize",
+                                color = MaterialTheme.colors.onBackground,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            when (queueStatus) {
+                                QueueState.NotJoined -> {
+                                    Text(
+                                        stringResource(R.string.queue_not_joined),
+                                        color = MaterialTheme.colors.onBackground,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                                QueueState.Charging -> {
+                                    Text(stringResource(R.string.charging_car))
+                                }
+                                is QueueState.Joined -> {
+                                    val position = queueStatus.myPosition.toInt()
+                                    if (position == 0) {
+                                        Text(
+                                            stringResource(id = R.string.queue_position_zero),
+                                            color = MaterialTheme.colors.onBackground,
+                                            fontSize = 18.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    } else {
+                                        Text(
+                                            resources().getQuantityString(
+                                                R.plurals.queue_position_plural,
+                                                queueStatus.myPosition.toInt(),
+                                                queueStatus.myPosition.toInt()
+                                            ),
+                                            color = MaterialTheme.colors.onBackground,
+                                            fontSize = 18.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
+                                else -> {}
                             }
                         }
-                        else -> {}
                     }
                 }
+
             }
         }
-
+        Box(Modifier.height(500.dp)) {
+            ChargerListComposable(chargers = location.chargers)
+        }
+        //ChargerListComposable(chargers = location.chargers)
     }
 
 }
