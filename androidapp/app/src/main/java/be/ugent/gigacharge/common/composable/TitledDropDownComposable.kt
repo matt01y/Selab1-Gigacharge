@@ -1,4 +1,4 @@
-package be.ugent.gigacharge.features.register
+package be.ugent.gigacharge.common.composable
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

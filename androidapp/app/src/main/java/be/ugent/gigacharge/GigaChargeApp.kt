@@ -47,7 +47,7 @@ fun GigaChargeApp(finishApp : () -> Unit) {
                 },
                 scaffoldState = appState.scaffoldState
             ) {
-                Navigation(finishApp = finishApp);
+                Navigation(finishApp = finishApp)
             }
         }
     }

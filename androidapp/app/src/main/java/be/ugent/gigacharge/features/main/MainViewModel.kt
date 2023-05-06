@@ -2,12 +2,12 @@ package be.ugent.gigacharge.features.main
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import be.ugent.gigacharge.data.local.models.Profile
 import be.ugent.gigacharge.domain.location.GetLocationUseCase
 import be.ugent.gigacharge.domain.location.ToggleFavoriteLocationUseCase
 import be.ugent.gigacharge.domain.location.UpdateCurrentLocationUseCase
-import be.ugent.gigacharge.domain.location.UpdateLocationsUseCase
-import be.ugent.gigacharge.domain.profile.*
+import be.ugent.gigacharge.domain.profile.DeleteProfileUseCase
+import be.ugent.gigacharge.domain.profile.GetProfileUseCase
+import be.ugent.gigacharge.domain.profile.ToggleProfileUseCase
 import be.ugent.gigacharge.domain.queue.GetQueueUseCase
 import be.ugent.gigacharge.domain.queue.JoinLeaveQueueUseCase
 import be.ugent.gigacharge.features.LocationUiState
@@ -15,7 +15,6 @@ import be.ugent.gigacharge.features.ProfileUiState
 import be.ugent.gigacharge.features.QueueUiState
 import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.model.service.LogService
-import be.ugent.gigacharge.model.service.QueueService
 import be.ugent.gigacharge.screens.GigaChargeViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay

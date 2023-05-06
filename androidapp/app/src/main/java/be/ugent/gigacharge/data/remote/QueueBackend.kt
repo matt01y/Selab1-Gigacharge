@@ -1,4 +1,4 @@
-package be.ugent.quotes.data.remote
+package be.ugent.gigacharge.data.remote
 
 class QueueBackend {
 

@@ -82,7 +82,7 @@ fun MyDropdown(
 @Preview
 @Composable
 fun MyDropDownPreview() {
-    MyDropdown("label", listOf("a", "b", "c", "d", "e"), { s: String -> }, Modifier)
+    MyDropdown("label", listOf("a", "b", "c", "d", "e"), {}, Modifier)
 }
 
 @Composable

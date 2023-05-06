@@ -83,7 +83,7 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
         val locid = loc.id
 
         queueCollection(locid).add(
-            hashMapOf<String, Any>(
+            hashMapOf(
                 USERID_FIELD to accountService.currentUserId,
                 JOINEDAT_FIELD to FieldValue.serverTimestamp(),
                 STATUS_FIELD to STATUS_WAITING
@@ -111,14 +111,14 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
     }
 
     //TODO: testen
-    override suspend fun updateLocation(locidstr : String): Location? {
-        if(locationMap.keys.contains(locidstr)){
-            val newloc = refToLocation(locationCollection.document(locidstr))
-            locationMap[locidstr] = newloc
+    override suspend fun updateLocation(locId : String): Location? {
+        return if(locationMap.keys.contains(locId)){
+            val newloc = refToLocation(locationCollection.document(locId))
+            locationMap[locId] = newloc
             Log.println(Log.INFO, "queueupdate", locationMap.toMap().toString())
-            return newloc
+            newloc
         }else{
-            return null
+            null
         }
     }
 

@@ -11,6 +11,7 @@ import be.ugent.gigacharge.model.location.Location
 import be.ugent.gigacharge.model.service.AccountService
 import be.ugent.gigacharge.model.service.QueueService
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -31,6 +32,7 @@ class LocationRepository @Inject constructor(
     private val locations: Flow<Map<String, Location>> =
         snapshotFlow { queueService.locationMap.toMap() }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun getLocation(): Flow<Location> = locations.flatMapLatest { map ->
         if (map.isEmpty()) {
             emptyFlow()

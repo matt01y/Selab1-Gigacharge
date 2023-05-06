@@ -51,7 +51,6 @@ fun MainScreen(
 ) {
     BackHandler(onBack = finishApp, enabled = true)
     val profileUiState by viewModel.profileUiState.collectAsState()
-    val queueUiState by viewModel.queueUiState.collectAsState() // TODO: Wordt dit nog later gebruikt? of is dit overbodig?
     val locationUiState by viewModel.locationUiState.collectAsState()
     Box {
         Scaffold(
@@ -70,7 +69,7 @@ fun MainScreen(
                                             onLocationSelectClick,
                                             { viewModel.toggleFavorite(l.location) },
                                             l.location,
-                                            true
+                                            title = true
                                         )
                                     }
                                 }
@@ -126,7 +125,7 @@ fun MainScreen(
                         } else {
                             LazyColumn {
                                 item {
-                                    QueueInfoComposable(l, profileUiState)
+                                    QueueInfoComposable(l)
                                 }
                             }
                         }
@@ -189,8 +188,7 @@ fun QueueInfoAssignedComposable(
 }
 
 @Composable
-fun QueueInfoComposable(locationUiState : LocationUiState.Success,
-                        profileUiState: ProfileUiState) {
+fun QueueInfoComposable(locationUiState : LocationUiState.Success) {
     val location = locationUiState.location
     val queueSize = location.amountWaiting
     val queueStatus = location.queue

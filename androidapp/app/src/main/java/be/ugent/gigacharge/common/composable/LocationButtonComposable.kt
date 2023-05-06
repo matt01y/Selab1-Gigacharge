@@ -50,8 +50,8 @@ fun LocationButtonComposable(
     setLocation: () -> Unit,
     toggleFavorite: () -> Unit,
     location: Location,
-    title: Boolean = false,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    title: Boolean = false
 ) {
     Row(
         modifier
@@ -95,7 +95,7 @@ fun LocationButtonComposablePreview() {
                 0,
                 listOf()
             ),
-            false
+            title = false
         )
     }
 }
