@@ -13,8 +13,8 @@ public class Config {
     static List<String> userids = List.of(
         "wagen 1", "PiPAKLMr9ggNgTvrLUtQ5GaLGOi1",
         "wagen 2", "RAifgUT5LygtlwuOs0B5LVR6Mrf2",
-        "Robin", "wLw07lP8qaQKf9nstBfNcc4Ulf53",
-        "Matthias", "cvBP4Nr5dNdSpAbwQ1bRyaGAh0u1",
-        "emulator", "sv79TP9tgCPRgCa933WdxWqvVDm1"
+        "Robin", "DUfC58lW3BX1uwd7YZ6c4LgAa993",
+        "Matthias", "ljW3h0v3I8ea4csXm5FEmNLMAoz1",
+        "emulator", "flC7MMTgYyQei6GqU58JNx2QhyK2"
         );
 }

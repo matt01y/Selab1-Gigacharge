@@ -187,17 +187,22 @@ async function getFreeChargerIfExists(chargersCollection : fs.CollectionReferenc
 }
 
 async function sendNotification(userId : string, content: fcm.Notification){
-    const fcmtoken = (await users.doc(userId).get()).data().fcmtoken
+    try{
+        const fcmtoken = (await users.doc(userId).get()).data().fcmtoken
 
-    if(fcmtoken){
-        const message : fcm.TokenMessage = {
-            notification : content,
-            token : fcmtoken
+        if(fcmtoken){
+            const message : fcm.TokenMessage = {
+                notification : content,
+                token : fcmtoken
+            }
+            messaging.send(message)
+        }else{
+            console.error("GEEN FCMTOKEN BIJ USER")
         }
-        messaging.send(message)
-    }else{
-        console.error("GEEN FCMTOKEN BIJ USER")
+    }catch(err){
+
     }
+    
 }
 
 async function setProgram(program : any, locationRef : fs.DocumentReference){
