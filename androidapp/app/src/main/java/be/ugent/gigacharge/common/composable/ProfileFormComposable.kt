@@ -17,7 +17,7 @@ import androidx.compose.ui.res.stringResource;
 
 @Composable
 fun CardNumberBox(
-    cardNumberState : String,
+    cardNumber : String,
     onCardNumberStateChange : (String) -> Unit,
     readOnly: Boolean = false
 ) {
@@ -34,9 +34,10 @@ fun CardNumberBox(
             )
 
             OutlinedTextField(
-                value = cardNumberState,
+                value = cardNumber,
                 onValueChange = onCardNumberStateChange,
-                //label = {Text("Kaartnummer")},
+                singleLine = true,
+                readOnly = readOnly,
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     focusedBorderColor = MaterialTheme.colors.onBackground,
                     unfocusedBorderColor = MaterialTheme.colors.onBackground,

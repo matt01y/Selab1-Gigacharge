@@ -7,7 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import be.ugent.gigacharge.features.location.LocationRoute
 import be.ugent.gigacharge.features.main.MainRoute
-import be.ugent.gigacharge.features.register.RegisterScreen
+import be.ugent.gigacharge.features.register.RegisterRoute
 import be.ugent.gigacharge.features.splash.SplashScreen
 
 @Composable
@@ -19,7 +19,11 @@ fun Navigation(finishApp : () -> Unit) {
         }
 
         composable(Destinations.REGISTER_SCREEN) {
-            RegisterScreen(openAndPopUp = { navController.navigate(Destinations.MAIN) }, finishApp = finishApp)
+            RegisterRoute(
+                openAndPopUp = { navController.navigate(Destinations.MAIN) },
+                finishApp = finishApp,
+                hiltViewModel()
+            )
         }
 
         composable(Destinations.MAIN) {

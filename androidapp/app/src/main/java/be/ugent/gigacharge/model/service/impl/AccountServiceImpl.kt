@@ -16,22 +16,31 @@ limitations under the License.
 
 package be.ugent.gigacharge.model.service.impl
 
+import android.content.res.Resources
 import android.util.Log
+import androidx.compose.ui.res.stringResource
+import be.ugent.gigacharge.R
+import be.ugent.gigacharge.data.local.models.Profile
+import be.ugent.gigacharge.model.AuthenticationError
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import be.ugent.gigacharge.model.User
 import be.ugent.gigacharge.model.service.AccountService
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import kotlin.properties.Delegates
@@ -40,7 +49,6 @@ class AccountServiceImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val firestore: FirebaseFirestore
 ) : AccountService {
-
     override val currentUserId: String
         get() = auth.currentUser?.uid.orEmpty()
 
@@ -50,17 +58,27 @@ class AccountServiceImpl @Inject constructor(
     val userCollection: CollectionReference
         get() = firestore.collection(USERS_COLLECTION_NAME)
 
-    override val currentUser: Flow<User>
-        get() = callbackFlow {
-            Log.println(Log.INFO, "frick", "current user flow")
-            val listener =
-                FirebaseAuth.AuthStateListener { auth ->
-                    this.trySend(auth.currentUser?.let { User(it.uid, it.isAnonymous) } ?: User())
-                }
-            auth.addAuthStateListener(listener)
-            awaitClose { auth.removeAuthStateListener(listener) }
+    private val currentUserState: MutableStateFlow<FirebaseUser?> = MutableStateFlow(null);
+    override val currentUser: Flow<Profile> = currentUserState.asStateFlow().transform { user ->
+        if (user != null) {
+            val userDoc = userCollection.document(user.uid).get().await()
+            val userCardNumber = userDoc.get(CARDNUMBER_FIELD)
+            if (userCardNumber != null) {
+                emit(Profile(userCardNumber.toString(), false))
+            } else {
+                emptyFlow<Profile>()
+            }
+        } else {
+            emptyFlow<Profile>()
         }
+    }
 
+    override fun syncProfile() {
+        auth.addAuthStateListener { auth -> currentUserState.value = auth.currentUser }
+    }
+
+    private val authErrorFlow: MutableStateFlow<AuthenticationError> = MutableStateFlow(AuthenticationError.NO_ERROR)
+    override val authError: StateFlow<AuthenticationError> = authErrorFlow.asStateFlow()
 
     override suspend fun createAnonymousAccount() {
         auth.signInAnonymously().await()
@@ -90,20 +108,44 @@ class AccountServiceImpl @Inject constructor(
         Log.println(Log.INFO, "user id", currentUserId)
         userCollection.document(currentUserId).set(enablerequest).await()
 
-        var tries = 0
-        while (!isEnabledObservable && tries < 10) {
-            Log.println(Log.INFO, "auth", "CHECKING AGAIN")
+        val startTime: Long = System.currentTimeMillis()
+        var timer: Long
+        var stop = false
+        while (!stop) {
+            // Force reloading user
             auth.currentUser?.reload()?.await()
-            val claims = auth.currentUser?.getIdToken(true)?.await()?.claims
-            if (claims?.get("enabled") == true) {
-                Log.println(Log.INFO, "auth", "ENABLING OK")
-                isEnabledObservable = true
-                break
-            } else {
-                Log.println(Log.INFO, "auth", "NOT NIET ENABLED")
+
+            // Check if a user is logged in
+            if (hasUser) {
+                // Get the status
+                val userDoc = userCollection.document(auth.currentUser!!.uid).get().await()
+
+                // Check if enabled
+                when (userDoc.get(ENABLE_STATUS).toString()) {
+                    ENABLED -> {
+                        isEnabledObservable = true
+                        authErrorFlow.value = AuthenticationError.NO_ERROR
+                        stop = true
+                    }
+                    NOT_IN_WHITELIST -> {
+                        authErrorFlow.value = AuthenticationError.INVALID_CARD_NUMBER
+                        stop = true
+                    }
+                    ENABLE_ERROR -> {
+                        authErrorFlow.value = AuthenticationError.ERROR
+                        stop = true
+                    }
+                }
             }
-            delay(750)
-            tries++
+
+            // Update timer
+            timer = System.currentTimeMillis() - startTime
+
+            // Timeout error
+            if (!stop && timer >= TIMEOUT_TIME) {
+                authErrorFlow.value = AuthenticationError.TIMEOUT
+                stop = true
+            }
         }
     }
 
@@ -135,10 +177,16 @@ class AccountServiceImpl @Inject constructor(
     }
 
     companion object {
+        private const val TIMEOUT_TIME = 5000L
         private const val LINK_ACCOUNT_TRACE = "linkAccount"
         private const val USERS_COLLECTION_NAME = "users"
         private const val WHITELIST_COLLECTION = "whitelist"
         private const val CARDNUMBER_FIELD = "kaartnummer"
         private const val TIMESTAMP_FIELD = "timestamp"
+        
+        private const val ENABLE_STATUS = "enablestatus"
+        private const val ENABLED = "enabled"
+        private const val NOT_IN_WHITELIST = "not_in_whitelist_error"
+        private const val ENABLE_ERROR = "unknown_error"
     }
 }
