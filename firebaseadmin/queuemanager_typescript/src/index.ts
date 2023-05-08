@@ -130,12 +130,16 @@ async function handleChange(change : fs.QueryDocumentSnapshot<fs.DocumentData>){
                         joinDocs.forEach(e => {
                             //confirmed dat er bij de foute paal wordt geladen
                             //de paal waar aan ge-assigned was kan nu gebruikt worden om de (eventuele) persoon waarvan gestolen is te assignen
-                            const joindoc = e.data();
-                            if(joindoc.assigned){
-                                swapcharger = chargersCollection.doc(joindoc.assigned)
+                            try{
+                                const joindoc = e.data();
+                                if(joindoc.assigned){
+                                    swapcharger = chargersCollection.doc(joindoc.assigned)
+                                }
+                                console.log("bozo laadt op foute plek op")
+                                e.ref.update({status: STATUS_COMPLETE});
+                            }catch(err){
+                                console.error(err);
                             }
-                            console.log("bozo laadt op foute plek op")
-                            e.ref.update({status: STATUS_COMPLETE});
                             
                         })
 
@@ -236,7 +240,11 @@ async function assignUserToCharger(joinDoc : fs.DocumentSnapshot, chargerDoc : f
 
     setTimeout(() => {
         console.log("expiring...")
-        expireAssignment(chargerDoc.ref, joinDoc.ref, expiretimestamp)
+        try{
+            expireAssignment(chargerDoc.ref, joinDoc.ref, expiretimestamp)
+        }catch(err){
+            console.error(err);
+        }
     }, Math.abs(expiretime.getTime() - now.getTime()));
 }
 
