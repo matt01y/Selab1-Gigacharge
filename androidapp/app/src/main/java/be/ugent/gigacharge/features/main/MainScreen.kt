@@ -57,7 +57,8 @@ fun MainScreen(
         Scaffold(
             topBar = {
                 MainHeaderComposable(
-                    { viewModel.toggleProfile() }
+                    { viewModel.toggleProfile() },
+                    onLogoClick = { viewModel.refreshButtonPressed() }
                 ) {
                     when (val s = profileUiState) {
                         ProfileUiState.Loading -> LoadingComposable(textColor = MaterialTheme.colors.onPrimary, text="Loading profile ...")
