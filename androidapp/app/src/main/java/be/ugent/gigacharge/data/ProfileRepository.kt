@@ -1,8 +1,11 @@
 package be.ugent.gigacharge.data
 
+import android.util.Log
 import be.ugent.gigacharge.data.local.models.Profile
-import be.ugent.gigacharge.model.service.QueueService
+import be.ugent.gigacharge.model.AuthenticationError
 import be.ugent.gigacharge.model.service.AccountService
+import be.ugent.gigacharge.screens.GigaChargeViewModel
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -12,21 +15,16 @@ import javax.inject.Singleton
 
 @Singleton
 class ProfileRepository @Inject constructor(
-    queueService: QueueService,
     private val accountService: AccountService
 ) {
-    private var isVisibleFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private var profileFlow: MutableStateFlow<Profile?> = MutableStateFlow(Profile("1234 - 5678", false))
+    init {
+        accountService.syncProfile()
+    }
 
-    fun getProfile(): Flow<Profile> = profileFlow.flatMapLatest { profile ->
-        if (profile == null) {
-            emptyFlow()
-        } else {
-            isVisibleFlow.transform { isVisible ->
-                val profile2 = Profile(profile.cardNumber, isVisible)
-                emit(profile2)
-            }
-        }
+    private var isVisibleFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val authenticationErrors: Flow<AuthenticationError> = accountService.authError
+    val profile: Flow<Profile> = accountService.currentUser.flatMapLatest { profile ->
+        isVisibleFlow.transform { isVisible -> emit(Profile(profile.cardNumber, isVisible)) }
     }
 
     fun toggleProfile() {
@@ -37,5 +35,27 @@ class ProfileRepository @Inject constructor(
         GlobalScope.launch {
             accountService.deleteProfile()
         }
+    }
+
+    suspend fun registerUser(action: ()->Unit, cardNumber:String) {
+        Log.i("Register", cardNumber)
+
+        // Add a listener to the isEnabled value
+        accountService.isEnabledObservers.add {
+            if (it) {
+                // Add a messaging token to the user
+                FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+                    if (token != null) {
+                        accountService.sendToken(token)
+                    }
+                }
+
+                // The account is enabled, execute the given action
+                action()
+            }
+        }
+
+        // Try to enable the account
+        accountService.tryEnable(cardNumber)
     }
 }

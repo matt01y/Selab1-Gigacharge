@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import be.ugent.gigacharge.model.location.Location
+import be.ugent.gigacharge.model.service.AccountService
 import be.ugent.gigacharge.model.service.QueueService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
@@ -20,6 +21,7 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 @Singleton
 class LocationRepository @Inject constructor(
     private val queueService: QueueService,
+    private val accountService: AccountService,
     @ApplicationContext private val context: Context
 ) {
     private val START_ID = stringPreferencesKey("startID")
@@ -53,11 +55,15 @@ class LocationRepository @Inject constructor(
     }
 
     suspend fun updateLocations() {
-        queueService.updateLocations()
+        if (accountService.isEnabled()) {
+            queueService.updateLocations()
+        }
     }
 
     suspend fun updateLocation(locid : String){
-        queueService.updateLocation(locid)
+        if (accountService.isEnabled()) {
+            queueService.updateLocation(locid)
+        }
     }
 
     fun toggleFavorite(location: Location) {
