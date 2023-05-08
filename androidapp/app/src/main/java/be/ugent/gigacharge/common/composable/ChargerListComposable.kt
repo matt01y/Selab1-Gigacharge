@@ -8,6 +8,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,6 +20,12 @@ import be.ugent.gigacharge.model.location.charger.Charger
 import be.ugent.gigacharge.model.location.charger.ChargerStatus
 import be.ugent.gigacharge.model.location.charger.UserField
 import be.ugent.gigacharge.model.location.charger.UserType
+import androidx.compose.ui.res.stringResource
+import be.ugent.gigacharge.resources
+import be.ugent.gigacharge.R
+import be.ugent.gigacharge.ui.theme.Charger_free
+import be.ugent.gigacharge.ui.theme.Charger_out
+import be.ugent.gigacharge.ui.theme.Charger_used
 
 @Composable
 fun ChargerListComposable(chargers : List<Charger>) {
@@ -30,7 +37,9 @@ fun ChargerListComposable(chargers : List<Charger>) {
     ) {
         Text(
             "Laadpalen:",
-            Modifier.align(Alignment.TopStart).padding(start = 10.dp, top = 10.dp),
+            Modifier
+                .align(Alignment.TopStart)
+                .padding(start = 10.dp, top = 10.dp),
             color = MaterialTheme.colors.onBackground,
             fontSize = 25.sp,
             fontWeight = FontWeight.Bold
@@ -50,22 +59,37 @@ Het wordt gebruikt in de ChargerListComposable
  */
 @Composable
 fun ChargerListElementComposable(charger: Charger) {
+    val statuscolor = when(charger.status){
+        ChargerStatus.CHARGING -> Charger_used
+        ChargerStatus.ASSIGNED -> Charger_used
+        ChargerStatus.OUT -> Charger_out
+        ChargerStatus.FREE -> Charger_free
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
-                MaterialTheme.colors.onSurface,
+                statuscolor,
                 shape = RoundedCornerShape(5.dp)
             )
             .padding(16.dp)
     ) {
         Column() {
-            Text("status: " + charger.status,
+            val statusmessage = when(charger.status){
+                ChargerStatus.CHARGING -> stringResource(id = R.string.charger_charing)
+                ChargerStatus.ASSIGNED -> stringResource(id = R.string.charger_assigned)
+                ChargerStatus.OUT -> stringResource(id = R.string.charger_out)
+                ChargerStatus.FREE -> stringResource(id = R.string.charger_free)
+            }
+            Text(charger.description,
+                color = MaterialTheme.colors.onBackground,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold)
+            Text(
+                stringResource(id = R.string.charger_status) + statusmessage,
                 color = MaterialTheme.colors.onBackground,
                 fontWeight = FontWeight.Bold)
-            Text("description: " + charger.description,
-                color = MaterialTheme.colors.onBackground,
-                fontWeight = FontWeight.Bold)
+
         }
     }
 }

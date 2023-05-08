@@ -13,3 +13,7 @@ val VeryLightGray = Color(0xFFC5C5C5)
 val Red = Color(0xfff44336)
 val Green = Color(0xff4caf50)
 val DarkGreen = Color(0xFF3AAC3F)
+
+val Charger_free = Color(0xff4cb349)
+val Charger_out = Color(0xffc14848)
+val Charger_used = Color(0xFFEB9C3D)
