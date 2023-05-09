@@ -130,9 +130,17 @@ async function handleChange(change : fs.QueryDocumentSnapshot<fs.DocumentData>){
                         joinDocs.forEach(e => {
                             //confirmed dat er bij de foute paal wordt geladen
                             //de paal waar aan ge-assigned was kan nu gebruikt worden om de (eventuele) persoon waarvan gestolen is te assignen
-                            swapcharger = chargersCollection.doc(e.data().assigned)
-                            console.log("bozo laadt op foute plek op")
-                            e.ref.update({status: STATUS_COMPLETE});
+                            try{
+                                const joindoc = e.data();
+                                if(joindoc.assigned){
+                                    swapcharger = chargersCollection.doc(joindoc.assigned)
+                                }
+                                console.log("bozo laadt op foute plek op")
+                                e.ref.update({status: STATUS_COMPLETE});
+                            }catch(err){
+                                console.error(err);
+                            }
+                            
                         })
 
                     }
@@ -187,17 +195,22 @@ async function getFreeChargerIfExists(chargersCollection : fs.CollectionReferenc
 }
 
 async function sendNotification(userId : string, content: fcm.Notification){
-    const fcmtoken = (await users.doc(userId).get()).data().fcmtoken
+    try{
+        const fcmtoken = (await users.doc(userId).get()).data().fcmtoken
 
-    if(fcmtoken){
-        const message : fcm.TokenMessage = {
-            notification : content,
-            token : fcmtoken
+        if(fcmtoken){
+            const message : fcm.TokenMessage = {
+                notification : content,
+                token : fcmtoken
+            }
+            messaging.send(message)
+        }else{
+            console.error("GEEN FCMTOKEN BIJ USER")
         }
-        messaging.send(message)
-    }else{
-        console.error("GEEN FCMTOKEN BIJ USER")
+    }catch(err){
+
     }
+    
 }
 
 async function setProgram(program : any, locationRef : fs.DocumentReference){
@@ -227,7 +240,11 @@ async function assignUserToCharger(joinDoc : fs.DocumentSnapshot, chargerDoc : f
 
     setTimeout(() => {
         console.log("expiring...")
-        expireAssignment(chargerDoc.ref, joinDoc.ref, expiretimestamp)
+        try{
+            expireAssignment(chargerDoc.ref, joinDoc.ref, expiretimestamp)
+        }catch(err){
+            console.error(err);
+        }
     }, Math.abs(expiretime.getTime() - now.getTime()));
 }
 
@@ -235,7 +252,9 @@ async function expireAssignment(chargerDoc : fs.DocumentReference, joinDoc : fs.
     const charger = (await chargerDoc.get()).data();
     const join = (await joinDoc.get()).data();
     const topOfLine = await getTopOfLine(joinDoc.parent)
-    const queueEmpty = topOfLine == undefined
+    const queueEmpty = topOfLine == undefined;
+
+    if(join == undefined) return;
 
     console.log(join);
     console.log(chargerDoc.id);
