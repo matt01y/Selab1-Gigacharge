@@ -284,7 +284,7 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success,
             }
         }
         Box(Modifier.height(500.dp)) {
-            ChargerListComposable(chargers = location.chargers)
+            ChargerListComposable(chargers = location.chargers, location.assignedChargerId)
         }
 
     }

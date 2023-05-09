@@ -4,14 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -21,14 +18,13 @@ import be.ugent.gigacharge.model.location.charger.ChargerStatus
 import be.ugent.gigacharge.model.location.charger.UserField
 import be.ugent.gigacharge.model.location.charger.UserType
 import androidx.compose.ui.res.stringResource
-import be.ugent.gigacharge.resources
 import be.ugent.gigacharge.R
 import be.ugent.gigacharge.ui.theme.Charger_free
 import be.ugent.gigacharge.ui.theme.Charger_out
 import be.ugent.gigacharge.ui.theme.Charger_used
 
 @Composable
-fun ChargerListComposable(chargers : List<Charger>) {
+fun ChargerListComposable(chargers : List<Charger>, assignId: String?) {
     Box(
         Modifier
             .fillMaxSize()
@@ -47,7 +43,7 @@ fun ChargerListComposable(chargers : List<Charger>) {
         LazyColumn(Modifier.padding(top = 40.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)) {
             items(chargers.size) { index ->
-                ChargerListElementComposable(chargers[index])
+                ChargerListElementComposable(chargers[index], assignId)
             }
         }
     }
@@ -58,10 +54,16 @@ Dit maakt een UI blok die een charger beschrijft.
 Het wordt gebruikt in de ChargerListComposable
  */
 @Composable
-fun ChargerListElementComposable(charger: Charger) {
+fun ChargerListElementComposable(charger: Charger, assignId : String?) {
     val statuscolor = when(charger.status){
         ChargerStatus.CHARGING -> Charger_used
-        ChargerStatus.ASSIGNED -> Charger_used
+        ChargerStatus.ASSIGNED -> {
+            if(charger.id == assignId){
+                Charger_free
+            }else{
+                Charger_used
+            }
+        }
         ChargerStatus.OUT -> Charger_out
         ChargerStatus.FREE -> Charger_free
     }
@@ -113,5 +115,5 @@ fun ChargerListComposablePreview() {
             ChargerStatus.FREE,
             UserField.Null,
             UserType.USER),
-    ))
+    ), null)
 }
