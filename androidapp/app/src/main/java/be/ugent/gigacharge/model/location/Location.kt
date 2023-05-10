@@ -38,4 +38,10 @@ data class Location(
 
     val amIJoined: Boolean
         get() = queue is QueueState.Joined
+
+    val assignedChargerId : String?
+        get() = when(queue){
+                    is QueueState.Assigned -> queue.charger.id
+                    else -> null
+                }
 }
