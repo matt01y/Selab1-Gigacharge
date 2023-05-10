@@ -62,7 +62,7 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
 
         locationsnap.forEach { snap ->
             val res = refToLocation(locationCollection.document(snap.id))
-            newmap.put(res.id, res)
+            newmap[res.id] = res
             results.add(res)
         }
 
@@ -83,7 +83,7 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
         val locid = loc.id
 
         queueCollection(locid).add(
-            hashMapOf<String, Any>(
+            hashMapOf(
                 USERID_FIELD to accountService.currentUserId,
                 JOINEDAT_FIELD to FieldValue.serverTimestamp(),
                 STATUS_FIELD to STATUS_WAITING
@@ -111,14 +111,14 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
     }
 
     //TODO: testen
-    override suspend fun updateLocation(locidstr : String): Location? {
-        if(locationMap.keys.contains(locidstr)){
-            val newloc = refToLocation(locationCollection.document(locidstr))
-            locationMap[locidstr] = newloc
+    override suspend fun updateLocation(locId : String): Location? {
+        return if(locationMap.keys.contains(locId)){
+            val newloc = refToLocation(locationCollection.document(locId))
+            locationMap[locId] = newloc
             Log.println(Log.INFO, "queueupdate", locationMap.toMap().toString())
-            return newloc
+            newloc
         }else{
-            return null
+            null
         }
     }
 
@@ -182,7 +182,8 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
 
                     STATUS_ASSIGNED -> {
                         Log.i("queue", "assigned gevonden")
-                        val mycharger = chargers.filter { it.id == myJoinEvent.getString("assigned") }.firstOrNull()
+                        val mycharger =
+                            chargers.firstOrNull { it.id == myJoinEvent.getString("assigned") }
                         Log.i("queue", chargers.toString())
                         val expiretime = myJoinEvent.getTimestamp(EXPIRES_FIELD)
                             ?: Timestamp.now() //TODO: deze null case beter maken
@@ -224,6 +225,5 @@ constructor(private val firestore: FirebaseFirestore, private val accountService
         private const val STATUS_ASSIGNED = "assigned"
         private const val STATUS_LEFT = "left"
         private const val EXPIRES_FIELD = "expires"
-        private const val TIMESTAMP_FIELD = "timestamp"
     }
 }

@@ -16,31 +16,19 @@ limitations under the License.
 
 package be.ugent.gigacharge.model.service.impl
 
-import android.content.res.Resources
 import android.util.Log
-import androidx.compose.ui.res.stringResource
-import be.ugent.gigacharge.R
 import be.ugent.gigacharge.data.local.models.Profile
 import be.ugent.gigacharge.model.AuthenticationError
-import androidx.compose.runtime.snapshotFlow
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import be.ugent.gigacharge.model.User
 import be.ugent.gigacharge.model.service.AccountService
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QuerySnapshot
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import kotlin.properties.Delegates
@@ -55,10 +43,10 @@ class AccountServiceImpl @Inject constructor(
     override val hasUser: Boolean
         get() = auth.currentUser != null
 
-    val userCollection: CollectionReference
+    private val userCollection: CollectionReference
         get() = firestore.collection(USERS_COLLECTION_NAME)
 
-    private val currentUserState: MutableStateFlow<FirebaseUser?> = MutableStateFlow(null);
+    private val currentUserState: MutableStateFlow<FirebaseUser?> = MutableStateFlow(null)
     override val currentUser: Flow<Profile> = currentUserState.asStateFlow().transform { user ->
         if (user != null) {
             val userDoc = userCollection.document(user.uid).get().await()
@@ -82,7 +70,7 @@ class AccountServiceImpl @Inject constructor(
 
     override suspend fun createAnonymousAccount() {
         auth.signInAnonymously().await()
-        Log.println(Log.INFO, "frick", "userid: ${currentUserId}")
+        Log.println(Log.INFO, "frick", "userid: $currentUserId")
     }
 
     override suspend fun deleteAccount() {
@@ -101,7 +89,7 @@ class AccountServiceImpl @Inject constructor(
     }
 
     override suspend fun tryEnable(cardNumber: String) {
-        val enablerequest = hashMapOf<String, Any>(
+        val enablerequest = hashMapOf(
             CARDNUMBER_FIELD to cardNumber,
             TIMESTAMP_FIELD to FieldValue.serverTimestamp()
         )
@@ -155,12 +143,8 @@ class AccountServiceImpl @Inject constructor(
     }
 
     override val isEnabledObservers = mutableListOf<((Boolean) -> Unit)>()
-    var isEnabledObservable: Boolean by Delegates.observable(false) { prop, old, new ->
+    private var isEnabledObservable: Boolean by Delegates.observable(false) { _, _, new ->
         isEnabledObservers.forEach { (it(new)) }
-    }
-
-    override suspend fun init() {
-
     }
 
     override fun sendToken(token: String) {
@@ -178,9 +162,7 @@ class AccountServiceImpl @Inject constructor(
 
     companion object {
         private const val TIMEOUT_TIME = 5000L
-        private const val LINK_ACCOUNT_TRACE = "linkAccount"
         private const val USERS_COLLECTION_NAME = "users"
-        private const val WHITELIST_COLLECTION = "whitelist"
         private const val CARDNUMBER_FIELD = "kaartnummer"
         private const val TIMESTAMP_FIELD = "timestamp"
         

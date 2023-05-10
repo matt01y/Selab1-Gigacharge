@@ -31,7 +31,7 @@ fun MainScreenNotificationComposable(
             )
             .padding(16.dp)
     ) {
-        Column() {
+        Column {
             Text(
                 text = notificationText,
                 textAlign = TextAlign.Center,

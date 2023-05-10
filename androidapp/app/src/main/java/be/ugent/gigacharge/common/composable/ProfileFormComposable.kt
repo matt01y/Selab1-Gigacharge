@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.sp
 import be.ugent.gigacharge.R
 import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 import be.ugent.gigacharge.ui.theme.Red
-import androidx.compose.ui.res.stringResource;
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun CardNumberBox(
@@ -27,7 +27,7 @@ fun CardNumberBox(
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column() {
+        Column {
             Text(text = stringResource(R.string.card_number),
                 color = MaterialTheme.colors.onBackground,
                 fontSize = 20.sp
@@ -78,7 +78,7 @@ fun ProfileFormComposable(
 ) {
     var cardNumberState by remember { mutableStateOf(cardNumber) }
 
-    Column() {
+    Column {
         // CardNumber
         CardNumberBox(cardNumberState, { cardNumberState = it }, readOnly)
         // Buttons

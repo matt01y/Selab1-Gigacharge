@@ -47,7 +47,7 @@ fun GigaChargeApp(finishApp : () -> Unit) {
                 },
                 scaffoldState = appState.scaffoldState
             ) {
-                Navigation(finishApp = finishApp);
+                Navigation(finishApp = finishApp)
             }
         }
     }
@@ -56,7 +56,7 @@ fun GigaChargeApp(finishApp : () -> Unit) {
 @OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
-fun aa() {
+fun Aa() {
     GigaChargeApp(finishApp = {})
 }
 
@@ -69,7 +69,7 @@ fun rememberAppState(
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) =
     remember(scaffoldState, navController, snackbarManager, resources, coroutineScope) {
-        GigaChargeAppState(scaffoldState, navController, snackbarManager, resources, coroutineScope)
+        GigaChargeAppState(scaffoldState, snackbarManager, resources, coroutineScope)
     }
 
 @Composable

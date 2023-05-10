@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.ugent.gigacharge.domain.location.GetLocationsUseCase
 import be.ugent.gigacharge.domain.location.SetLocationUseCase
-import be.ugent.gigacharge.domain.location.ToggleFavoriteLocationUseCase
 import be.ugent.gigacharge.features.LocationsUiState
 import be.ugent.gigacharge.model.location.Location
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,8 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LocationViewModel @Inject constructor(
     getLocationsUseCase: GetLocationsUseCase,
-    private val setLocationUseCase: SetLocationUseCase,
-    private val toggleFavoriteLocationUseCase: ToggleFavoriteLocationUseCase
+    private val setLocationUseCase: SetLocationUseCase
 ) : ViewModel() {
     val locationsUiState: StateFlow<LocationsUiState> =
         getLocationsUseCase().map { LocationsUiState.Success(it) }
@@ -27,9 +25,5 @@ class LocationViewModel @Inject constructor(
 
     fun setLocation(location: Location) {
         setLocationUseCase(location)
-    }
-
-    fun toggleFavorite(location: Location) {
-        toggleFavoriteLocationUseCase(location)
     }
 }

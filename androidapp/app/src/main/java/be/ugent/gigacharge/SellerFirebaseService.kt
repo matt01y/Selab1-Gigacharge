@@ -28,7 +28,7 @@ class SellerFirebaseService
         Log.i("SellerFirebaseService ", "empty token listener :: $token")
     }
 
-    var token: String? = null
+    private var token: String? = null
 
     fun hasToken(): Boolean {
         return token != null
