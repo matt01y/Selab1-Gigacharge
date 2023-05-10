@@ -3,9 +3,10 @@ package be.ugent.gigacharge.common.composable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.StarOutline
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,10 +49,9 @@ fun VestigingButton(
 @Composable
 fun LocationButtonComposable(
     setLocation: () -> Unit,
-    toggleFavorite: () -> Unit,
     location: Location,
-    title: Boolean = false,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    title: Boolean = false
 ) {
     Row(
         modifier
@@ -60,23 +60,6 @@ fun LocationButtonComposable(
             .background(MaterialTheme.colors.background, shape = RoundedCornerShape(5.dp))
     ) {
         VestigingButton(title, location, setLocation)
-        IconButton(
-            toggleFavorite,
-            Modifier
-                .fillMaxHeight()
-                .weight(0.15F),
-        ) {
-            Icon(
-                //Default sinds dat we de fvorite nog niet kennen op basis vn location
-                Icons.Outlined.StarOutline,
-                "Make favorite",
-                //Jarne versie:
-                //if (location.favorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                //if (location.favorite) "Remove favorite" else "Make favorite",
-                Modifier.size(40.dp),
-                tint = Color(1.0F, 0.75F, 0.0F, 1.0F)
-            )
-        }
     }
 }
 
@@ -86,7 +69,6 @@ fun LocationButtonComposablePreview() {
     GigaChargeTheme {
         LocationButtonComposable(
             {},
-            {},
             Location(
                 "",
                 "Roularta Rouselare",
@@ -95,7 +77,7 @@ fun LocationButtonComposablePreview() {
                 0,
                 listOf()
             ),
-            false
+            title = false
         )
     }
 }

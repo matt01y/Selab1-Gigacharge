@@ -20,7 +20,7 @@ import be.ugent.gigacharge.common.composable.BasicButton
 import be.ugent.gigacharge.common.composable.CardNumberBox
 import be.ugent.gigacharge.common.ext.basicButton
 import be.ugent.gigacharge.R.string as AppText
-import androidx.compose.ui.res.stringResource;
+import androidx.compose.ui.res.stringResource
 import be.ugent.gigacharge.model.AuthenticationError
 
 @Composable

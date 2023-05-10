@@ -19,13 +19,14 @@ class GigaChargeActivity : AppCompatActivity() {
     // Declare the launcher at the top of your Activity/Fragment:
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            // FCM SDK (and your app) can post notifications.
-        } else {
-            // TODO: Inform user that that your app will not show notifications.
-        }
-    }
+    ) {}
+//    { isGranted: Boolean ->
+//        if (isGranted) {
+//            // FCM SDK (and your app) can post notifications.
+//        } else {
+//            // TODO: Inform user that that your app will not show notifications.
+//        }
+//    }
 
 
     private fun askNotificationPermission() {
@@ -51,9 +52,9 @@ class GigaChargeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        askNotificationPermission();
+        askNotificationPermission()
 
-        setContent { GigaChargeApp() {finish()} }
+        setContent { GigaChargeApp {finish()} }
     }
 
 

@@ -64,7 +64,6 @@ fun LocationScreen(
                                         viewModel.setLocation(location)
                                         onBackArrowClick()
                                     },
-                                    { viewModel.toggleFavorite(location) },
                                     location,
                                     modifier = Modifier.padding(0.dp, 8.dp)
                                 )
