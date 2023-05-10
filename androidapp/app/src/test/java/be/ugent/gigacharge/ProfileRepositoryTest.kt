@@ -2,14 +2,7 @@ package be.ugent.gigacharge
 
 import be.ugent.gigacharge.data.ProfileRepository
 import be.ugent.gigacharge.model.service.AccountService
-import be.ugent.gigacharge.model.service.QueueService
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.single
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.test.runTest
-import org.junit.Assert.*
 import org.junit.Before
-import org.junit.Test
 import org.mockito.kotlin.mock
 
 class ProfileRepositoryTest {
@@ -21,11 +14,6 @@ class ProfileRepositoryTest {
         accountService = mock()
         repo = ProfileRepository(accountService)
     }
-
-//    @Test(expected = Throwable::class)
-//    fun getProfileShouldReturnEmptyFlow() = runTest {
-//        assertNotNull(repo.getProfile().firstOrNull())
-//    }
 
 //    @Test
 //    fun getProfileShouldReturnHiddenProfileState() = runTest {
