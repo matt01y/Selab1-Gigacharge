@@ -32,7 +32,7 @@ class MainViewModel @Inject constructor(
     private val joinLeaveQueueUseCase: JoinLeaveQueueUseCase,
     // Location
     getLocationUseCase: GetLocationUseCase,
-    updateCurrentLocationUseCase: UpdateCurrentLocationUseCase,
+    private val updateCurrentLocationUseCase: UpdateCurrentLocationUseCase,
     logService: LogService
 ) : GigaChargeViewModel(logService) {
     val profileUiState: StateFlow<ProfileUiState> =
@@ -51,6 +51,12 @@ class MainViewModel @Inject constructor(
                     updateCurrentLocationUseCase()
                 }
             }
+        }
+    }
+
+    fun refreshButtonPressed(){
+        launchCatching {
+            updateCurrentLocationUseCase()
         }
     }
 

@@ -32,6 +32,14 @@
         <item quantity="other">Er zijn nog %d gebruikers voor u aan de beurt.</item>
     </plurals>
 
+    <string name="charger_charing">In gebruik</string>
+    <string name="charger_out">Buiten gebruik</string>
+    <string name="charger_free">Vrij om te gebruiken</string>
+    <string name="charger_assigned">In gebruik</string>
+
+    <string name="charger_status">status: </string>
+
+
     <!-- ProfileForm -->
     <string name="card_number">Kaartnummer</string>
     <string name="delete_account">Verwijder account</string>

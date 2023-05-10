@@ -1,7 +1,9 @@
 package be.ugent.gigacharge.common.composable
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
@@ -15,12 +17,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import be.ugent.gigacharge.ui.theme.GigaChargeTheme
 
 @Composable
-fun MainHeaderComposable(onProfileSelectClick: () -> Unit, headerContent: @Composable () -> Unit) {
+fun MainHeaderComposable(onProfileSelectClick: () -> Unit, onLogoClick : () -> Unit, headerContent: @Composable () -> Unit, ) {
     Column(Modifier.background(MaterialTheme.colors.primary)) {
         Column(
             Modifier.padding(10.dp),
@@ -28,7 +33,9 @@ fun MainHeaderComposable(onProfileSelectClick: () -> Unit, headerContent: @Compo
         ) {
             // Title and profile
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Row(Modifier.weight(0.85F), horizontalArrangement = Arrangement.Center) {
+                Row(Modifier.weight(0.85F).pointerInput(Unit){
+                                                             detectTapGestures(onTap = { onLogoClick() } )
+                }, horizontalArrangement = Arrangement.Center) {
                     Text(
                         "GigaCharge",
                         fontSize = 30.sp,
@@ -66,12 +73,12 @@ fun ProfileComposable(onProfileSelectClick: () -> Unit) {
         }
     }
 }
-/*
+
+
 @Preview
 @Composable
 fun MainHeaderComposablePreview() {
-    val location = "Roelarta Roeselare"
     GigaChargeTheme {
-        MainHeaderComposable({}, { LocationButtonComposable({}, { location }) })
+        MainHeaderComposable({ Log.i("yo", "yo") }, { Log.i("yo", "yo")}, { Text("yo") })
     }
-}*/
+}
