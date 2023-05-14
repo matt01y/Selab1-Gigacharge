@@ -19,7 +19,7 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.*
 
-const val STARTID = "roeselare"
+const val STARTID: String = "roeselare"
 class LocationRepositoryTest {
     private var queueService: QueueService = mock()
     private lateinit var repo: LocationRepository
@@ -49,8 +49,41 @@ class LocationRepositoryTest {
     }
 
     @Test
+    fun getLocationShouldReturnALocationEvenIfStartIDIsNULLIfThereAreLocations() = runTest {
+        val preferences: Preferences = mock {
+            this.on {it[any<Preferences.Key<String>>()] }.thenReturn(null)
+        }
+        whenever(dataStore.data).thenReturn(flowOf(preferences))
+        repo = LocationRepository(queueService, accountService, dataStore)
+        val loc = Location("123","naam", QueueState.NotJoined, LocationStatus.FREE, 0, listOf())
+        whenever(queueService.locationMap).thenReturn(mutableStateMapOf(Pair("aa", loc)))
+        assertEquals(loc, repo.getLocation().first())
+    }
+
+    @Test(expected = Error::class)
+    fun getLocationShouldReturnEmptyFlowWhenThereAreNoLocationsEvenIfStartIDIsNULL() = runTest {
+        val preferences: Preferences = mock {
+            this.on {it[any<Preferences.Key<String>>()] }.thenReturn(null)
+        }
+        whenever(dataStore.data).thenReturn(flowOf(preferences))
+        repo = LocationRepository(queueService, accountService, dataStore)
+        whenever(queueService.locationMap).thenReturn(mutableStateMapOf())
+        assertNotNull(repo.getLocation().firstOrNull())
+    }
+
+    @Test
     fun locationIdFlowShouldContainStartIDInTheStart() = runTest {
         assertEquals(STARTID, repo.locationIdFlow.value)
+    }
+
+    @Test
+    fun locationIdFlowShouldBeEmptyIfDataStoreIsEmpty() = runTest {
+        val preferences: Preferences = mock {
+            this.on {it[any<Preferences.Key<String>>()] }.thenReturn(null)
+        }
+        whenever(dataStore.data).thenReturn(flowOf(preferences))
+        repo = LocationRepository(queueService, accountService, dataStore)
+        assertEquals(null, repo.locationIdFlow.value)
     }
 
     @Test
@@ -95,6 +128,27 @@ class LocationRepositoryTest {
 //        verify(dataStore, times(1)).data
 //        verify(dataStore, times(1)).edit { any() }
 //    }
+
+    @Test
+    fun getLocationsShouldReturnEmptyListWhenThereAreNoLocations() = runTest {
+        whenever(queueService.locationMap).thenReturn(mutableStateMapOf())
+        assertEquals(listOf<Location>(), repo.getLocations().first())
+    }
+
+    @Test
+    fun getLocationsShouldReturnCorrectAmountOfLocationsTestA() = runTest {
+        val loc1 = Location("1","naam", QueueState.NotJoined, LocationStatus.FREE, 0, listOf())
+        val loc2 = Location("2","naam", QueueState.NotJoined, LocationStatus.FREE, 0, listOf())
+        whenever(queueService.locationMap).thenReturn(mutableStateMapOf(Pair("1", loc1),Pair("2", loc2)))
+        assertEquals(2, repo.getLocations().first().size)
+    }
+
+    @Test
+    fun getLocationsShouldReturnCorrectAmountOfLocationsTestB() = runTest {
+        val loc1 = Location("1","naam", QueueState.NotJoined, LocationStatus.FREE, 0, listOf())
+        whenever(queueService.locationMap).thenReturn(mutableStateMapOf(Pair("1", loc1)))
+        assertEquals(1, repo.getLocations().first().size)
+    }
 
     @Test
     fun updateLocationsShouldCallQueueServiceDotUpdateLocationsWhenAccountServiceEnabled() = runTest {
