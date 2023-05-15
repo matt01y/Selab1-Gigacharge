@@ -10,6 +10,26 @@ public class MyWorld extends World {
     List<Charger> chargers;
     public MyWorld() throws IOException, ExecutionException, InterruptedException {
         super(720, 850, 1);
+        
+        
+        // File path is passed as parameter
+        //File file = new File(
+        //    "/home/robin/docs/code/project2023-groep-3/simulator/config.txt");
+ 
+        //BufferedReader br
+        //    = new BufferedReader(new FileReader(file));
+ 
+        String st;
+        //Config.userids.clear();
+        // there is character in a string
+        /*while ((st = br.readLine()) != null){
+            String[] line = st.split(",");
+            Config.userids.add(line[0]);
+            Config.userids.add(line[1]);
+            // Print the string
+            System.out.println(st);
+        }*/
+        
         setPaintOrder(CarActor.class, ChargerActor.class);
         System.out.println("start");
         refresh();

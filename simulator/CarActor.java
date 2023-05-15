@@ -34,11 +34,12 @@ public class CarActor extends Draggable{
         System.out.println(droppedOn);
         if(droppedOn != null && droppedOn != chargingOn && (droppedOn.charger.status == Charger.Status.FREE || droppedOn.charger.status == Charger.Status.ASSIGNED)){
             System.out.println("FOUND CHARGER");
+            if(chargingOn != null) chargingOn.setFree();
             chargingOn = droppedOn;
             chargingOn.chargeCar(this);
         }else{
             System.out.println("no charger");
-            if(chargingOn != null){
+            if(chargingOn != null && droppedOn != chargingOn){
                 chargingOn.setFree();
                 chargingOn = null;
             }
