@@ -79,7 +79,13 @@ fun ChargerListElementComposable(charger: Charger, assignId : String?) {
         Column() {
             val statusmessage = when(charger.status){
                 ChargerStatus.CHARGING -> stringResource(id = R.string.charger_charing)
-                ChargerStatus.ASSIGNED -> stringResource(id = R.string.charger_assigned)
+                ChargerStatus.ASSIGNED -> {
+                    if(charger.id == assignId){
+                        stringResource(id = R.string.charger_assigned)
+                    }else{
+                        stringResource(id = R.string.charger_charing)
+                    }
+                }
                 ChargerStatus.OUT -> stringResource(id = R.string.charger_out)
                 ChargerStatus.FREE -> stringResource(id = R.string.charger_free)
             }
