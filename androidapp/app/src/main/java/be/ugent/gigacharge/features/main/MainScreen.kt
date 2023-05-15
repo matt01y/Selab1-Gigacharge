@@ -92,7 +92,7 @@ fun MainScreen(
             bottomBar = {
 
                 val l = locationUiState
-                if (!(l is LocationUiState.Success && l.location.status == LocationStatus.OPEN)) {
+                if (!(l is LocationUiState.Success && (l.location.status == LocationStatus.OPEN || l.location.queue is QueueState.Assigned))) {
                     Box(Modifier.height(IntrinsicSize.Max)) {
                         // Join/Leave button
                         if (l is LocationUiState.Success) {
@@ -203,7 +203,7 @@ fun QueueInfoComposable(locationUiState : LocationUiState.Success) {
 
                 when (queueStatus) {
                     is QueueState.Assigned -> {
-                        val sdf = SimpleDateFormat("hh:mm")
+                        val sdf = SimpleDateFormat("HH:mm")
                         MainScreenNotificationComposable(
                             notificationText = stringResource(R.string.your_turn),
                             description = "${stringResource(R.string.your_assigned_charger)} ${queueStatus.charger.description}",

@@ -35,7 +35,7 @@
     <string name="charger_charing">In gebruik</string>
     <string name="charger_out">Buiten gebruik</string>
     <string name="charger_free">Vrij om te gebruiken</string>
-    <string name="charger_assigned">In gebruik</string>
+    <string name="charger_assigned">Toegewezen aan u</string>
 
     <string name="charger_status">status: </string>
 
