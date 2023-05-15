@@ -57,4 +57,9 @@ class ProfileRepository @Inject constructor(
         // Try to enable the account
         accountService.tryEnable(cardNumber)
     }
+
+
+    fun getIsVisibleFlow(): MutableStateFlow<Boolean> {
+        return isVisibleFlow
+    }
 }
