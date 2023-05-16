@@ -1,6 +1,9 @@
 buildscript {
     ext {
         compose_version = '1.3.0-beta02'
+        coreTestingVersion = '2.1.0'
+        espressoVersion = '3.4.0'
+        kotlinVersion = '1.6.10'
     }
     repositories {
         google()

@@ -1,12 +1,19 @@
 package be.ugent.gigacharge
 
-import androidx.test.platform.app.InstrumentationRegistry
+import androidx.activity.compose.setContent
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.test.espresso.Espresso.pressBack
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-
+import be.ugent.gigacharge.features.main.MainScreen
+import org.junit.Assert.*
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-
-import org.junit.Assert.*
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -14,11 +21,30 @@ import org.junit.Assert.*
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 @RunWith(AndroidJUnit4::class)
-class ExampleInstrumentedTest {
+class MainScreenTest {
+
+    @get:Rule
+    val composeTestRule = createComposeRule()
+
+    @OptIn(ExperimentalMaterialApi::class)
+    @get:Rule
+    val activityScenarioRule = ActivityScenarioRule(GigaChargeActivity::class.java)
+
+    @OptIn(ExperimentalMaterialApi::class)
     @Test
-    fun useAppContext() {
-        // Context of the app under test.
-        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("be.ugent.gigacharge", appContext.packageName)
+    fun testWhenBackButtonPressedFinishAppShouldBeCalled() {
+        val finishApp = mock<() -> Unit>()
+        activityScenarioRule.scenario.onActivity { activity ->
+            activity.setContent {
+                MainScreen(
+                    onRegisterSelectClick = { /*TODO*/ },
+                    onLocationSelectClick = { /*TODO*/ },
+                    finishApp = finishApp,
+                    viewModel = hiltViewModel()
+                )
+            }
+        }
+        pressBack()
+        verify(finishApp)
     }
 }
